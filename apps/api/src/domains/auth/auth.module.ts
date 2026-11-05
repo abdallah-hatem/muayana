@@ -7,7 +7,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { LOGIN_ATTEMPT_STORE } from './interfaces/login-attempt-store.interface';
 import { AuthUserRepository } from './repositories/auth-user.repository';
-import { InMemoryLoginAttemptStore } from './repositories/in-memory-login-attempt.store';
+import { PrismaLoginAttemptStore } from './repositories/prisma-login-attempt.store';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 /** Sign-in, the token strategy the global JwtAuthGuard uses, and the engineer's own account. */
@@ -27,7 +27,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     JwtStrategy,
     AuthService,
     AuthUserRepository,
-    { provide: LOGIN_ATTEMPT_STORE, useClass: InMemoryLoginAttemptStore },
+    { provide: LOGIN_ATTEMPT_STORE, useClass: PrismaLoginAttemptStore },
   ],
 })
 export class AuthModule {}

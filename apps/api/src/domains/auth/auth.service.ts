@@ -19,10 +19,9 @@ import { CLOCK, type Clock } from '../../common/clock/clock';
 import type { JwtPayload } from '../../common/interfaces/current-user.interface';
 import { hashPassword, verifyPassword } from '../../common/utils/password.util';
 import {
-  isLoginLocked,
-  loginAttemptKey,
+  loginAttemptKeys,
+  loginLockedFor,
   loginWindowStart,
-  retryAfterSeconds,
 } from './auth.pure';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from './dto/login.dto';
@@ -49,19 +48,22 @@ export class AuthService {
   ) {}
 
   async login(dto: LoginDto, ip: string): Promise<LoginResponse> {
-    const key = loginAttemptKey(ip, dto.email);
+    const keys = loginAttemptKeys(ip, dto.email);
+    const keyList = [keys.perIp, keys.perEmail];
     const now = this.clock.now();
     const since = loginWindowStart(now);
 
-    if (isLoginLocked(await this.attempts.countFailuresSince(key, since))) {
-      const oldest = await this.attempts.oldestFailureSince(key, since);
+    const windows = await this.attempts.failuresSince(keyList, since);
+    const wait = loginLockedFor(
+      { perIp: windows.get(keys.perIp), perEmail: windows.get(keys.perEmail) },
+      now,
+    );
+    if (wait !== null) {
       throw new HttpException(
         {
           message: 'Too many failed sign-in attempts. Try again later.',
           error: ErrorCode.TOO_MANY_REQUESTS,
-          data: {
-            retryAfterSeconds: oldest ? retryAfterSeconds(oldest, now) : 1,
-          },
+          data: { retryAfterSeconds: wait },
         },
         HttpStatus.TOO_MANY_REQUESTS,
       );
@@ -73,14 +75,14 @@ export class AuthService {
       user?.passwordHash ?? (await this.getDummyHash()),
     );
     if (!user || !valid) {
-      await this.attempts.recordFailure(key, now);
+      await this.attempts.recordFailure(keyList, now, since);
       throw new UnauthorizedException({
         message: INVALID_CREDENTIALS_MESSAGE,
         error: AuthErrorCode.INVALID_CREDENTIALS,
       });
     }
 
-    await this.attempts.clear(key);
+    await this.attempts.clear(keyList);
     const { passwordHash: _hash, ...publicUser } = user;
     const payload: JwtPayload = { sub: user.id };
     return {
