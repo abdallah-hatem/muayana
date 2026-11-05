@@ -7,6 +7,22 @@ export const USER_NAME_MAX_LENGTH = 120;
 /** Access token lifetime (contract: JWT, 7 days). */
 export const ACCESS_TOKEN_TTL_DAYS = 7;
 
+/**
+ * Sign-in rate limit (business §2): this many failed attempts from one IP for one email within
+ * the window, and further attempts get 429 until the oldest failure leaves the window.
+ */
+export const LOGIN_MAX_FAILURES = 5;
+export const LOGIN_FAILURE_WINDOW_MINUTES = 15;
+
+/** Coded auth refusals (the web translates them). */
+export const AuthErrorCode = {
+  /** 401 on login: wrong password and unknown email answer the same (no enumeration). */
+  INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+  /** 400 on change-password: the current password is wrong. */
+  WRONG_PASSWORD: 'WRONG_PASSWORD',
+} as const;
+export type AuthErrorCode = (typeof AuthErrorCode)[keyof typeof AuthErrorCode];
+
 export const normalizeEmail = (email: string): string =>
   email.trim().toLowerCase();
 

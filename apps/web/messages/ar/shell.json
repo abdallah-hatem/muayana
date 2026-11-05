@@ -1,0 +1,16 @@
+{
+  "mainNav": "التنقل الرئيسي",
+  "openSettings": "الإعدادات",
+  "switchLanguage": "التبديل إلى {language}",
+  "toggleTheme": "تبديل الوضع الفاتح / الداكن",
+  "siteSwitcher": {
+    "placeholder": "كل المواقع"
+  },
+  "placeholder": {
+    "body": "هذه الشاشة قادمة قريبًا."
+  },
+  "errors": {
+    "NETWORK_ERROR": "تعذّر الوصول إلى الخادم. تأكد من الاتصال وحاول مرة أخرى.",
+    "generic": "حدث خطأ. حاول مرة أخرى."
+  }
+}
