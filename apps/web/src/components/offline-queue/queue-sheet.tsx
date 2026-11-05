@@ -106,7 +106,8 @@ function QueueThumb({ item, label }: { item: QueueItem; label: string }) {
     <img
       ref={attach}
       alt={label}
-      className="size-16 shrink-0 rounded-md bg-muted object-cover"
+      // A photo that fails to decode keeps its square: no alt text spilling out of it.
+      className="size-16 shrink-0 overflow-hidden rounded-md bg-muted object-cover text-transparent"
     />
   );
 }
@@ -217,9 +218,16 @@ function QueueRow({ item }: { item: QueueItem }) {
 
 /**
  * "N waiting to upload": the queue badge. Hidden when nothing waits; turns red when an item has
- * failed. Opens the queue sheet.
+ * failed. Opens the queue sheet. `compact` (the top bar) shows only the icon and the count on a
+ * phone, the full words from sm up; its accessible name is always the full sentence.
  */
-export function QueueChip({ className }: { className?: string }) {
+export function QueueChip({
+  className,
+  compact = false,
+}: {
+  className?: string;
+  compact?: boolean;
+}) {
   const t = useTranslations('capture.queue');
   const items = useQueueItems();
   const open = useOpenQueueSheet();
@@ -232,16 +240,24 @@ export function QueueChip({ className }: { className?: string }) {
       onClick={open}
       aria-label={`${t('chip', { count })} · ${t('open')}`}
       data-testid="queue-chip"
+      data-failed={failed || undefined}
       className={cn(
-        'inline-flex h-9 shrink-0 press cursor-pointer items-center gap-1.5 rounded-sm px-2.5 type-micro font-bold whitespace-nowrap',
+        'inline-flex h-11 shrink-0 press cursor-pointer items-center gap-1.5 rounded-sm px-2.5 type-micro font-bold whitespace-nowrap',
         failed
           ? 'bg-destructive text-destructive-foreground'
           : 'bg-status-new text-status-new-foreground',
         className,
       )}
     >
-      <CloudOff className="size-4" aria-hidden />
-      {t('chip', { count })}
+      <CloudOff className="size-4 shrink-0" aria-hidden />
+      {compact ? (
+        <>
+          <span className="type-stencil sm:hidden">{count}</span>
+          <span className="hidden sm:inline">{t('chip', { count })}</span>
+        </>
+      ) : (
+        t('chip', { count })
+      )}
     </button>
   );
 }

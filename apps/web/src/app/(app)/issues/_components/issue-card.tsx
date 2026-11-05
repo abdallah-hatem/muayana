@@ -40,10 +40,16 @@ export function IssueCard({ issue }: { issue: Issue }) {
             <StatusChip status={issue.status} />
           </div>
         </div>
-        <p className="line-clamp-2 type-small font-bold break-words">
+        <p
+          dir="auto"
+          className="line-clamp-2 text-start type-small font-bold break-words"
+        >
           {issue.description || t('noDescription')}
         </p>
-        <p className="truncate type-micro text-muted-foreground">
+        <p
+          dir="auto"
+          className="truncate text-start type-micro text-muted-foreground"
+        >
           {wherePart(issue)} · {issue.worker?.name ?? t('noWorker')}
         </p>
         {issue.estimatedDate && (

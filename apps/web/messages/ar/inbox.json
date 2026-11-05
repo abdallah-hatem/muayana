@@ -35,6 +35,8 @@
     "mergeTitle": "دمج هاتين الملاحظتين؟",
     "mergeBody": "تنتقل صور #{source} إلى #{target}، وتُحذف #{source}.",
     "mergeConfirm": "دمج",
-    "mergeDone": "تم الدمج في #{number}."
+    "mergeDone": "تم الدمج في #{number}.",
+    "chooseCategory": "الصنعة",
+    "categoryTitle": "صنعة الملاحظات المحددة"
   }
 }

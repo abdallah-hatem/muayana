@@ -14,7 +14,11 @@ import { NAV_ITEMS, isActive } from './nav-items';
 import { useShellTitleOverride } from './shell-title';
 import { useSwitchLocale } from './use-switch-locale';
 
-/** Title (slot) and site switcher at the start; language, theme and settings at the end. */
+/**
+ * Title (slot), site switcher and upload queue at the start; language, theme and settings at the
+ * end. On a phone (360px) the language and theme live in Settings only, the queue chip shrinks to
+ * its icon and count, and the site switcher takes whatever room is left (ellipsis, never clipped).
+ */
 export function TopBar() {
   const title = useDefaultTitle();
   const override = useShellTitleOverride();
@@ -22,13 +26,13 @@ export function TopBar() {
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between gap-2 border-b-2 border-border bg-background/95 px-4 pt-[max(env(safe-area-inset-top),0.5rem)] pb-2 backdrop-blur md:px-6">
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
         <h1 className="max-w-[40vw] shrink-0 truncate type-title">
           {override ?? title}
         </h1>
         <SiteSwitcher />
         {/* The capture screen shows its own badge over the camera view. */}
-        {!isActive(pathname, ROUTES.capture) && <QueueChip />}
+        {!isActive(pathname, ROUTES.capture) && <QueueChip compact />}
       </div>
       <div className="flex shrink-0 items-center gap-1">
         <LanguageToggle />
@@ -87,6 +91,8 @@ function ThemeToggle() {
       size="icon"
       aria-label={t('toggleTheme')}
       title={t('toggleTheme')}
+      // Settings has the theme too: on a phone the bar keeps the room for the title, site and queue.
+      className="hidden sm:inline-flex"
       onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
     >
       {/* Both icons rendered; CSS picks one, so server and client markup match. */}

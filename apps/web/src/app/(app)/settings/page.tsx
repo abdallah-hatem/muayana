@@ -6,9 +6,10 @@ import {
   ManageSection,
   PasswordSection,
   ProfileSection,
+  ThemeSection,
 } from './settings-sections';
 
-/** Profile, the sites and categories managers, language, password and sign-out. */
+/** Profile, the sites and categories managers, language, theme, password and sign-out. */
 export default async function SettingsPage() {
   const me = await getMe();
   const t = await getTranslations('shell');
@@ -24,6 +25,7 @@ export default async function SettingsPage() {
       )}
       <ManageSection />
       <LanguageSection />
+      <ThemeSection />
       <PasswordSection />
       <LogoutSection />
     </div>

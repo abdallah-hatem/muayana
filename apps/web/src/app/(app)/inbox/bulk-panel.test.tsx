@@ -96,7 +96,8 @@ describe('BulkPanel', () => {
 
     await user.click(screen.getByRole('checkbox', { name: 'Select #1' }));
     await user.click(screen.getByRole('checkbox', { name: 'Select #2' }));
-    await user.click(screen.getByRole('button', { name: 'Plastering' }));
+    await user.click(screen.getByRole('button', { name: 'Category' }));
+    await user.click(await screen.findByRole('button', { name: 'Plastering' }));
     await user.click(screen.getByRole('button', { name: 'Set category (2)' }));
 
     await waitFor(() => expect(onChanged).toHaveBeenCalledTimes(1));

@@ -5,6 +5,7 @@ import type {
   CreateWorkerRequest,
   Deleted,
   Issue,
+  IssueStatus,
   Locale,
   Site,
   UpdateCategoryRequest,
@@ -12,7 +13,7 @@ import type {
   UpdateWorkerRequest,
   Worker,
 } from '@muayana/shared';
-import { PAGE_LIMIT_MAX } from '@muayana/shared';
+import { fetchAllPages } from './all-pages';
 import { clientFetch, clientFetchRaw } from './api-client';
 import { toQuery } from './query-string';
 
@@ -103,8 +104,13 @@ export const exportWorkersCsv = (filter: WorkerFilter, lang: Locale) =>
     `/workers/export.csv${toQuery({ ...workerFilterParams(filter), lang })}`,
   );
 
-/** The worker's issues, every status (business §5.7). */
-export const listWorkerIssues = (workerId: string) =>
-  clientFetch<Issue[]>(
-    `/issues${toQuery({ workerId, sort: 'newest', limit: PAGE_LIMIT_MAX })}`,
+/**
+ * Every one of the worker's issues in one status, newest first — all pages, not just the first
+ * 100 (business §5.5 batch send needs every `assigned` one; §5.7 groups show every issue).
+ */
+export const listWorkerIssues = (workerId: string, status: IssueStatus) =>
+  fetchAllPages((page, limit) =>
+    clientFetch<Issue[]>(
+      `/issues${toQuery({ workerId, status, sort: 'newest', page, limit })}`,
+    ),
   );
