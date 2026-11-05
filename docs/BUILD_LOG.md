@@ -5,10 +5,10 @@ Current stage: 7 — Verify · all tasks T1–T12 merged · smoke 20/20 · relea
 
 ## Resume here
 1. UI fix wave (from `build-log/waves/v1/ui-audit.md`): worktrees `D:\Personal\muayana-wt\fix-ui-kit` (shared kit: Select direction + look, calendar locale, overlay layout shift, close/tap targets, not-found) and `D:\Personal\muayana-wt\fix-ui-screens` (inbox bulk blocker, issues table, phone top bar/nav, batch-send paging). Merge both, `npm install`, re-run lint/typecheck/tests + smoke, then a UI re-audit of the fixed screens.
-2. Ship: needs Vercel access (below).
+2. Ship: **on hold — the user chose "keep it local for now" (2026-11-05).** No Vercel/Neon/Blob; `production` branch untouched. Resume when the user asks to deploy.
 
 ## Waiting on the user
-- **Vercel access** (at Ship) — the Vercel CLI isn't signed in on this machine; needed for Neon + Blob + deploys.
+- **Deploy** — on hold by the user's choice (local only). When wanted: `npx vercel login` on this machine, then Ship (Neon + Blob + preview from dev + release PR).
 ## Blocked
 - (none)
 ## Phases
