@@ -15,3 +15,4 @@
 - UI fix wave merged (fix/ui-screens b90871e, fix/ui-kit 705557d) + deploy readiness (74a1081) + DB login lockout (3efb4ac). Merged dev: lint ✔ tc ✔ · shared 49 · api 144 unit + 125 e2e · web 197. Smoke on merged dev: 18 pass, 2 flaky, 2 fail (capture site chip, nav from /capture, overlay-shift desktop) → fix/smoke-after-ui-fixes.
 - Final merged dev (ef85578): lint ✔ tc ✔ · web 200 · smoke 22/22 (+2 desktop-only skips) with no retries. UI re-audit of the fixed screens dispatched.
 - UI re-audit: 18/21 earlier findings fixed; new 1 major + 8 minor + 4 nits → fix/ui-polish.
+- UI polish merged (d3c1b94): lint ✔ tc ✔ · web 205 · api 144 unit · smoke 22/22 on the branch (identical code). Release PR dev → production next.
