@@ -4,7 +4,8 @@
   "switchLanguage": "Switch to {language}",
   "toggleTheme": "Switch light / dark",
   "siteSwitcher": {
-    "placeholder": "All sites"
+    "placeholder": "All sites",
+    "label": "Site"
   },
   "placeholder": {
     "body": "This screen is on its way."

@@ -1,0 +1,40 @@
+{
+  "photoAlt": "Issue #{number}, photo",
+  "noCategories": "No active categories yet. Add them in Settings.",
+  "errors": {
+    "category": "Choose a category.",
+    "description": "Write a short description of the defect."
+  },
+  "placeholders": {
+    "description": "Crack in the wall next to the window, about 40 cm",
+    "location": "Floor 3, flat 7"
+  },
+  "workerHint": "Optional. Only workers of this category are listed.",
+  "back": "Previous issue",
+  "saveNext": "Save & next",
+  "loadFailed": "The inbox couldn't be loaded.",
+  "retry": "Try again",
+  "empty": {
+    "title": "Inbox is clear",
+    "body": "Every captured issue has been sorted.",
+    "toIssues": "See all issues"
+  },
+  "count": "{count, plural, one {# issue to sort} other {# issues to sort}}",
+  "position": "{current} / {total}",
+  "sortOneByOne": "One by one",
+  "selectSeveral": "Select several",
+  "bulk": {
+    "hint": "Select issues to give them one category, or two captures of the same defect to merge them.",
+    "select": "Select #{number}",
+    "selected": "{count, plural, =0 {Nothing selected} one {# selected} other {# selected}}",
+    "setCategory": "Set category ({count})",
+    "categoryDone": "{count, plural, one {Category set on # issue} other {Category set on # issues}}. They stay here until each gets a description.",
+    "merge": "Merge two",
+    "mergeTooManyPhotos": "Together they have more than {max} photos: they can't be merged.",
+    "mergeNotNew": "Only two unsorted issues can be merged.",
+    "mergeTitle": "Merge these captures?",
+    "mergeBody": "The photos of #{source} move to #{target}, and #{source} is removed.",
+    "mergeConfirm": "Merge",
+    "mergeDone": "Merged into #{number}."
+  }
+}

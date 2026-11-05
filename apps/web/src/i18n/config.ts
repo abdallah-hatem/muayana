@@ -10,7 +10,15 @@ export const LOCALE_COOKIE = 'NEXT_LOCALE';
  * UI tasks add their own file instead of editing a shared one. Add a namespace here when its
  * files land.
  */
-export const NAMESPACES = ['common', 'auth', 'shell', 'settings'] as const;
+export const NAMESPACES = [
+  'common',
+  'auth',
+  'shell',
+  'settings',
+  'inbox',
+  'issue',
+  'send',
+] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 
 export function isLocale(value: unknown): value is Locale {
