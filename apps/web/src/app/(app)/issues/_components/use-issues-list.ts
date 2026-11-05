@@ -48,12 +48,21 @@ export function useIssuesList(filter: ParsedIssueFilter) {
   const [loaded, setLoaded] = useState<Loaded>(INITIAL);
   const generation = useRef(0);
   const inFlight = useRef(false);
+  const pending = useRef<AbortController | null>(null);
 
-  /** Starts a request; its answer is applied when it lands, unless a newer one went out. */
+  /**
+   * Starts a request; its answer is applied when it lands, unless a newer one went out. The
+   * request it replaces is aborted: its answer would be dropped anyway.
+   */
   const fetchPage = useCallback((filterKey: string, page: number) => {
     const mine = ++generation.current;
     inFlight.current = true;
-    return clientFetch<Issue[]>(issuesPath(filterKey, page)).then((res) => {
+    pending.current?.abort();
+    const controller = new AbortController();
+    pending.current = controller;
+    return clientFetch<Issue[]>(issuesPath(filterKey, page), {
+      signal: controller.signal,
+    }).then((res) => {
       if (mine !== generation.current) return;
       inFlight.current = false;
       setLoaded((s) => applyPage(s, filterKey, page, res));
@@ -63,6 +72,9 @@ export function useIssuesList(filter: ParsedIssueFilter) {
   useEffect(() => {
     void fetchPage(key, 1);
   }, [key, fetchPage]);
+
+  // Leaving the screen must not leave its request holding a connection the next page needs.
+  useEffect(() => () => pending.current?.abort(), []);
 
   const current = loaded.key === key;
   const error = loaded.errorKey === key;

@@ -86,6 +86,11 @@ for (const locale of ['ar', 'en'] as const) {
 
     await page.goto('/settings/sites');
     await expect(page.getByTestId('screen-sites')).toBeVisible();
+    // Measure the loaded list, not its skeleton: the list landing mid-measure grows <main>.
+    await expect(
+      page.getByTestId('screen-sites').locator('[aria-busy="true"]'),
+    ).toHaveCount(0, { timeout: 30_000 });
+    expect(await gutter(page)).toBeGreaterThan(0);
     const newSite = (locale === 'ar' ? sitesAr : sitesEn).new;
     await expectStill(page, () =>
       page.getByRole('button', { name: newSite }).first().click(),

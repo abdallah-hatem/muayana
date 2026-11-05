@@ -26,9 +26,15 @@ import { toQuery } from './query-string';
 
 export type SiteTab = 'active' | 'archived';
 
-export const listSites = (tab: SiteTab, page: number, limit: number) =>
+export const listSites = (
+  tab: SiteTab,
+  page: number,
+  limit: number,
+  signal?: AbortSignal,
+) =>
   clientFetch<Site[]>(
     `/sites${toQuery({ archived: tab === 'archived' ? 'true' : 'false', page, limit })}`,
+    { signal },
   );
 
 export const createSite = (body: CreateSiteRequest) =>
@@ -82,9 +88,11 @@ export const listWorkers = (
   filter: WorkerFilter,
   page: number,
   limit: number,
+  signal?: AbortSignal,
 ) =>
   clientFetch<Worker[]>(
     `/workers${toQuery({ ...workerFilterParams(filter), page, limit })}`,
+    { signal },
   );
 
 export const getWorker = (id: string) => clientFetch<Worker>(`/workers/${id}`);
