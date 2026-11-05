@@ -9,6 +9,8 @@ import { validateEnv } from './config/env.validation';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './domains/auth/auth.module';
 import { HealthModule } from './domains/health/health.module';
+import { IssuesModule } from './domains/issues/issues.module';
+import { StorageModule } from './common/storage/storage.module';
 
 // Feature modules are added below (additive imports only — see the plan's collision notes).
 // Every route needs a token (global JwtAuthGuard) unless marked @Public().
@@ -23,6 +25,8 @@ import { HealthModule } from './domains/health/health.module';
     ClockModule,
     HealthModule,
     AuthModule,
+    StorageModule,
+    IssuesModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
