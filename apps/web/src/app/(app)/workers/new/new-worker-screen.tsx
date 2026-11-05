@@ -8,7 +8,6 @@ import { toast } from 'sonner';
 import type { Category } from '@muayana/shared';
 import { LoadError } from '@/components/load-error';
 import { PageHeader } from '@/components/page-header';
-import { ShellTitle } from '@/components/shell/shell-title';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { listActiveCategories } from '@/lib/issue-endpoints';
@@ -50,7 +49,6 @@ export function NewWorkerScreen() {
       data-testid="screen-worker-new"
       className="mx-auto flex w-full max-w-2xl flex-col gap-4"
     >
-      <ShellTitle title={t('form.createTitle')} />
       <PageHeader
         title={t('form.createTitle')}
         back={{ href: ROUTES.workers, label: t('form.back') }}

@@ -64,7 +64,7 @@ export function WorkerAvatar({
     <span
       aria-hidden
       className={cn(
-        'flex size-11 shrink-0 items-center justify-center rounded-lg bg-foreground type-heading text-primary',
+        'flex size-11 shrink-0 items-center justify-center rounded-lg bg-foreground type-heading text-primary dark:bg-primary dark:text-primary-foreground',
         className,
       )}
     >

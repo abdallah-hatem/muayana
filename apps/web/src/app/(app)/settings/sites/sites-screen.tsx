@@ -19,7 +19,6 @@ import { ListPager } from '@/components/list-pager';
 import { LoadError } from '@/components/load-error';
 import { PageHeader } from '@/components/page-header';
 import { Segmented } from '@/components/segmented';
-import { ShellTitle } from '@/components/shell/shell-title';
 import { useSiteSelection } from '@/components/site/site-context';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -111,7 +110,6 @@ export function SitesScreen() {
       data-testid="screen-sites"
       className="mx-auto flex w-full max-w-2xl flex-col gap-4"
     >
-      <ShellTitle title={t('title')} />
       <PageHeader
         title={t('title')}
         back={{ href: ROUTES.settings, label: t('back') }}

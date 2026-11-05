@@ -53,7 +53,7 @@ export function SiteSwitcher() {
       >
         <SelectTrigger
           aria-label={t('label')}
-          className="h-9 max-w-32 min-w-0 gap-1.5 rounded-full border-0 bg-secondary px-3 type-small font-bold text-secondary-foreground sm:max-w-60"
+          className="h-9 w-full max-w-32 min-w-0 gap-1.5 rounded-full border-0 bg-secondary px-3 type-small font-bold text-secondary-foreground sm:max-w-60"
         >
           <MapPin className="size-4 shrink-0" aria-hidden />
           <SelectValue placeholder={t('placeholder')} />

@@ -23,7 +23,9 @@ export function TopBar() {
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between gap-2 border-b-2 border-border bg-background/95 px-4 pt-[max(env(safe-area-inset-top),0.5rem)] pb-2 backdrop-blur md:px-6">
       <div className="flex min-w-0 items-center gap-3">
-        <h1 className="truncate type-title">{override ?? title}</h1>
+        <h1 className="max-w-[40vw] shrink-0 truncate type-title">
+          {override ?? title}
+        </h1>
         <SiteSwitcher />
         {/* The capture screen shows its own badge over the camera view. */}
         {!isActive(pathname, ROUTES.capture) && <QueueChip />}
@@ -63,6 +65,8 @@ function LanguageToggle() {
       disabled={busy}
       onClick={() => void switchTo(other)}
       lang={other}
+      // Settings has the language too: on a phone the bar keeps the room for the title and site.
+      className="hidden sm:inline-flex"
     >
       {busy ? (
         <Loader2 className="size-5 animate-spin" aria-hidden />

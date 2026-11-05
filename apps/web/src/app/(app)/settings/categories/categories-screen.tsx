@@ -20,7 +20,6 @@ import { ConfirmSheet } from '@/components/confirm-sheet';
 import { EmptyState } from '@/components/empty-state';
 import { LoadError } from '@/components/load-error';
 import { PageHeader } from '@/components/page-header';
-import { ShellTitle } from '@/components/shell/shell-title';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useApiErrorText } from '@/components/use-api-error-text';
@@ -166,7 +165,6 @@ export function CategoriesScreen() {
       data-testid="screen-categories"
       className="mx-auto flex w-full max-w-2xl flex-col gap-4"
     >
-      <ShellTitle title={t('title')} />
       <PageHeader
         title={t('title')}
         back={{ href: ROUTES.settings, label: t('back') }}

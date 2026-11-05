@@ -26,7 +26,6 @@ import { IssueRow } from '@/components/issue-row';
 import { LoadError } from '@/components/load-error';
 import { PageHeader } from '@/components/page-header';
 import { BatchSendToWorker } from '@/components/send/send-to-worker';
-import { ShellTitle } from '@/components/shell/shell-title';
 import { StatusChip } from '@/components/status-chip';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -149,7 +148,6 @@ export function WorkerView({ initial }: { initial: Worker }) {
       data-testid="screen-worker"
       className="mx-auto flex w-full max-w-2xl flex-col gap-4"
     >
-      <ShellTitle title={worker.name} />
       <PageHeader
         title={worker.name}
         back={{ href: ROUTES.workers, label: t('form.back') }}
