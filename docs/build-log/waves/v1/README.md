@@ -11,3 +11,4 @@
 - T7 (7c6627c) and T8+T9 (4821dfe) merged. All plan tasks T1–T12 are in dev. Next: smoke fix merge, full verify.
 - Verify on merged dev (98f5176): lint ✔ typecheck ✔ · shared 49 · api 128 unit · web 179 (158 in the full run + 21 in two files whose fork worker timed out under load; they pass alone).
 - Full smoke on merged dev (b95b36d, local seeded servers): 20/20 (mobile + desktop). The nav walk fails only on a cold `next dev` route compile — re-run warm passes; not an app bug.
+- UI audit (whole app): 1 blocker, 11 major, 7 minor, 1 nit → fix wave: fix/ui-kit (shared primitives: Select dir/style, calendar locale, overlay layout shift, close/tap targets, not-found) ‖ fix/ui-screens (inbox bulk blocker, issues table, top bar/switcher/queue chip/nav labels at 360, batch-send paging from the release review).
