@@ -209,14 +209,14 @@ describe('dashboard loading', () => {
     const user = userEvent.setup();
     renderIntl(<DashboardScreen />);
     await waitFor(() =>
-      expect(fetchMock).toHaveBeenCalledWith(`/dashboard?siteId=${SITE_A}`),
+      expect(fetchMock).toHaveBeenCalledWith(`/dashboard?siteId=${SITE_A}`, expect.anything()),
     );
     expect(
       await screen.findByText('Showing Palm Tower only'),
     ).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /Show all sites/ }));
     await waitFor(() =>
-      expect(fetchMock).toHaveBeenLastCalledWith('/dashboard'),
+      expect(fetchMock).toHaveBeenLastCalledWith('/dashboard', expect.anything()),
     );
   });
 
@@ -224,7 +224,7 @@ describe('dashboard loading', () => {
     window.localStorage.setItem(LAST_SITE_KEY, 'garbage');
     fetchMock.mockResolvedValue({ success: true, status: 200, data: DATA });
     renderIntl(<DashboardScreen />);
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith('/dashboard'));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith('/dashboard', expect.anything()));
   });
 
   it('an error shows a message and retry loads again', async () => {
