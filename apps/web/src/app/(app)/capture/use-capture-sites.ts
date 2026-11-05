@@ -1,16 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import type { Site } from '@muayana/shared';
-import { clientFetch } from '@/lib/api-client';
 import { capturePrefs, type SiteOption } from '@/lib/capture-prefs';
+import { listActiveSites } from '@/lib/issue-endpoints';
 
 export type SitesState =
   | { phase: 'loading' }
   | { phase: 'ready'; sites: SiteOption[]; stale: boolean; failed: boolean };
-
-/** Active sites only: an archived site can't receive new captures (invariant 11). */
-const ACTIVE_SITES_PATH = '/sites?archived=false&limit=100';
 
 /**
  * The sites the engineer can capture on, and the chosen one (the last used is preselected,
@@ -48,19 +44,26 @@ export function useCaptureSites() {
       settle(cached ?? [], true, false);
       return;
     }
-    void clientFetch<Site[]>(ACTIVE_SITES_PATH).then((res) => {
-      if (res.success) {
-        const sites = res.data
-          .filter((s) => !s.archived)
-          .map(({ id, name }) => ({ id, name }));
-        capturePrefs.setCachedSites(sites);
-        settle(sites, false, false);
-      } else {
-        settle(cached ?? [], true, res.status !== 0);
-      }
-    });
+    // Aborted on unmount: leaving the screen must not leave its request holding a connection.
+    const controller = new AbortController();
+    listActiveSites(controller.signal)
+      .then((res) => {
+        if (res.success && Array.isArray(res.data)) {
+          const sites = res.data
+            .filter((s) => !s.archived)
+            .map(({ id, name }) => ({ id, name }));
+          capturePrefs.setCachedSites(sites);
+          settle(sites, false, false);
+        } else {
+          // Unreachable (status 0) is the offline list; any other answer is a failure.
+          settle(cached ?? [], true, res.success || res.status !== 0);
+        }
+      })
+      // Never stuck on "loading sites…": anything unexpected ends in the failed state.
+      .catch(() => settle(cached ?? [], true, true));
     return () => {
       cancelled = true;
+      controller.abort();
     };
   }, []);
 

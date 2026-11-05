@@ -79,8 +79,9 @@ export const listWorkersForCategory = (categoryId: string) =>
     `/workers${toQuery({ categoryId, active: 'true', limit: PAGE_LIMIT_MAX })}`,
   );
 
-/** Sites that can receive captures (not archived). */
-export const listActiveSites = () =>
+/** Sites that can receive captures (not archived). Pass `signal` to abort on unmount. */
+export const listActiveSites = (signal?: AbortSignal) =>
   clientFetch<Site[]>(
     `/sites${toQuery({ archived: 'false', limit: PAGE_LIMIT_MAX })}`,
+    { signal },
   );

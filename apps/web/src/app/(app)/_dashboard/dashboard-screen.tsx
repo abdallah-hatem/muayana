@@ -35,19 +35,23 @@ export function DashboardScreen() {
 
   useEffect(() => {
     let alive = true;
+    const controller = new AbortController();
     const path = siteId
       ? `/dashboard?siteId=${encodeURIComponent(siteId)}`
       : '/dashboard';
-    void clientFetch<Dashboard>(path).then((res) => {
-      if (!alive) return;
-      setLoad(
-        res.success && res.data
-          ? { state: 'ready', data: res.data }
-          : { state: 'error' },
-      );
-    });
+    void clientFetch<Dashboard>(path, { signal: controller.signal }).then(
+      (res) => {
+        if (!alive) return;
+        setLoad(
+          res.success && res.data
+            ? { state: 'ready', data: res.data }
+            : { state: 'error' },
+        );
+      },
+    );
     return () => {
       alive = false;
+      controller.abort();
     };
   }, [siteId, attempt]);
 

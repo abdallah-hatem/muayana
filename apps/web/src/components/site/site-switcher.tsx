@@ -28,11 +28,13 @@ export function SiteSwitcher() {
 
   useEffect(() => {
     let live = true;
-    void listActiveSites().then((res) => {
+    const controller = new AbortController();
+    void listActiveSites(controller.signal).then((res) => {
       if (live) setSites(res.success ? res.data : []);
     });
     return () => {
       live = false;
+      controller.abort();
     };
   }, [sitesVersion]);
 
