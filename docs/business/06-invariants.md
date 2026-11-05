@@ -18,3 +18,5 @@ Rules that must never break. Each has a test that tries to break it.
 11. A deactivated worker can't be newly assigned; a deactivated category can't be newly chosen; an
     archived site can't receive new captures. **DECIDED**
 12. Issue numbers are unique within a site and never reused. **DECIDED**
+13. Sending to a worker never changes a status by itself; only the engineer's "yes, mark as sent" does. **DECIDED**
+14. An export contains exactly the issues the list shows for the same filter — all of them, not one page. **DECIDED**

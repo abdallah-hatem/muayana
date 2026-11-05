@@ -14,6 +14,8 @@ upload"; nothing is lost if the app is closed. **DECIDED**
 - The queue uploads automatically when the connection returns and when the app opens. A badge shows the
   count waiting; the engineer can retry or discard an item. An item that fails 5 times is kept and
   marked failed, never silently dropped.
+- A refusal that retrying can't fix (archived site, unknown site, invalid or too-large photo) marks the
+  item failed at once, with the reason shown. **DECIDED**
 - Only capture works offline. Sorting, assigning and exporting need a connection. **GUESS**
 
 ## 5.3 Sort (after the walk)
@@ -35,7 +37,8 @@ priority, and the photos. On a phone that can share files, the photos and text g
 sheet to WhatsApp; otherwise a WhatsApp link opens with the text and links to the photos. Re-sending an issue
 that is already `sent` or further along never asks and never moves it back. **GUESS** When the
 engineer comes back, the app asks "Mark as sent?"; only his yes changes the status. **DECIDED**
-Batch: from a worker's page, send all of the worker's `assigned` issues in one message, then mark them
+Batch: from a worker's page, send all of the worker's `assigned` issues (every one of them, up to 200 per
+batch — more are sent in further batches) in one message, then mark them
 sent together. The batch message carries photo links, not photo files. **GUESS**
 
 ## 5.6 Track
@@ -55,3 +58,13 @@ The current filter lives in the address, so it can be bookmarked and is exactly 
 Unsorted count (with a button to the inbox), open issues by status, overdue, by category, by worker,
 and per site. Each number opens the issues list filtered to it. Archived sites are left out of the
 dashboard (their issues stay in the issues list and exports when the archived filter includes them). **GUESS**
+
+## 5.10 Directory and settings
+- **Sites, categories, workers** are managed from Settings (sites, categories) and the Workers tab, following
+  the rules in §3: create, edit, archive/deactivate, delete only when unused, reorder categories.
+- **Settings:** the engineer edits his name, picks the language (Arabic/English) and changes his password
+  (current password required, at least 8 characters). He signs out from here.
+- **Language and theme** can also be switched from the top bar; the choice is remembered on the device.
+- **Installable:** the app can be added to the phone's home screen and opens to capture even with no signal.
+- **Sample data** exists only when the operator turns it on (local and preview environments), never by default.
+
