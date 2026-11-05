@@ -224,3 +224,16 @@ model StatusChange {
   @@index([createdAt])
   @@map("status_changes")
 }
+
+/// One failed sign-in, counted by the rate limit (business §2). Shared by every API instance, so
+/// the limit holds on serverless. `key` is `ip:<client ip>|<email>` or `email:<email>`; rows
+/// older than the window are pruned as new failures arrive.
+model LoginFailure {
+  id  String   @id @default(uuid()) @db.Uuid
+  key String
+  at  DateTime @db.Timestamptz(3)
+
+  @@index([key, at])
+  @@index([at])
+  @@map("login_failures")
+}

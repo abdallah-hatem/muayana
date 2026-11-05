@@ -4,7 +4,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import type { JwtService } from '@nestjs/jwt';
-import { AuthErrorCode, LOGIN_MAX_FAILURES } from '@muayana/shared';
+import {
+  AuthErrorCode,
+  LOGIN_MAX_FAILURES,
+  LOGIN_MAX_FAILURES_PER_EMAIL,
+} from '@muayana/shared';
 import type { Clock } from '../../common/clock/clock';
 import { hashPassword } from '../../common/utils/password.util';
 import { AuthService, INVALID_CREDENTIALS_MESSAGE } from './auth.service';
@@ -115,6 +119,20 @@ describe('AuthService', () => {
     await expect(
       service.login(creds('right-password'), '1.1.1.1'),
     ).resolves.toBeDefined();
+  });
+
+  it('locks the email for every IP once the email-only ceiling is reached', async () => {
+    const { service } = makeService();
+    const ips = LOGIN_MAX_FAILURES_PER_EMAIL / LOGIN_MAX_FAILURES;
+    for (let n = 0; n < ips; n++)
+      for (let i = 0; i < LOGIN_MAX_FAILURES; i++)
+        await expect(
+          service.login(creds('wrong'), `10.0.0.${n}`),
+        ).rejects.toBeInstanceOf(UnauthorizedException);
+    const locked = await service
+      .login(creds('right-password'), '10.9.9.9')
+      .catch((e: unknown) => e);
+    expect((locked as HttpException).getStatus()).toBe(429);
   });
 
   it('changePassword refuses a wrong current password with WRONG_PASSWORD', async () => {

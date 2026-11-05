@@ -251,8 +251,12 @@ cd ../..
 - `NODE_ENV=production` makes the seed refuse sample data, so real data stays clean.
 - **Preview** database: repeat with `--environment=preview` and that database's unpooled URL. Use
   `SEED_ALLOW_SAMPLE=true` here **only** if Preview has its own database (step 4). Leave out
-  `NODE_ENV=production` in that case. The sample photos are placeholder files written to your PC,
-  so they show as broken images on Preview. Everything else in the sample works.
+  `NODE_ENV=production` in that case. The sample photos go through the same storage the API uses,
+  so for Preview also pass `STORAGE_DRIVER=blob` and `BLOB_READ_WRITE_TOKEN="<paste it from
+  .env.preview.local>"` on the seed command: the placeholders are uploaded to the Blob store and
+  open like real photos. Without them the seed writes the placeholders to your PC's
+  `apps/api/uploads`, and they show as broken images on Preview. Re-running is safe: a sample site
+  that already exists is skipped, photos included.
 
 In PowerShell, set the variables first instead, for example
 `$env:DATABASE_URL="<…>"; npx prisma migrate deploy`. Then clear them with

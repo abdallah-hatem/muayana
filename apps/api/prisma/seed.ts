@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { createHash } from 'node:crypto';
-import { access, mkdir, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { access } from 'node:fs/promises';
+import { join } from 'node:path';
 import { PrismaPg } from '@prisma/adapter-pg';
 import {
   PrismaClient,
@@ -9,13 +9,20 @@ import {
   type Priority,
   type Prisma,
 } from '@prisma/client';
-import sharp from 'sharp';
 import { nameKey, normalizeEmail, PASSWORD_MIN_LENGTH } from '@muayana/shared';
 import { hashPassword } from '../src/common/utils/password.util';
+import type { PhotoStorage } from '../src/common/storage/photo-storage.interface';
+import { photoStorageFor } from '../src/common/storage/storage.module';
 import {
   issuePhotoKey,
   resolveUploadDir,
 } from '../src/common/utils/upload-dir.util';
+import {
+  PLACEHOLDER_SIZE,
+  restoreMissingPlaceholders,
+  storePlaceholders,
+  type PlaceholderPhoto,
+} from './seed-photos';
 
 /*
  * `npm run db:seed` (prisma db seed). Idempotent: run it as often as you like.
@@ -24,7 +31,9 @@ import {
  * - The 12 default categories (business §3), created if missing.
  * - SEED_ALLOW_SAMPLE=true (never in production): 3 sites (one archived), 8 workers, 40 issues
  *   in every status with history and placeholder photos. A sample site that already exists is
- *   skipped whole, so re-running never duplicates or rewrites anything.
+ *   skipped whole, so re-running never duplicates or rewrites anything. Photos go through the
+ *   API's own storage driver (STORAGE_DRIVER: local disk, or Vercel Blob with
+ *   BLOB_READ_WRITE_TOKEN), so they open on a deployed Preview too.
  * No credential is written in this file.
  */
 
@@ -533,25 +542,54 @@ function pathTo(issue: SampleIssue): IssueStatus[] {
   }
 }
 
-const PHOTO_SIZE = { width: 800, height: 600 };
+const AFTER_COLOR = '#2F9E44';
+const NO_CATEGORY_COLOR = '#8A8578';
 
-/** A small placeholder JPEG: the category colour with the issue number stencilled on. */
-async function writePlaceholder(
-  file: string,
-  color: string,
-  label: string,
-): Promise<void> {
-  if (await exists(file)) return;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PHOTO_SIZE.width}" height="${PHOTO_SIZE.height}">
-    <rect width="100%" height="100%" fill="${color}"/>
-    <rect y="500" width="100%" height="100" fill="#15171B" opacity="0.6"/>
-    <text x="40" y="572" font-family="monospace" font-size="56" font-weight="700" fill="#F4F1EA">${label}</text>
-  </svg>`;
-  await mkdir(dirname(file), { recursive: true });
-  await writeFile(
-    file,
-    await sharp(Buffer.from(svg)).jpeg({ quality: 70 }).toBuffer(),
-  );
+/** The placeholder of an issue photo: the category colour, the issue number, "OK" on an after. */
+function placeholderLook(
+  number: number,
+  kind: 'before' | 'after',
+  categoryColor: string | null | undefined,
+): Omit<PlaceholderPhoto, 'key'> {
+  return {
+    color:
+      kind === 'after' ? AFTER_COLOR : (categoryColor ?? NO_CATEGORY_COLOR),
+    label: `#${number}${kind === 'after' ? ' OK' : ''}`,
+  };
+}
+
+/** The photos a sample issue gets: one before, a second before on every third, an after when solved. */
+function samplePhotoSlots(
+  number: number,
+  status: IssueStatus,
+): { kind: 'before' | 'after'; sortOrder: number }[] {
+  const slots: { kind: 'before' | 'after'; sortOrder: number }[] = [
+    { kind: 'before', sortOrder: 0 },
+  ];
+  if (number % 3 === 0) slots.push({ kind: 'before', sortOrder: 1 });
+  if (status === 'solved') slots.push({ kind: 'after', sortOrder: 0 });
+  return slots;
+}
+
+const issueKey = (siteKey: string, number: number) =>
+  `${siteKey}-issue-${number}`;
+const photoIdOf = (
+  siteKey: string,
+  number: number,
+  slot: { kind: string; sortOrder: number },
+) => sampleId(`${issueKey(siteKey, number)}-${slot.kind}-${slot.sortOrder}`);
+
+/** Every placeholder photo of a sample site, keyed as the API keys an upload. */
+function sitePlaceholders(site: (typeof SITES)[number]): PlaceholderPhoto[] {
+  return site.issues.flatMap((issue, index) => {
+    const number = index + 1;
+    const issueId = sampleId(issueKey(site.key, number));
+    const color = CATEGORIES.find((c) => c.nameEn === issue.category)?.color;
+    return samplePhotoSlots(number, issue.status).map((slot) => ({
+      key: issuePhotoKey(issueId, photoIdOf(site.key, number, slot)),
+      ...placeholderLook(number, slot.kind, color),
+    }));
+  });
 }
 
 async function seedWorkers(
@@ -586,10 +624,15 @@ async function seedSample(
   db: PrismaClient,
   categoryIds: Map<string, string>,
 ): Promise<void> {
-  const uploadDir = resolveUploadDir(env.UPLOAD_DIR || 'uploads');
-  const baseUrl = (
-    env.PUBLIC_UPLOAD_BASE_URL || 'http://localhost:3101/uploads'
-  ).replace(/\/+$/, '');
+  const driver = env.STORAGE_DRIVER === 'blob' ? 'blob' : 'local';
+  const uploadDir = env.UPLOAD_DIR || 'uploads';
+  const storage = photoStorageFor({
+    STORAGE_DRIVER: driver,
+    UPLOAD_DIR: uploadDir,
+    PUBLIC_UPLOAD_BASE_URL:
+      env.PUBLIC_UPLOAD_BASE_URL || 'http://localhost:3101/uploads',
+    BLOB_READ_WRITE_TOKEN: env.BLOB_READ_WRITE_TOKEN || undefined,
+  });
   const workerIds = await seedWorkers(db, categoryIds);
 
   for (const site of SITES) {
@@ -603,6 +646,8 @@ async function seedSample(
       continue;
     }
 
+    // Files first (network calls stay out of the transaction); the rows record where they went.
+    const stored = await storePlaceholders(storage, sitePlaceholders(site));
     await db.$transaction(async (tx) => {
       await tx.site.create({
         data: {
@@ -618,7 +663,7 @@ async function seedSample(
 
       for (const [index, issue] of site.issues.entries()) {
         const number = index + 1;
-        const id = sampleId(`${site.key}-issue-${number}`);
+        const id = sampleId(issueKey(site.key, number));
         const capturedAt = new Date(
           Date.now() - issue.daysAgo * DAY - ((index % 5) + 1) * HOUR,
         );
@@ -665,26 +710,17 @@ async function seedSample(
           })),
         });
 
-        const photos: { kind: 'before' | 'after'; sortOrder: number }[] = [
-          { kind: 'before', sortOrder: 0 },
-        ];
-        if (number % 3 === 0) photos.push({ kind: 'before', sortOrder: 1 });
-        if (issue.status === 'solved')
-          photos.push({ kind: 'after', sortOrder: 0 });
-
-        for (const p of photos) {
-          const photoId = sampleId(
-            `${site.key}-issue-${number}-${p.kind}-${p.sortOrder}`,
-          );
-          const key = issuePhotoKey(id, photoId);
+        for (const p of samplePhotoSlots(number, issue.status)) {
+          const photoId = photoIdOf(site.key, number, p);
+          const file = stored.get(issuePhotoKey(id, photoId))!;
           await tx.photo.create({
             data: {
               id: photoId,
               issueId: id,
               kind: p.kind,
-              storageKey: key,
-              url: `${baseUrl}/${key}`,
-              ...PHOTO_SIZE,
+              storageKey: file.key,
+              url: file.url,
+              ...PLACEHOLDER_SIZE,
               sortOrder: p.sortOrder,
               createdAt:
                 p.kind === 'after'
@@ -700,16 +736,19 @@ async function seedSample(
     );
   }
 
-  await ensurePlaceholderFiles(
-    db,
-    SITES.map((site) => sampleId(site.key)),
-    uploadDir,
-  );
+  if (driver === 'local')
+    await restoreLocalPlaceholders(
+      db,
+      storage,
+      SITES.map((site) => sampleId(site.key)),
+      resolveUploadDir(uploadDir),
+    );
 }
 
-/** Writes any missing placeholder file of the sample sites' photos (also repairs a wiped folder). */
-async function ensurePlaceholderFiles(
+/** Local driver: rewrites any missing placeholder file of the sample photos (a wiped folder). */
+async function restoreLocalPlaceholders(
   db: PrismaClient,
+  storage: PhotoStorage,
   siteIds: string[],
   uploadDir: string,
 ): Promise<void> {
@@ -723,15 +762,16 @@ async function ensurePlaceholderFiles(
       },
     },
   });
-  for (const p of photos) {
-    await writePlaceholder(
-      join(uploadDir, p.storageKey),
-      p.kind === 'after' ? '#2F9E44' : (p.issue.category?.color ?? '#8A8578'),
-      `#${p.issue.number}${p.kind === 'after' ? ' OK' : ''}`,
-    );
-  }
+  const restored = await restoreMissingPlaceholders(
+    storage,
+    photos.map((p) => ({
+      key: p.storageKey,
+      ...placeholderLook(p.issue.number, p.kind, p.issue.category?.color),
+    })),
+    (key) => exists(join(uploadDir, key)),
+  );
   console.log(
-    `Seed: ${photos.length} placeholder photos present in ${uploadDir}`,
+    `Seed: ${photos.length} placeholder photos present in ${uploadDir} (${restored} restored)`,
   );
 }
 

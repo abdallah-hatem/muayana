@@ -13,6 +13,11 @@ export const ACCESS_TOKEN_TTL_DAYS = 7;
  */
 export const LOGIN_MAX_FAILURES = 5;
 export const LOGIN_FAILURE_WINDOW_MINUTES = 15;
+/**
+ * Second ceiling (business §2): this many failures for one email within the window from any mix
+ * of IPs, so a spoofed or missing client IP can't multiply the per-IP limit.
+ */
+export const LOGIN_MAX_FAILURES_PER_EMAIL = 20;
 
 /** Coded auth refusals (the web translates them). */
 export const AuthErrorCode = {

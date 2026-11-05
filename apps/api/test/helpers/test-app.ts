@@ -36,8 +36,15 @@ export interface TestApp {
   close(): Promise<void>;
 }
 
-/** The whole app as main.ts wires it, with a FakeClock in place of the system clock. */
-export async function createTestApp(): Promise<TestApp> {
+/**
+ * The whole app as main.ts wires it, with a FakeClock in place of the system clock. The sign-in
+ * rate limit lives in the database, so a new app starts from an empty `login_failures` table
+ * (earlier suites' FakeClocks ran ahead of this one); pass `resetLoginLimit: false` for a second
+ * instance that must share the first one's counts.
+ */
+export async function createTestApp({
+  resetLoginLimit = true,
+} = {}): Promise<TestApp> {
   const clock = new FakeClock();
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(CLOCK)
@@ -46,10 +53,12 @@ export async function createTestApp(): Promise<TestApp> {
   const app = moduleRef.createNestApplication<INestApplication<App>>();
   configureApp(app);
   await app.init();
+  const db = app.get(DatabaseService);
+  if (resetLoginLimit) await db.loginFailure.deleteMany();
   return {
     app,
     http: app.getHttpServer(),
-    db: app.get(DatabaseService),
+    db,
     clock,
     close: () => app.close(),
   };
