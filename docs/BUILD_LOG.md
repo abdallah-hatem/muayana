@@ -8,7 +8,7 @@ Current stage: 7 — Verify · all tasks T1–T12 merged · smoke 20/20 · relea
 2. Ship: **on hold — the user chose "keep it local for now" (2026-11-05).** No Vercel/Neon/Blob; `production` branch untouched. Resume when the user asks to deploy.
 
 ## Waiting on the user
-- **Deploy** — on hold by the user's choice (local only). When wanted: `npx vercel login` on this machine, then Ship (Neon + Blob + preview from dev + release PR).
+- **Deploy** — the user deploys it themselves from another PC (2026-11-05). This run ends with everything pushed to GitHub plus `docs/DEPLOY.md` (step-by-step guide).
 ## Blocked
 - (none)
 ## Phases
