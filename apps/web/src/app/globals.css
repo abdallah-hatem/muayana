@@ -1,0 +1,445 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+/*
+ * Muayana design system: "Site tape" (docs/DESIGN.md). Hazard tape, marker on concrete, a
+ * clipboard with a stamp: bold, high-contrast, legible in the sun.
+ *
+ * Every colour is a token defined for light AND dark below, then mapped to a semantic Tailwind
+ * name in @theme inline. Components use the names (bg-primary, text-status-sent-foreground),
+ * never a raw colour. Values are OKLCH: a hover shade is the same colour with lightness moved.
+ */
+
+@custom-variant dark (&:is(.dark *));
+
+/* Hover styles only where a real pointer can hover; on touch a tapped element would keep its
+   hover look ("sticky hover"). Touch gets :active feedback instead. */
+@custom-variant hover {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @slot;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ light */
+:root,
+.light {
+  color-scheme: light;
+
+  /* Surfaces: warm concrete paper, chalk-white cards */
+  --background: oklch(0.962 0.009 85);
+  --foreground: oklch(0.2 0.015 260);
+  --card: oklch(0.993 0.004 85);
+  --card-foreground: oklch(0.2 0.015 260);
+  --popover: oklch(0.993 0.004 85);
+  --popover-foreground: oklch(0.2 0.015 260);
+  --secondary: oklch(0.915 0.012 85);
+  --secondary-foreground: oklch(0.2 0.015 260);
+  --muted: oklch(0.925 0.011 85);
+  --muted-foreground: oklch(0.44 0.018 75);
+  --accent: oklch(0.915 0.04 95);
+  --accent-foreground: oklch(0.2 0.015 260);
+  --border: oklch(0.85 0.014 85);
+  --input: oklch(0.72 0.016 85);
+  /* Placeholder: lighter than a typed value, still AA on a card */
+  --placeholder: oklch(0.5 0.015 80);
+
+  /* Act: safety yellow with ink on it — never white on yellow */
+  --primary: oklch(0.87 0.175 94);
+  --primary-strong: oklch(0.81 0.17 88);
+  --primary-foreground: oklch(0.19 0.015 260);
+  /* The brand hue as text on the page (yellow text fails on paper): deep amber */
+  --primary-ink: oklch(0.48 0.11 72);
+  --ring: oklch(0.2 0.015 260);
+
+  /* Signals */
+  --destructive: oklch(0.54 0.215 27);
+  --destructive-foreground: oklch(0.99 0.004 85);
+  --success: oklch(0.49 0.13 150);
+  --success-foreground: oklch(0.99 0.004 85);
+  --info: oklch(0.49 0.15 255);
+  --info-foreground: oklch(0.99 0.004 85);
+
+  /* Status chips: one solid fill + its text colour per status, stamped like a label */
+  --status-new: oklch(0.8 0.16 72);
+  --status-new-foreground: oklch(0.19 0.015 260);
+  --status-unassigned: oklch(0.47 0.02 260);
+  --status-unassigned-foreground: oklch(0.99 0.004 85);
+  --status-assigned: oklch(0.49 0.15 255);
+  --status-assigned-foreground: oklch(0.99 0.004 85);
+  --status-sent: oklch(0.5 0.1 205);
+  --status-sent-foreground: oklch(0.99 0.004 85);
+  --status-estimated: oklch(0.47 0.15 305);
+  --status-estimated-foreground: oklch(0.99 0.004 85);
+  --status-in-progress: oklch(0.7 0.17 50);
+  --status-in-progress-foreground: oklch(0.19 0.015 260);
+  --status-solved: oklch(0.49 0.13 150);
+  --status-solved-foreground: oklch(0.99 0.004 85);
+  --status-cancelled: oklch(0.86 0.008 85);
+  --status-cancelled-foreground: oklch(0.36 0.015 260);
+
+  /* Hazard stripe: tape yellow on ink */
+  --hazard-a: oklch(0.87 0.175 94);
+  --hazard-b: oklch(0.2 0.015 260);
+
+  --shadow-card-value:
+    0 1px 0 oklch(0.2 0.015 260 / 0.08),
+    0 2px 8px -2px oklch(0.2 0.015 260 / 0.12);
+  --shadow-float-value: 0 18px 40px -16px oklch(0.2 0.015 260 / 0.4);
+
+  --scrollbar-thumb: oklch(0.44 0.018 75 / 0.4);
+  --scrollbar-thumb-hover: oklch(0.44 0.018 75 / 0.6);
+}
+
+/* ------------------------------------------------------------------- dark */
+.dark {
+  color-scheme: dark;
+
+  /* Surfaces: deep graphite ink, chalk text */
+  --background: oklch(0.17 0.012 260);
+  --foreground: oklch(0.95 0.008 85);
+  --card: oklch(0.225 0.014 260);
+  --card-foreground: oklch(0.95 0.008 85);
+  --popover: oklch(0.225 0.014 260);
+  --popover-foreground: oklch(0.95 0.008 85);
+  --secondary: oklch(0.28 0.014 260);
+  --secondary-foreground: oklch(0.95 0.008 85);
+  --muted: oklch(0.26 0.013 260);
+  --muted-foreground: oklch(0.76 0.016 85);
+  --accent: oklch(0.31 0.04 94);
+  --accent-foreground: oklch(0.95 0.008 85);
+  --border: oklch(0.34 0.014 260);
+  --input: oklch(0.46 0.014 260);
+  --placeholder: oklch(0.68 0.014 85);
+
+  --primary: oklch(0.87 0.175 94);
+  --primary-strong: oklch(0.91 0.16 98);
+  --primary-foreground: oklch(0.19 0.015 260);
+  --primary-ink: oklch(0.87 0.175 94);
+  --ring: oklch(0.87 0.175 94);
+
+  --destructive: oklch(0.68 0.19 25);
+  --destructive-foreground: oklch(0.17 0.012 260);
+  --success: oklch(0.74 0.15 150);
+  --success-foreground: oklch(0.17 0.012 260);
+  --info: oklch(0.74 0.12 250);
+  --info-foreground: oklch(0.17 0.012 260);
+
+  --status-new: oklch(0.82 0.15 72);
+  --status-new-foreground: oklch(0.17 0.012 260);
+  --status-unassigned: oklch(0.72 0.02 260);
+  --status-unassigned-foreground: oklch(0.17 0.012 260);
+  --status-assigned: oklch(0.72 0.12 255);
+  --status-assigned-foreground: oklch(0.17 0.012 260);
+  --status-sent: oklch(0.75 0.1 205);
+  --status-sent-foreground: oklch(0.17 0.012 260);
+  --status-estimated: oklch(0.74 0.12 305);
+  --status-estimated-foreground: oklch(0.17 0.012 260);
+  --status-in-progress: oklch(0.76 0.15 52);
+  --status-in-progress-foreground: oklch(0.17 0.012 260);
+  --status-solved: oklch(0.74 0.15 150);
+  --status-solved-foreground: oklch(0.17 0.012 260);
+  --status-cancelled: oklch(0.36 0.012 260);
+  --status-cancelled-foreground: oklch(0.82 0.012 85);
+
+  --hazard-a: oklch(0.87 0.175 94);
+  --hazard-b: oklch(0.17 0.012 260);
+
+  --shadow-card-value:
+    inset 0 1px 0 oklch(1 0 0 / 0.04), 0 2px 10px -2px oklch(0 0 0 / 0.5);
+  --shadow-float-value: 0 20px 44px -16px oklch(0 0 0 / 0.75);
+
+  --scrollbar-thumb: oklch(0.76 0.016 85 / 0.3);
+  --scrollbar-thumb-hover: oklch(0.76 0.016 85 / 0.5);
+}
+
+/* ------------------------------------------------- shared, theme-independent */
+:root {
+  /* Radius: slightly rounded, like a cut sign — 10 controls, 14 cards, 20 sheets */
+  --radius: 10px;
+
+  /* Motion (docs/DESIGN.md): 120ms press, 200ms sheets and pages, quick exits */
+  --motion-press: 120ms;
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --motion-stamp: 240ms;
+
+  /* next/font sets --font-readex and --font-plex-mono on <html>. Readex Pro covers Arabic and
+     Latin, so mixed lines read as one voice. */
+  --font-stack: var(--font-readex), ui-sans-serif, system-ui, sans-serif;
+  --font-stack-mono: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-placeholder: var(--placeholder);
+  --color-ring: var(--ring);
+
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-ink: var(--primary-ink);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  --color-status-new: var(--status-new);
+  --color-status-new-foreground: var(--status-new-foreground);
+  --color-status-unassigned: var(--status-unassigned);
+  --color-status-unassigned-foreground: var(--status-unassigned-foreground);
+  --color-status-assigned: var(--status-assigned);
+  --color-status-assigned-foreground: var(--status-assigned-foreground);
+  --color-status-sent: var(--status-sent);
+  --color-status-sent-foreground: var(--status-sent-foreground);
+  --color-status-estimated: var(--status-estimated);
+  --color-status-estimated-foreground: var(--status-estimated-foreground);
+  --color-status-in-progress: var(--status-in-progress);
+  --color-status-in-progress-foreground: var(--status-in-progress-foreground);
+  --color-status-solved: var(--status-solved);
+  --color-status-solved-foreground: var(--status-solved-foreground);
+  --color-status-cancelled: var(--status-cancelled);
+  --color-status-cancelled-foreground: var(--status-cancelled-foreground);
+
+  --color-hazard-a: var(--hazard-a);
+  --color-hazard-b: var(--hazard-b);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 10px);
+
+  --shadow-card: var(--shadow-card-value);
+  --shadow-float: var(--shadow-float-value);
+
+  --font-sans: var(--font-stack);
+  --font-mono: var(--font-stack-mono);
+
+  --ease-snappy: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --animate-stamp-in: stamp-in var(--motion-stamp) var(--ease-snappy) both;
+  --animate-shutter: shutter var(--motion-base) var(--ease-snappy) both;
+  --animate-rise: rise var(--motion-base) var(--ease-snappy) both;
+}
+
+/* A status stamp landing on the paper: a touch big, then set. Never from scale(0). */
+@keyframes stamp-in {
+  from {
+    opacity: 0;
+    transform: scale(1.25) rotate(-4deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Camera shutter flash on capture. */
+@keyframes shutter {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------- utilities */
+
+/* Yellow/ink hazard tape. Decorative and sparing: offline banner, inbox header, empty states.
+   Never behind body text. */
+@utility hazard-stripe {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--hazard-a) 0 14px,
+    var(--hazard-b) 14px 28px
+  );
+}
+
+/* Thin, rounded, theme-aware scrollbar for every scroll container (never a JS scrollbar). */
+@utility scrollbar-clean {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  &::-webkit-scrollbar-track,
+  &::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb-hover);
+  }
+}
+
+/* Press feedback (120ms, scale 0.97) — on the Button primitive once, not at call sites. */
+@utility press {
+  transition-property:
+    transform, background-color, color, border-color, box-shadow;
+  transition-duration: var(--motion-press);
+  transition-timing-function: var(--ease-snappy);
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+}
+
+/* Type scale (docs/DESIGN.md): display 32/800 (Readex Pro's heaviest is 700) · title 22/700 · heading 18/700 · body 16/400 ·
+   small 14/500 · micro 12/600. Arabic opens the line height. */
+@utility type-display {
+  font-size: 32px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  &:lang(ar) {
+    line-height: 1.35;
+    letter-spacing: 0;
+  }
+}
+@utility type-title {
+  font-size: 22px;
+  line-height: 1.25;
+  font-weight: 700;
+  &:lang(ar) {
+    line-height: 1.45;
+  }
+}
+@utility type-heading {
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 700;
+  &:lang(ar) {
+    line-height: 1.5;
+  }
+}
+@utility type-body {
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 400;
+  &:lang(ar) {
+    line-height: 1.75;
+  }
+}
+@utility type-small {
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+@utility type-micro {
+  font-size: 12px;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+/* Stencil numbers: issue #, dates, phones — Latin tabular digits in both languages */
+@utility type-stencil {
+  font-family: var(--font-stack-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Mirror an icon that points in the reading direction (back, chevrons) under RTL. */
+@utility flip-rtl {
+  &:where([dir='rtl'], [dir='rtl'] *) {
+    transform: scaleX(-1);
+  }
+}
+
+/* Bottom padding that clears the home indicator (viewport-fit=cover). */
+@utility pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+/* ------------------------------------------------------------------ base */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply scrollbar-clean;
+    scrollbar-gutter: auto;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  .scrollbar-clean:not(html, body) {
+    overscroll-behavior: contain;
+  }
+  /* iOS Safari zooms into any field under 16px and stays zoomed. */
+  @media (max-width: 47.999rem) {
+    input,
+    select,
+    textarea {
+      font-size: max(16px, 1em);
+    }
+  }
+  nav a,
+  button {
+    -webkit-touch-callout: none;
+  }
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    line-height: 1.5;
+  }
+  :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 3px;
+  }
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+}
+
+/* Reduced motion: no movement; state changes become quick fades. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-property:
+      opacity, color, background-color, border-color !important;
+    transition-duration: var(--motion-fast) !important;
+    scroll-behavior: auto !important;
+  }
+}
