@@ -23,6 +23,7 @@
     "db:seed": "npm run db:seed -w @muayana/api",
     "db:agent": "node scripts/db-agent.mjs",
     "test:e2e": "npm run build:shared && npm run test:e2e -w @muayana/api",
+    "test:e2e:serverless": "npm run build:shared && npm run test:e2e:serverless -w @muayana/api",
     "test:smoke": "npm run test:e2e -w @muayana/web -- --grep @smoke"
   }
 }

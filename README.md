@@ -7,6 +7,7 @@ sort them by trade, send them to workers on WhatsApp, and track each one until i
 - Spec and API contract: [docs/specs/](docs/specs/)
 - Design: [docs/DESIGN.md](docs/DESIGN.md) — live preview at `/design` (dev only)
 - Build progress: [docs/BUILD_LOG.md](docs/BUILD_LOG.md)
+- Deploy: [docs/DEPLOY.md](docs/DEPLOY.md)
 
 ## Stack
 
@@ -32,6 +33,12 @@ npm run dev:web                              # http://localhost:3100 (and /desig
 Port 5442 is also Prime Property's local Postgres port: stop that project's database first
 (`docker compose -p prime-crm down`) if both are on one machine.
 
+## Deploy
+
+Two Vercel projects from this repo — `muayana-api` (Root Directory `apps/api`) and `muayana-web`
+(Root Directory `apps/web`), Neon Postgres and a public Vercel Blob store. Step-by-step guide, env
+vars per environment, migrations, smoke checklist and rollback: [docs/DEPLOY.md](docs/DEPLOY.md).
+
 ## Scripts
 
 | Script | Does |
@@ -44,6 +51,7 @@ Port 5442 is also Prime Property's local Postgres port: stop that project's data
 | `lint` / `typecheck` | every workspace |
 | `test` | unit: jest (api), vitest (web, shared) |
 | `test:e2e` | API e2e (jest + supertest) against a dedicated database |
+| `test:e2e:serverless` | the same suite with Vercel's one-connection pool (catches a query outside its transaction) |
 | `test:smoke` | Playwright `@smoke` specs (mobile Pixel 7 + desktop) |
 
 ## Tests
