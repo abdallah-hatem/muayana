@@ -34,7 +34,7 @@ export function PriorityPicker({
             disabled={disabled}
             onClick={() => onChange(priority)}
             className={cn(
-              'h-10 min-w-0 press cursor-pointer truncate rounded-sm px-1 type-small font-bold',
+              'h-11 min-w-0 press cursor-pointer truncate rounded-sm px-1 type-small font-bold',
               'disabled:cursor-not-allowed disabled:opacity-50',
               chosen
                 ? priority === 'urgent'

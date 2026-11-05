@@ -1,9 +1,9 @@
 'use client';
 
-import Image from 'next/image';
 import { useState } from 'react';
 import type { Photo } from '@muayana/shared';
 import { cn } from '@/lib/utils';
+import { FillPhoto } from './photo';
 
 /**
  * Photos edge to edge, swiped sideways (native scroll-snap: momentum, RTL and keyboard come for
@@ -55,13 +55,10 @@ export function PhotoGallery({
               key={photo.id}
               className="relative size-full shrink-0 snap-center"
             >
-              <Image
+              <FillPhoto
                 src={photo.url}
                 alt={`${alt} ${index + 1}/${photos.length}`}
-                fill
-                unoptimized
                 sizes="(min-width: 768px) 640px, 100vw"
-                className="object-cover"
                 priority={index === 0}
               />
             </div>

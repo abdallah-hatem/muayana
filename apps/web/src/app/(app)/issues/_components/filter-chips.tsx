@@ -77,7 +77,8 @@ export function FilterChips({
             aria-label={t('remove', { label })}
             onClick={() => onRemove(part)}
             className={cn(
-              'inline-flex min-h-9 max-w-full press cursor-pointer items-center gap-1.5 rounded-sm px-2.5 type-micro font-bold',
+              // 36px chip, 44px to the finger (the hit area reaches into the 8px gaps).
+              "relative inline-flex min-h-9 max-w-full press cursor-pointer items-center gap-1.5 rounded-sm px-2.5 type-micro font-bold after:absolute after:inset-x-0 after:-inset-y-1 after:content-['']",
               part.key === 'status'
                 ? STATUS_TONE[part.value]
                 : part.key === 'overdue'

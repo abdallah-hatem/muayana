@@ -20,7 +20,7 @@
     "empty": "Nothing open here."
   },
   "site": {
-    "showing": "Showing {site} only",
+    "showing": "Showing <name>{site}</name> only",
     "all": "Show all sites"
   },
   "error": "Couldn't load the dashboard.",

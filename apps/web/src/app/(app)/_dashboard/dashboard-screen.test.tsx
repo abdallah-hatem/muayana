@@ -211,9 +211,9 @@ describe('dashboard loading', () => {
     await waitFor(() =>
       expect(fetchMock).toHaveBeenCalledWith(`/dashboard?siteId=${SITE_A}`, expect.anything()),
     );
-    expect(
-      await screen.findByText('Showing Palm Tower only'),
-    ).toBeInTheDocument();
+    // The site name is isolated (<bdi>) inside the sentence, so an Arabic name can't reorder it.
+    const name = await screen.findByText('Palm Tower', { selector: 'bdi' });
+    expect(name.parentElement).toHaveTextContent('Showing Palm Tower only');
     await user.click(screen.getByRole('button', { name: /Show all sites/ }));
     await waitFor(() =>
       expect(fetchMock).toHaveBeenLastCalledWith('/dashboard', expect.anything()),

@@ -51,7 +51,7 @@ describe('StatusActions', () => {
     }
     expect(screen.getByRole('button', { name: 'Cancel issue' })).toBeEnabled();
     expect(
-      screen.getByRole('button', { name: /Set the date the worker gave/ }),
+      screen.getByRole('button', { name: /Set the worker's date/ }),
     ).toBeDisabled();
   });
 
@@ -177,7 +177,7 @@ describe('IssueView', () => {
     expect(container.querySelector('[data-status="sent"]')).not.toBeNull();
 
     await user.click(
-      screen.getByRole('button', { name: /Set the date the worker gave/ }),
+      screen.getByRole('button', { name: /Set the worker's date/ }),
     );
     const grid = await screen.findByRole('grid');
     const days = within(grid)

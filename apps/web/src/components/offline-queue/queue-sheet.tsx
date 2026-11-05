@@ -3,6 +3,7 @@
 import { CloudOff, Loader2, RotateCw, Trash2 } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { createContext, useCallback, useContext, useState } from 'react';
+import { LocalPhoto } from '@/components/photo';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
@@ -102,11 +103,10 @@ function QueueThumb({ item, label }: { item: QueueItem; label: string }) {
     [bytes, type],
   );
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- a local object URL, nothing for next/image to optimise
-    <img
+    // A photo that fails to decode becomes a muted square with the "no picture" mark.
+    <LocalPhoto
       ref={attach}
       alt={label}
-      // A photo that fails to decode keeps its square: no alt text spilling out of it.
       className="size-16 shrink-0 overflow-hidden rounded-md bg-muted object-cover text-transparent"
     />
   );

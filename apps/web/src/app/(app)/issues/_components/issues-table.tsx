@@ -57,7 +57,7 @@ export function IssuesTable({ issues }: { issues: Issue[] }) {
               <Link
                 href={issueHref(issue.id)}
                 aria-label={t('card.open', { number: issue.number })}
-                className="inline-flex min-h-11 cursor-pointer items-center type-stencil type-heading underline-offset-4 hover:underline"
+                className="inline-flex min-h-11 min-w-11 cursor-pointer items-center type-stencil type-heading underline-offset-4 hover:underline"
                 dir="ltr"
               >
                 {tCommon('issueNumber', { number: issue.number })}

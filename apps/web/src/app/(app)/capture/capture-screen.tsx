@@ -11,6 +11,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { FormField } from '@/components/form-field';
+import { LocalPhoto } from '@/components/photo';
 import { QueueChip } from '@/components/offline-queue/queue-sheet';
 import { CameraInput } from '@/components/ui/camera-input';
 import { Input } from '@/components/ui/input';
@@ -134,7 +135,7 @@ export function CaptureScreen() {
           data-testid="site-chip"
           aria-label={`${t('site.label')}: ${site?.name ?? t('site.choose')}`}
           className={cn(
-            'flex h-10 min-w-0 press cursor-pointer items-center gap-1.5 rounded-full px-3 type-small font-bold',
+            'flex h-11 min-w-0 press cursor-pointer items-center gap-1.5 rounded-full px-3 type-small font-bold',
             'disabled:cursor-not-allowed disabled:opacity-60',
             site
               ? 'bg-secondary text-secondary-foreground'
@@ -146,7 +147,8 @@ export function CaptureScreen() {
           ) : (
             <Building2 className="size-4 shrink-0" aria-hidden />
           )}
-          <span className="truncate">
+          {/* dir="auto": an Arabic name in the English layout keeps its start and loses its end. */}
+          <span dir="auto" className="min-w-0 truncate text-start">
             {sitesState.phase === 'loading'
               ? t('site.loading')
               : (site?.name ?? t('site.choose'))}
@@ -169,11 +171,11 @@ export function CaptureScreen() {
       {/* The camera view: the last shot full-bleed, flashing when a new one lands. */}
       <div className="relative flex min-h-48 flex-1 items-center justify-center overflow-hidden">
         {lastShotUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- a local object URL of the photo just taken
-          <img
+          // A photo that fails to decode shows the "no picture" mark, never a broken-image icon.
+          <LocalPhoto
+            key={lastShotUrl}
             src={lastShotUrl}
             alt={t('lastShot')}
-            // A photo that fails to decode keeps its box: no alt text spilling over the view.
             className="absolute inset-0 size-full overflow-hidden object-contain text-transparent"
           />
         ) : (
@@ -231,8 +233,8 @@ export function CaptureScreen() {
         <div className="grid grid-cols-3 items-center">
           <div className="justify-self-start">
             {lastShotUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element -- a local object URL of the photo just taken
-              <img
+              <LocalPhoto
+                key={lastShotUrl}
                 src={lastShotUrl}
                 alt=""
                 aria-hidden

@@ -237,7 +237,7 @@ export function CategoriesScreen() {
                     aria-hidden
                   />
                   <div className="flex min-w-0 flex-col">
-                    <div className="flex min-w-0 items-center gap-2">
+                    <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                       <span className="min-w-0 type-body font-bold break-words">
                         {name}
                       </span>

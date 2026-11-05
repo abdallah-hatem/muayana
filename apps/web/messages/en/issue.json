@@ -40,7 +40,7 @@
     "title": "Status",
     "reopen": "Reopen ({status})",
     "estimate": "Estimated date",
-    "estimatePlaceholder": "Set the date the worker gave",
+    "estimatePlaceholder": "Set the worker's date",
     "to": {
       "assigned": "Mark assigned",
       "sent": "Mark sent",

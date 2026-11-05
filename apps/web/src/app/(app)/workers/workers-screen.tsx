@@ -237,10 +237,12 @@ function WorkerCards({
         >
           <WorkerAvatar name={worker.name} />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <div className="flex min-w-0 items-center gap-2">
+            {/* The badge wraps under a name that needs the room: a name is never cut for it. */}
+            <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
               <Link
                 href={href(worker)}
-                className="min-w-0 cursor-pointer truncate type-body font-bold after:absolute after:inset-0 after:content-['']"
+                dir="auto"
+                className="max-w-full min-w-0 cursor-pointer truncate text-start type-body font-bold after:absolute after:inset-0 after:content-['']"
               >
                 {worker.name}
               </Link>
@@ -290,13 +292,16 @@ function WorkerTable({
               <td className="max-w-60 px-4 py-3">
                 <div className="flex min-w-0 items-center gap-3">
                   <WorkerAvatar name={worker.name} className="size-9" />
-                  <Link
-                    href={href(worker)}
-                    className="min-w-0 cursor-pointer truncate font-bold hover:underline"
-                  >
-                    {worker.name}
-                  </Link>
-                  {!worker.active && <InactiveBadge />}
+                  <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                    <Link
+                      href={href(worker)}
+                      dir="auto"
+                      className="max-w-full min-w-0 cursor-pointer truncate text-start font-bold hover:underline"
+                    >
+                      {worker.name}
+                    </Link>
+                    {!worker.active && <InactiveBadge />}
+                  </div>
                 </div>
               </td>
               <td className="max-w-56 truncate px-4 py-3 text-muted-foreground">

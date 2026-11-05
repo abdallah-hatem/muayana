@@ -60,11 +60,17 @@ export function SiteSwitcher() {
           className="@container h-11 w-full min-w-0 gap-1.5 rounded-full border-0 bg-secondary px-3 type-small font-bold text-secondary-foreground data-[size=default]:h-11 sm:w-60"
         >
           <MapPin className="size-4 shrink-0" aria-hidden />
+          {/* Below 7.5rem the label would be a letter or two, so only the pin shows. The query
+              hides the inner span: the kit's `*:data-[slot=select-value]:flex` outranks a
+              `hidden` on the value itself. */}
           <SelectValue
             placeholder={t('placeholder')}
-            className="min-w-0 flex-1 @max-[7rem]:hidden"
+            className="min-w-0 flex-1"
           >
-            <span dir="auto" className="min-w-0 truncate text-start">
+            <span
+              dir="auto"
+              className="min-w-0 truncate text-start @max-[7.5rem]:hidden"
+            >
               {current ? current.name : t('placeholder')}
             </span>
           </SelectValue>

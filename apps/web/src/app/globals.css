@@ -11,6 +11,9 @@
  */
 
 @custom-variant dark (&:is(.dark *));
+/* Keyboard focus only: `:focus-visible` minus a control pressed with a pointer and then focused by
+   script (Radix tabs call .focus() on mouse down). See components/ui/tabs.tsx. */
+@custom-variant focus-key (&:focus-visible:not([data-pointer-focus]));
 
 /* Hover styles only where a real pointer can hover; on touch a tapped element would keep its
    hover look ("sticky hover"). Touch gets :active feedback instead. */
@@ -165,6 +168,12 @@
   --motion-base: 200ms;
   --motion-stamp: 240ms;
 
+  /* The phone's bottom nav (below md): 2px border + 4px top padding + 56px links + pb-safe. A bar
+     that sticks above it uses this, so nothing scrolls through a gap between the two. */
+  --bottom-nav-height: calc(
+    3.75rem + 2px + max(0.75rem, env(safe-area-inset-bottom))
+  );
+
   /* next/font sets --font-readex and --font-plex-mono on <html>. Readex Pro covers Arabic and
      Latin, so mixed lines read as one voice. */
   --font-stack: var(--font-readex), ui-sans-serif, system-ui, sans-serif;
@@ -284,6 +293,10 @@
     var(--hazard-a) 0 14px,
     var(--hazard-b) 14px 28px
   );
+  /* On a dark surface the ink stripes melt into the card: a yellow edge keeps the tape's shape. */
+  &:is(.dark *) {
+    box-shadow: inset 0 0 0 1.5px var(--hazard-a);
+  }
 }
 
 /* Thin, rounded, theme-aware scrollbar for every scroll container (never a JS scrollbar). */
@@ -435,9 +448,13 @@
     @apply bg-background font-sans text-foreground antialiased;
     line-height: 1.5;
   }
-  :focus-visible {
+  /* Not on a control pressed with a pointer that script then focused (see focus-key above). */
+  :focus-visible:not([data-pointer-focus]) {
     outline: 3px solid var(--ring);
     outline-offset: 3px;
+  }
+  [data-pointer-focus]:focus-visible {
+    outline: none;
   }
   button:not(:disabled),
   [role='button']:not([aria-disabled='true']) {

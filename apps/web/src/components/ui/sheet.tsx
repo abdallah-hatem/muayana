@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { XIcon } from 'lucide-react';
 import { Dialog as SheetPrimitive } from 'radix-ui';
-import { OVERLAY_CLOSE } from './overlay-close';
+import { OVERLAY_CLOSE, SHEET_GRABBER } from './overlay-close';
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -75,11 +75,13 @@ function SheetContent({
         )}
         {...props}
       >
+        {side === 'bottom' && <div aria-hidden className={SHEET_GRABBER} />}
         {children}
         {showCloseButton && (
           <SheetPrimitive.Close
             data-slot="sheet-close"
-            className={OVERLAY_CLOSE}
+            // Under a bottom sheet's grabber the title sits lower; the ✕ stays level with it.
+            className={cn(OVERLAY_CLOSE, side === 'bottom' && 'top-6.5')}
           >
             <XIcon className="size-5" />
             <span className="sr-only">{closeLabel}</span>
