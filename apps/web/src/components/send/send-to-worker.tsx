@@ -1,8 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
+  BULK_IDS_MAX,
   buildBatchMessage,
   buildIssueMessage,
   canMove,
@@ -12,6 +13,7 @@ import {
   type Locale,
   type Worker,
 } from '@muayana/shared';
+import { chunk } from '@/lib/all-pages';
 import { bulkIssues, changeIssueStatus } from '@/lib/issue-endpoints';
 import { photosOf, toIssueState } from '@/lib/issue-state';
 import {
@@ -76,9 +78,11 @@ export function SendToWorker({
 }
 
 /**
- * Batch send from a worker's page (business §5.5): all of the worker's `assigned` issues in one
- * message, then — on yes — all marked sent together in one bulk call. Issues in any other status
- * are left out. Mounted by the workers page (T9).
+ * Batch send from a worker's page (business §5.5): every one of the worker's `assigned` issues,
+ * then — on yes — marked sent together in one bulk call. Issues in any other status are left out.
+ * More than BULK_IDS_MAX go in consecutive batches: one message and one bulk call per batch.
+ * After a yes the page reloads (the sent ones leave `assigned`, the next batch comes first); after
+ * a "Not yet" the next tap moves on to the next batch.
  */
 export function BatchSendToWorker({
   worker,
@@ -91,6 +95,12 @@ export function BatchSendToWorker({
 }) {
   const t = useTranslations('send');
   const assigned = batchIssues(issues, worker.id);
+  const batches = chunk(assigned, BULK_IDS_MAX);
+  const [index, setIndex] = useState(0);
+  const part = batches.length === 0 ? 0 : index % batches.length;
+  const batch = batches[part] ?? [];
+  // The batch handed to WhatsApp: "Mark as sent?" marks exactly those.
+  const shared = useRef<Issue[]>([]);
 
   const disabledReason = !worker.active
     ? t('batch.inactive')
@@ -100,24 +110,39 @@ export function BatchSendToWorker({
 
   return (
     <SendFlow<BulkIssuesResponse>
-      label={t('batch.button', { count: assigned.length })}
+      label={t('batch.button', { count: batch.length })}
+      hint={
+        batches.length > 1
+          ? t('batch.part', {
+              part: part + 1,
+              parts: batches.length,
+              total: assigned.length,
+              size: BULK_IDS_MAX,
+            })
+          : null
+      }
       disabledReason={disabledReason}
       askToMarkSent
-      confirmBody={t('batch.confirmBody', { count: assigned.length })}
-      share={() =>
-        shareToWhatsApp({
-          text: buildBatchMessage(assigned, worker, MESSAGE_LANG, {
+      confirmBody={t('batch.confirmBody', { count: batch.length })}
+      share={() => {
+        shared.current = batch;
+        return shareToWhatsApp({
+          text: buildBatchMessage(batch, worker, MESSAGE_LANG, {
             baseUrl: photoBaseUrl(),
           }),
           phone: worker.phone,
           // Many issues' photos are too many files: the message carries their links.
           files: [],
-        })
-      }
+        });
+      }}
       markSent={() =>
-        bulkIssues({ ids: assigned.map((i) => i.id), status: 'sent' })
+        bulkIssues({ ids: shared.current.map((i) => i.id), status: 'sent' })
       }
-      onMarked={(res) => onSent(res.issues)}
+      onMarked={(res) => {
+        setIndex(0);
+        onSent(res.issues);
+      }}
+      onDeclined={() => setIndex(part + 1)}
     />
   );
 }

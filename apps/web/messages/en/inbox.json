@@ -35,6 +35,8 @@
     "mergeTitle": "Merge these captures?",
     "mergeBody": "The photos of #{source} move to #{target}, and #{source} is removed.",
     "mergeConfirm": "Merge",
-    "mergeDone": "Merged into #{number}."
+    "mergeDone": "Merged into #{number}.",
+    "chooseCategory": "Category",
+    "categoryTitle": "Category for the selected issues"
   }
 }

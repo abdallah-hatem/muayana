@@ -31,6 +31,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useApiErrorText } from '@/components/use-api-error-text';
 import { usePendingAction } from '@/components/use-pending-action';
+import type { ApiResult } from '@/lib/api-result';
 import { categoryName } from '@/lib/category-name';
 import {
   deleteWorker,
@@ -60,6 +61,25 @@ export function groupByStatus(
 }
 
 /**
+ * Every issue of the worker, one paged request per status so each group (and the batch send's
+ * `assigned` list) is complete however many he has. Any failure fails the whole load.
+ */
+async function listAllWorkerIssues(
+  workerId: string,
+): Promise<ApiResult<Issue[]>> {
+  const results = await Promise.all(
+    ISSUE_STATUSES.map((status) => listWorkerIssues(workerId, status)),
+  );
+  const failed = results.find((r) => !r.success);
+  if (failed) return failed;
+  return {
+    success: true,
+    status: 200,
+    data: results.flatMap((r) => (r.success ? r.data : [])),
+  };
+}
+
+/**
  * A worker's page (business §5.7): call and WhatsApp, categories, notes, counts, his issues by
  * status, and the batch send of his `assigned` issues (§5.5). Edit, deactivate / activate, and
  * delete only without issues — one with issues offers "Deactivate instead" (invariant §6.8).
@@ -82,7 +102,7 @@ export function WorkerView({ initial }: { initial: Worker }) {
 
   useEffect(() => {
     let live = true;
-    void listWorkerIssues(worker.id).then((res) => {
+    void listAllWorkerIssues(worker.id).then((res) => {
       if (live)
         setIssues(
           res.success

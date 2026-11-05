@@ -22,8 +22,14 @@ export function SendFlow<T>({
   markSent,
   onMarked,
   confirmBody,
+  hint,
+  onDeclined,
 }: {
   label: string;
+  /** A note under the button while it can be used (e.g. which batch this is). */
+  hint?: string | null;
+  /** He answered "Not yet" after sending. */
+  onDeclined?: () => void;
   /** Why sending isn't possible now; the button is disabled and this shows under it. */
   disabledReason?: string | null;
   share: () => Promise<ShareOutcome>;
@@ -75,7 +81,8 @@ export function SendFlow<T>({
       <Button
         type="button"
         size="lg"
-        className="w-full bg-success text-success-foreground hover:bg-success/90"
+        // Long labels (a batch's count, English) wrap inside the button instead of overflowing it.
+        className="h-auto min-h-14 w-full bg-success py-2 text-center whitespace-normal text-success-foreground hover:bg-success/90"
         disabled={disabled}
         aria-describedby={disabledReason ? reasonId : undefined}
         onClick={() => void start()}
@@ -87,10 +94,12 @@ export function SendFlow<T>({
         )}
         {label}
       </Button>
-      {disabledReason && (
+      {disabledReason ? (
         <p id={reasonId} className="type-small text-muted-foreground">
           {disabledReason}
         </p>
+      ) : (
+        hint && <p className="type-small text-muted-foreground">{hint}</p>
       )}
 
       <BottomSheet
@@ -106,7 +115,10 @@ export function SendFlow<T>({
               type="button"
               variant="outline"
               disabled={marking}
-              onClick={() => setAsking(false)}
+              onClick={() => {
+                setAsking(false);
+                onDeclined?.();
+              }}
             >
               {t('confirm.no')}
             </Button>

@@ -11,6 +11,13 @@
     "workers": "Workers",
     "settings": "Settings"
   },
+  "navShort": {
+    "dashboard": "Home",
+    "issues": "Issues",
+    "capture": "Capture",
+    "inbox": "Inbox",
+    "workers": "Workers"
+  },
   "status": {
     "new": "New",
     "unassigned": "Unassigned",

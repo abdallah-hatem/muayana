@@ -1,6 +1,6 @@
 'use client';
 
-import { Combine, Loader2 } from 'lucide-react';
+import { Combine, Loader2, Tags } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
@@ -41,6 +41,7 @@ export function BulkPanel({
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [busy, setBusy] = useState<'category' | 'merge' | null>(null);
   const [confirmMerge, setConfirmMerge] = useState(false);
+  const [choosing, setChoosing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
   const inFlight = useRef(false);
@@ -70,6 +71,7 @@ export function BulkPanel({
     }
     setSelected([]);
     setConfirmMerge(false);
+    setChoosing(false);
     setDone(doneText);
     onChanged();
   }
@@ -120,55 +122,51 @@ export function BulkPanel({
                     })}
                   </span>
                 </span>
-                <Checkbox
-                  checked={on}
-                  onCheckedChange={(v) => toggle(issue.id, v === true)}
-                  aria-label={t('select', { number: issue.number })}
-                  className="absolute end-2 top-2 size-6 bg-card"
-                />
+                {/* The whole card toggles (it is the label); the box sits in a 48px corner. */}
+                <span className="absolute end-0 top-0 flex size-12 items-center justify-center">
+                  <Checkbox
+                    checked={on}
+                    onCheckedChange={(v) => toggle(issue.id, v === true)}
+                    aria-label={t('select', { number: issue.number })}
+                    className="size-6 bg-card"
+                  />
+                </span>
               </label>
             </li>
           );
         })}
       </ul>
 
-      <section className="sticky bottom-24 z-10 -mx-4 flex flex-col gap-3 border-t-2 border-border bg-background/95 px-4 py-3 backdrop-blur md:bottom-0 md:mx-0 md:rounded-lg md:border-2">
-        <p className="type-small font-bold" aria-live="polite">
-          {t('selected', { count: selected.length })}
-        </p>
-        <CategoryChips
-          categories={categories}
-          value={categoryId}
-          onChange={setCategoryId}
-          disabled={busy !== null}
-        />
-        <div className="flex flex-wrap gap-2">
+      {/* A compact bar above the bottom nav: the count and two actions. The category chips live
+          in a sheet, so on a phone the bar never covers the captures being selected. */}
+      <section className="sticky bottom-24 z-10 -mx-4 flex flex-col gap-2 border-t-2 border-border bg-background/95 px-4 py-2.5 backdrop-blur md:bottom-0 md:mx-0 md:rounded-lg md:border-2">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 [&>button]:flex-1 sm:[&>button]:flex-none">
+          <p
+            className="min-w-0 basis-full truncate type-small font-bold sm:flex-1 sm:basis-auto"
+            aria-live="polite"
+          >
+            {t('selected', { count: selected.length })}
+          </p>
           <Button
             type="button"
-            className="flex-1"
-            disabled={
-              selected.length === 0 || categoryId === null || busy !== null
-            }
-            onClick={() =>
-              void run(
-                'category',
-                () =>
-                  bulkIssues({ ids: selected, categoryId: categoryId ?? '' }),
-                t('categoryDone', { count: selected.length }),
-              )
-            }
+            disabled={selected.length === 0 || busy !== null}
+            onClick={() => {
+              setError(null);
+              setChoosing(true);
+            }}
           >
-            {busy === 'category' && (
-              <Loader2 className="animate-spin" aria-hidden />
-            )}
-            {t('setCategory', { count: selected.length })}
+            <Tags aria-hidden />
+            {t('chooseCategory')}
           </Button>
           <Button
             type="button"
             variant="outline"
             disabled={!merge.ok || busy !== null}
             aria-describedby={mergeReason ? 'merge-reason' : undefined}
-            onClick={() => setConfirmMerge(true)}
+            onClick={() => {
+              setError(null);
+              setConfirmMerge(true);
+            }}
           >
             <Combine aria-hidden />
             {t('merge')}
@@ -179,7 +177,7 @@ export function BulkPanel({
             {mergeReason}
           </p>
         )}
-        {error && (
+        {error && !choosing && !confirmMerge && (
           <p role="alert" className="type-small text-destructive">
             {error}
           </p>
@@ -190,6 +188,56 @@ export function BulkPanel({
           </p>
         )}
       </section>
+
+      <BottomSheet
+        open={choosing}
+        onOpenChange={(open) => !busy && setChoosing(open)}
+        title={t('categoryTitle')}
+        description={t('selected', { count: selected.length })}
+        footer={
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={busy !== null}
+              onClick={() => setChoosing(false)}
+            >
+              {tCommon('actions.cancel')}
+            </Button>
+            <Button
+              type="button"
+              disabled={
+                selected.length === 0 || categoryId === null || busy !== null
+              }
+              onClick={() =>
+                void run(
+                  'category',
+                  () =>
+                    bulkIssues({ ids: selected, categoryId: categoryId ?? '' }),
+                  t('categoryDone', { count: selected.length }),
+                )
+              }
+            >
+              {busy === 'category' && (
+                <Loader2 className="animate-spin" aria-hidden />
+              )}
+              {t('setCategory', { count: selected.length })}
+            </Button>
+          </>
+        }
+      >
+        <CategoryChips
+          categories={categories}
+          value={categoryId}
+          onChange={setCategoryId}
+          disabled={busy !== null}
+        />
+        {error && (
+          <p role="alert" className="type-small text-destructive">
+            {error}
+          </p>
+        )}
+      </BottomSheet>
 
       {merge.ok && (
         <BottomSheet
@@ -228,7 +276,13 @@ export function BulkPanel({
               </Button>
             </>
           }
-        />
+        >
+          {error && (
+            <p role="alert" className="type-small text-destructive">
+              {error}
+            </p>
+          )}
+        </BottomSheet>
       )}
     </div>
   );

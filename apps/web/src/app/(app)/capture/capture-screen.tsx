@@ -173,7 +173,8 @@ export function CaptureScreen() {
           <img
             src={lastShotUrl}
             alt={t('lastShot')}
-            className="absolute inset-0 size-full object-contain"
+            // A photo that fails to decode keeps its box: no alt text spilling over the view.
+            className="absolute inset-0 size-full overflow-hidden object-contain text-transparent"
           />
         ) : (
           <div className="flex max-w-64 flex-col items-center gap-3 p-6 text-center text-muted-foreground">
@@ -235,7 +236,7 @@ export function CaptureScreen() {
                 src={lastShotUrl}
                 alt=""
                 aria-hidden
-                className="size-14 rounded-lg border-2 border-primary object-cover"
+                className="size-14 overflow-hidden rounded-lg border-2 border-primary bg-muted object-cover text-transparent"
               />
             ) : (
               <div className="size-14 rounded-lg border-2 border-dashed border-border" />

@@ -11,6 +11,7 @@
     "button": "Send {count, plural, one {# assigned issue} other {# assigned issues}} on WhatsApp",
     "inactive": "This worker is deactivated.",
     "none": "No assigned issues to send.",
-    "confirmBody": "{count, plural, one {Mark the issue as sent?} other {Mark all # issues as sent?}}"
+    "confirmBody": "{count, plural, one {Mark the issue as sent?} other {Mark all # issues as sent?}}",
+    "part": "Batch {part} of {parts}: {total} assigned issues in all, at most {size} per message."
   }
 }

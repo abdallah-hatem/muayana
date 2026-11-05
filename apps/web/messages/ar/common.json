@@ -11,6 +11,13 @@
     "workers": "العمال",
     "settings": "الإعدادات"
   },
+  "navShort": {
+    "dashboard": "الرئيسية",
+    "issues": "الملاحظات",
+    "capture": "تصوير",
+    "inbox": "الوارد",
+    "workers": "العمال"
+  },
   "status": {
     "new": "جديد",
     "unassigned": "غير مُسند",

@@ -178,14 +178,14 @@ function IssuesResults({
         list.refreshing && 'pointer-events-none opacity-50',
       )}
     >
-      <ul className="flex flex-col gap-2.5 md:hidden">
+      <ul className="grid grid-cols-1 gap-2.5 md:grid-cols-2 lg:grid-cols-1 xl:hidden">
         {list.issues.map((issue) => (
           <li key={issue.id}>
             <IssueCard issue={issue} />
           </li>
         ))}
       </ul>
-      <div className="hidden rounded-lg border-2 border-border bg-card md:block">
+      <div className="hidden rounded-lg border-2 border-border bg-card xl:block">
         <IssuesTable issues={list.issues} />
       </div>
       {list.error ? (

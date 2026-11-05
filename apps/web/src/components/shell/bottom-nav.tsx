@@ -36,7 +36,8 @@ export function BottomNav() {
           <NavLink
             key={item.key}
             item={item}
-            label={t(`nav.${item.key}`)}
+            // Short words (`navShort`) that fit a fifth of a 360px phone; the top bar shows the full name.
+            label={t(`navShort.${item.key}`)}
             active={isActive(pathname, item.href)}
           />
         ),

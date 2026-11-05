@@ -17,10 +17,13 @@ export function IssueRow({ issue }: { issue: Issue }) {
         {t('issueNumber', { number: issue.number })}
       </span>
       <span className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate type-body font-bold">
+        <span dir="auto" className="truncate text-start type-body font-bold">
           {issue.description ?? issue.location ?? issue.site.name}
         </span>
-        <span className="truncate type-small text-muted-foreground">
+        <span
+          dir="auto"
+          className="truncate text-start type-small text-muted-foreground"
+        >
           {[issue.site.name, issue.location].filter(Boolean).join(' · ')}
         </span>
       </span>

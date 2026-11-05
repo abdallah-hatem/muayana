@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Issue, Worker } from '@muayana/shared';
 import { clientFetch } from '@/lib/api-client';
-import { calls, routeApi } from '@/test-utils/api-mock';
+import { calls, routeApi, type ApiCall } from '@/test-utils/api-mock';
 import {
   assignedIssue,
   CAT_PLASTER,
@@ -32,6 +32,25 @@ const issues: Issue[] = [
   assignedIssue(worker, { number: 14, status: 'solved' }),
 ];
 
+/** GET /issues as the API answers it: one status, one page of `limit`, with its meta. */
+const byStatus = (list: () => Issue[]) => (call: ApiCall) => {
+  const q = new URL(call.path, 'http://api.test').searchParams;
+  const status = q.get('status');
+  const page = Number(q.get('page') ?? 1);
+  const limit = Number(q.get('limit') ?? 20);
+  const all = list().filter((i) => !status || i.status === status);
+  return {
+    ...ok(all.slice((page - 1) * limit, page * limit)),
+    meta: {
+      total: all.length,
+      page,
+      limit,
+      hasNextPage: page * limit < all.length,
+      hasPreviousPage: page > 1,
+    },
+  };
+};
+
 function renderView(w: Worker = worker) {
   renderWithIntl(<WorkerView initial={w} />);
   return userEvent.setup();
@@ -57,7 +76,7 @@ describe('WorkerView', () => {
 
   it("Batch send: only the worker's `assigned` issues are included (§5.5)", async () => {
     routeApi(clientFetch, {
-      'GET /issues': () => ok(issues),
+      'GET /issues': byStatus(() => issues),
       'POST /issues/bulk': () => ok({ updated: 2, issues: [] }),
       'GET /workers/': () => ok(worker),
     });
@@ -81,7 +100,7 @@ describe('WorkerView', () => {
   it('Batch "Mark as sent?" yes → all included issues become sent in one bulk call; no → nothing changes (§5.5)', async () => {
     let current = issues;
     routeApi(clientFetch, {
-      'GET /issues': () => ok(current),
+      'GET /issues': byStatus(() => current),
       'POST /issues/bulk': () => {
         current = current.map((i) =>
           i.status === 'assigned' ? { ...i, status: 'sent' as const } : i,
@@ -117,8 +136,31 @@ describe('WorkerView', () => {
     expect(screen.queryByRole('region', { name: 'Assigned' })).toBeNull();
   });
 
+  it('more than 100 issues: every group and the batch count them all, page after page', async () => {
+    const many: Issue[] = [
+      ...Array.from({ length: 130 }, (_, i) =>
+        assignedIssue(worker, { number: i + 1, status: 'solved' }),
+      ),
+      ...Array.from({ length: 120 }, (_, i) =>
+        assignedIssue(worker, { number: 200 + i }),
+      ),
+    ];
+    routeApi(clientFetch, { 'GET /issues': byStatus(() => many) });
+    renderView();
+
+    const send = await batchButton();
+    expect(send).toHaveAccessibleName('Send 120 assigned issues on WhatsApp');
+    expect(within(group('Solved')).getAllByRole('link')).toHaveLength(130);
+    expect(within(group('Assigned')).getAllByRole('link')).toHaveLength(120);
+    const gets = calls(clientFetch, 'GET', '/issues').map((c) => c.path);
+    expect(gets).toContainEqual(expect.stringMatching(/status=solved.*page=2/));
+    expect(gets).toContainEqual(
+      expect.stringMatching(/status=assigned.*page=2/),
+    );
+  });
+
   it('Deactivated worker: shown with a badge, no batch send, keeps his issues listed (§3)', async () => {
-    routeApi(clientFetch, { 'GET /issues': () => ok(issues) });
+    routeApi(clientFetch, { 'GET /issues': byStatus(() => issues) });
     renderView({ ...worker, active: false });
 
     expect(await batchButton()).toBeDisabled();
@@ -147,7 +189,7 @@ describe('WorkerView', () => {
 
   it('delete a worker with issues offers "Deactivate instead" and deletes nothing', async () => {
     routeApi(clientFetch, {
-      'GET /issues': () => ok(issues),
+      'GET /issues': byStatus(() => issues),
       'PATCH /workers/': () => ok({ ...worker, active: false }),
     });
     const user = renderView();

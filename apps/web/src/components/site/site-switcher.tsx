@@ -43,11 +43,13 @@ export function SiteSwitcher() {
     if (!sites.some((s) => s.id === siteId)) setSiteId(null);
   }, [ready, sites, siteId, setSiteId]);
 
-  const known = sites?.some((s) => s.id === siteId) ?? false;
-  const value = siteId && known ? siteId : ALL;
+  const current = sites?.find((s) => s.id === siteId);
+  const value = current ? current.id : ALL;
 
   return (
-    <div data-slot="site-switcher" className="min-w-0">
+    // Takes the top bar's leftover room; the label ends in an ellipsis and, when even that is too
+    // narrow (a phone with the queue chip), only the pin shows — the trigger keeps its name.
+    <div data-slot="site-switcher" className="min-w-0 flex-1 sm:flex-none">
       <Select
         value={value}
         onValueChange={(next) => setSiteId(next === ALL ? null : next)}
@@ -55,16 +57,23 @@ export function SiteSwitcher() {
       >
         <SelectTrigger
           aria-label={t('label')}
-          className="h-9 w-full max-w-32 min-w-0 gap-1.5 rounded-full border-0 bg-secondary px-3 type-small font-bold text-secondary-foreground sm:max-w-60"
+          className="@container h-11 w-full min-w-0 gap-1.5 rounded-full border-0 bg-secondary px-3 type-small font-bold text-secondary-foreground data-[size=default]:h-11 sm:w-60"
         >
           <MapPin className="size-4 shrink-0" aria-hidden />
-          <SelectValue placeholder={t('placeholder')} />
+          <SelectValue
+            placeholder={t('placeholder')}
+            className="min-w-0 flex-1 @max-[7rem]:hidden"
+          >
+            <span dir="auto" className="min-w-0 truncate text-start">
+              {current ? current.name : t('placeholder')}
+            </span>
+          </SelectValue>
         </SelectTrigger>
         <SelectContent position="popper" align="start">
           <SelectItem value={ALL}>{t('placeholder')}</SelectItem>
           {(sites ?? []).map((site) => (
             <SelectItem key={site.id} value={site.id}>
-              {site.name}
+              <span dir="auto">{site.name}</span>
             </SelectItem>
           ))}
         </SelectContent>

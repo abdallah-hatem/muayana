@@ -46,5 +46,12 @@
     "sitesHint": "Add, rename and archive sites",
     "categories": "Categories",
     "categoriesHint": "Trades, colours and their order"
+  },
+  "theme": {
+    "title": "Theme",
+    "hint": "Dark is easier on the eyes at night; System follows the phone.",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
   }
 }

@@ -1,7 +1,8 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Issue } from '@muayana/shared';
+import type { BulkIssuesRequest, Issue } from '@muayana/shared';
 import { clientFetch } from '@/lib/api-client';
 import type { ApiResult } from '@/lib/api-result';
 import { calls, deferred, routeApi } from '@/test-utils/api-mock';
@@ -223,6 +224,140 @@ describe('BatchSendToWorker', () => {
     fireEvent.click(yes);
     await waitFor(() => expect(onSent).toHaveBeenCalledWith(sentIssues));
     expect(calls(clientFetch, 'POST', '/issues/bulk')).toHaveLength(1);
+  });
+
+  /** The page around the button: a yes moves the sent issues out of `assigned`. */
+  function BatchPage({ initial }: { initial: Issue[] }) {
+    const [list, setList] = useState(initial);
+    return (
+      <BatchSendToWorker
+        worker={worker}
+        issues={list}
+        onSent={(sent) => {
+          const ids = new Set(sent.map((i) => i.id));
+          setList((l) =>
+            l.map((i) => (ids.has(i.id) ? { ...i, status: 'sent' } : i)),
+          );
+        }}
+      />
+    );
+  }
+
+  /** The issue numbers a wa.me message carries. */
+  const numbersIn = (call: unknown[]) =>
+    new Set(
+      [
+        ...(new URL(call[0] as string).searchParams.get('text') ?? '').matchAll(
+          /#(\d+)/g,
+        ),
+      ].map((m) => Number(m[1])),
+    );
+
+  it('230 assigned issues → two batches, 200 then 30: one message and one bulk call each (§5.5)', async () => {
+    const many = Array.from({ length: 230 }, (_, i) =>
+      assignedIssue(worker, { number: i + 1 }),
+    );
+    routeApi(clientFetch, {
+      'POST /issues/bulk': (call) => {
+        const { ids } = call.body as BulkIssuesRequest;
+        const sent = many
+          .filter((i) => ids.includes(i.id))
+          .map((i) => ({ ...i, status: 'sent' as const }));
+        return ok({ updated: sent.length, issues: sent });
+      },
+    });
+    renderWithIntl(<BatchPage initial={many} />);
+    const user = userEvent.setup();
+
+    // First batch: the first 200.
+    expect(screen.getByText(/Batch 1 of 2: 230 assigned issues/)).toBeVisible();
+    await user.click(
+      screen.getByRole('button', { name: /Send 200 assigned issues/ }),
+    );
+    await user.click(
+      await screen.findByRole('button', { name: 'Yes, mark sent' }),
+    );
+    await waitFor(() =>
+      expect(calls(clientFetch, 'POST', '/issues/bulk')).toHaveLength(1),
+    );
+
+    // Second batch: the 30 left.
+    await user.click(
+      await screen.findByRole('button', { name: /Send 30 assigned issues/ }),
+    );
+    await user.click(
+      await screen.findByRole('button', { name: 'Yes, mark sent' }),
+    );
+    await waitFor(() =>
+      expect(calls(clientFetch, 'POST', '/issues/bulk')).toHaveLength(2),
+    );
+
+    const bulks = calls(clientFetch, 'POST', '/issues/bulk').map(
+      (c) => (c.body as BulkIssuesRequest).ids,
+    );
+    expect(bulks.map((ids) => ids.length)).toEqual([200, 30]);
+    expect(new Set([...bulks[0], ...bulks[1]])).toEqual(
+      new Set(many.map((i) => i.id)),
+    );
+    expect(open).toHaveBeenCalledTimes(2);
+    expect(numbersIn(open.mock.calls[0]).size).toBe(200);
+    expect(numbersIn(open.mock.calls[1]).size).toBe(30);
+    expect(
+      screen.getByRole('button', { name: /Send 0 assigned issues/ }),
+    ).toBeDisabled();
+  });
+
+  it('more than one batch: "Not yet" moves the next tap on to the next batch', async () => {
+    const many = Array.from({ length: 201 }, (_, i) =>
+      assignedIssue(worker, { number: i + 1 }),
+    );
+    renderWithIntl(<BatchPage initial={many} />);
+    const user = userEvent.setup();
+
+    await user.click(
+      screen.getByRole('button', { name: /Send 200 assigned issues/ }),
+    );
+    await user.click(await screen.findByRole('button', { name: 'Not yet' }));
+
+    await user.click(
+      await screen.findByRole('button', { name: /Send 1 assigned issue on/ }),
+    );
+    expect([...numbersIn(open.mock.calls[1])]).toEqual([201]);
+    expect(clientFetch).not.toHaveBeenCalled();
+  });
+
+  it('issues in other statuses are never in a batch, however many there are', async () => {
+    const mixed = [
+      ...Array.from({ length: 150 }, (_, i) =>
+        assignedIssue(worker, { number: i + 1, status: 'sent' }),
+      ),
+      ...Array.from({ length: 3 }, (_, i) =>
+        assignedIssue(worker, { number: 500 + i }),
+      ),
+      assignedIssue(worker, { number: 600, status: 'in_progress' }),
+    ];
+    routeApi(clientFetch, {
+      'POST /issues/bulk': () => ok({ updated: 3, issues: [] }),
+    });
+    renderWithIntl(
+      <BatchSendToWorker worker={worker} issues={mixed} onSent={vi.fn()} />,
+    );
+    const user = userEvent.setup();
+
+    expect(screen.queryByText(/Batch 1 of/)).toBeNull();
+    await user.click(
+      screen.getByRole('button', { name: /Send 3 assigned issues/ }),
+    );
+    expect(numbersIn(open.mock.calls[0])).toEqual(new Set([500, 501, 502]));
+    await user.click(
+      await screen.findByRole('button', { name: 'Yes, mark sent' }),
+    );
+    await waitFor(() =>
+      expect(calls(clientFetch, 'POST', '/issues/bulk')).toHaveLength(1),
+    );
+    expect(
+      (calls(clientFetch, 'POST')[0].body as BulkIssuesRequest).ids,
+    ).toEqual(mixed.slice(150, 153).map((i) => i.id));
   });
 
   it('Deactivated worker: no batch send', () => {

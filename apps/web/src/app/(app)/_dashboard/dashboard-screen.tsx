@@ -302,7 +302,10 @@ function BarGroup({
                 data-testid="bar-link"
                 className="grid min-h-11 min-w-0 flex-1 cursor-pointer grid-cols-[minmax(0,7rem)_1fr_auto] items-center gap-2.5 rounded-md px-1 hover:bg-accent/60"
               >
-                <span className="truncate type-small font-bold">
+                <span
+                  dir="auto"
+                  className="truncate text-start type-small font-bold"
+                >
                   {row.name}
                 </span>
                 <span className="h-2.5 rounded-full bg-muted" aria-hidden>
@@ -329,9 +332,12 @@ function BarGroup({
                     count: row.overdue,
                   })}
                   data-testid="bar-overdue-link"
-                  className="inline-flex min-h-8 shrink-0 cursor-pointer items-center rounded-sm bg-destructive px-2 type-micro font-bold text-destructive-foreground"
+                  // The red stamp stays small; the link around it is a full 44px tap target.
+                  className="inline-flex min-h-11 shrink-0 cursor-pointer items-center"
                 >
-                  {t('overdue', { count: formatCount(row.overdue) })}
+                  <span className="inline-flex min-h-8 items-center rounded-sm bg-destructive px-2 type-micro font-bold text-destructive-foreground">
+                    {t('overdue', { count: formatCount(row.overdue) })}
+                  </span>
                 </Link>
               )}
             </li>

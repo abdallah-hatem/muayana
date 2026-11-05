@@ -19,7 +19,7 @@ export function PageHeader({
       {back && (
         <Link
           href={back.href}
-          className="inline-flex w-fit cursor-pointer items-center gap-1.5 type-small font-bold text-muted-foreground hover:text-foreground"
+          className="-my-2 inline-flex min-h-11 w-fit cursor-pointer items-center gap-1.5 type-small font-bold text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="size-4 flip-rtl" aria-hidden />
           {back.label}
