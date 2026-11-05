@@ -1,0 +1,101 @@
+{
+  "new": "Worker",
+  "newLong": "New worker",
+  "export": "Export CSV",
+  "exporting": "Exporting…",
+  "exportFailed": "Couldn't export the workers.",
+  "searchLabel": "Search workers",
+  "searchPlaceholder": "Search by name or phone",
+  "filterLabel": "Filter by category",
+  "allCategories": "All",
+  "activity": {
+    "label": "Which workers",
+    "true": "Active",
+    "false": "Deactivated"
+  },
+  "loadFailed": "Couldn't load the workers.",
+  "empty": {
+    "title": "No workers yet",
+    "body": "Add the people you send issues to, with their trades and WhatsApp number.",
+    "filteredTitle": "No workers match",
+    "filteredBody": "Try another name or category.",
+    "inactiveTitle": "No deactivated workers",
+    "inactiveBody": "Workers you deactivate show here and keep their issues."
+  },
+  "inactiveBadge": "Deactivated",
+  "whatsapp": "WhatsApp {name}",
+  "call": "Call",
+  "whatsappButton": "WhatsApp",
+  "columns": {
+    "name": "Name",
+    "categories": "Categories",
+    "phone": "Phone",
+    "open": "Open issues",
+    "contact": "Contact"
+  },
+  "count": {
+    "assigned": "Assigned {count}",
+    "sent": "Sent {count}",
+    "estimated": "Estimated {count}",
+    "in_progress": "In progress {count}",
+    "solved": "Solved {count}",
+    "overdue": "Overdue {count}"
+  },
+  "noOpen": "No open issues",
+  "form": {
+    "createTitle": "New worker",
+    "editTitle": "Edit worker",
+    "back": "Workers",
+    "name": "Name",
+    "namePlaceholder": "e.g. Am Sayed",
+    "phone": "Phone",
+    "phonePlaceholder": "e.g. 0100 123 4567",
+    "phoneHint": "Mobile or landline. +20 and Arabic digits are fine.",
+    "categories": "Categories",
+    "categoriesHint": "The trades he does. Issues of these trades can go to him.",
+    "noCategories": "No active categories. Add one in Settings → Categories first.",
+    "inactiveCategory": "{name} (deactivated)",
+    "notes": "Notes",
+    "notesPlaceholder": "e.g. Comes on Sundays only; brings his own scaffold",
+    "save": "Save",
+    "saving": "Saving…",
+    "create": "Add worker",
+    "errors": {
+      "nameRequired": "Enter the worker's name.",
+      "phoneRequired": "Enter the worker's phone.",
+      "badPhone": "That isn't an Egyptian phone number, e.g. 01001234567.",
+      "duplicatePhone": "Another worker already has this phone.",
+      "categoriesRequired": "Choose at least one category.",
+      "inactiveCategory": "One of the chosen categories was deactivated. Choose again."
+    }
+  },
+  "detail": {
+    "categories": "Categories",
+    "notes": "Notes",
+    "issues": "Issues",
+    "issuesFailed": "Couldn't load his issues.",
+    "noIssues": "No issues yet.",
+    "openCount": "{count, plural, =0 {No open issues} one {# open issue} other {# open issues}}"
+  },
+  "actions": {
+    "edit": "Edit",
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "delete": "Delete"
+  },
+  "delete": {
+    "title": "Delete this worker?",
+    "body": "He has no issues. Deleting him can't be undone.",
+    "confirm": "Delete",
+    "inUseTitle": "This worker has issues",
+    "inUseBody": "A worker with issues is deactivated, never deleted. He keeps his issues and can't get new ones.",
+    "deactivateInstead": "Deactivate instead"
+  },
+  "toast": {
+    "created": "Worker added.",
+    "saved": "Worker saved.",
+    "deactivated": "Worker deactivated.",
+    "activated": "Worker activated.",
+    "deleted": "Worker deleted."
+  }
+}

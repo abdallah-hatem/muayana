@@ -3,11 +3,12 @@ import { getMe } from '@/lib/session';
 import {
   LanguageSection,
   LogoutSection,
+  ManageSection,
   PasswordSection,
   ProfileSection,
 } from './settings-sections';
 
-/** Profile, language, password and sign-out. (Sites and categories join in T8.) */
+/** Profile, the sites and categories managers, language, password and sign-out. */
 export default async function SettingsPage() {
   const me = await getMe();
   const t = await getTranslations('shell');
@@ -21,6 +22,7 @@ export default async function SettingsPage() {
           {t('errors.NETWORK_ERROR')}
         </p>
       )}
+      <ManageSection />
       <LanguageSection />
       <PasswordSection />
       <LogoutSection />

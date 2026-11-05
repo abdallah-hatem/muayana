@@ -1,6 +1,14 @@
 'use client';
 
-import { Check, Loader2, LogOut } from 'lucide-react';
+import {
+  Building2,
+  Check,
+  ChevronRight,
+  Loader2,
+  LogOut,
+  Tags,
+} from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -64,6 +72,46 @@ function SubmitButton({
       {pending && <Loader2 className="animate-spin" aria-hidden />}
       {pending ? pendingLabel : label}
     </Button>
+  );
+}
+
+/** Links to the sites and categories managers. */
+export function ManageSection() {
+  const t = useTranslations('settings.manage');
+  const links = [
+    {
+      href: `${ROUTES.settings}/sites`,
+      icon: Building2,
+      label: t('sites'),
+      hint: t('sitesHint'),
+    },
+    {
+      href: `${ROUTES.settings}/categories`,
+      icon: Tags,
+      label: t('categories'),
+      hint: t('categoriesHint'),
+    },
+  ];
+  return (
+    <Section title={t('title')} hint={t('hint')}>
+      <ul className="flex flex-col gap-2">
+        {links.map(({ href, icon: Icon, label, hint }) => (
+          <li key={href}>
+            <Link
+              href={href}
+              className="flex min-h-14 cursor-pointer items-center gap-3 rounded-md border-2 border-border bg-background px-4 py-2 hover:bg-accent"
+            >
+              <Icon className="size-5 shrink-0" aria-hidden />
+              <span className="flex min-w-0 flex-1 flex-col">
+                <span className="type-body font-bold">{label}</span>
+                <span className="type-small text-muted-foreground">{hint}</span>
+              </span>
+              <ChevronRight className="size-5 shrink-0 flip-rtl" aria-hidden />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </Section>
   );
 }
 

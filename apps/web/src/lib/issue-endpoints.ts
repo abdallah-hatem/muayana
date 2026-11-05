@@ -15,24 +15,17 @@ import type {
 import { PAGE_LIMIT_MAX } from '@muayana/shared';
 import { clientFetch } from './api-client';
 import type { ApiResult } from './api-result';
+import { toQuery } from './query-string';
 
 /**
  * The issue endpoints of the contract (docs/specs/…-contract.md "Issues"), and the lookups the
  * sort / issue / send screens need, as typed calls over `clientFetch`. Tests mock `clientFetch`.
  */
 
-function query(params: Record<string, string | number | undefined>): string {
-  const q = new URLSearchParams();
-  for (const [key, value] of Object.entries(params))
-    if (value !== undefined && value !== '') q.set(key, String(value));
-  const s = q.toString();
-  return s ? `?${s}` : '';
-}
-
 /** The sort inbox: `new` issues, oldest first, optionally one site (business §5.3). */
 export const listInboxIssues = (siteId: string | null) =>
   clientFetch<Issue[]>(
-    `/issues${query({
+    `/issues${toQuery({
       status: 'new',
       sort: 'oldest' satisfies IssueSort,
       siteId: siteId ?? undefined,
@@ -83,11 +76,11 @@ export const listActiveCategories = () =>
 /** Active workers having the category, with their open counts (business §5.4). */
 export const listWorkersForCategory = (categoryId: string) =>
   clientFetch<Worker[]>(
-    `/workers${query({ categoryId, active: 'true', limit: PAGE_LIMIT_MAX })}`,
+    `/workers${toQuery({ categoryId, active: 'true', limit: PAGE_LIMIT_MAX })}`,
   );
 
 /** Sites that can receive captures (not archived). */
 export const listActiveSites = () =>
   clientFetch<Site[]>(
-    `/sites${query({ archived: 'false', limit: PAGE_LIMIT_MAX })}`,
+    `/sites${toQuery({ archived: 'false', limit: PAGE_LIMIT_MAX })}`,
   );

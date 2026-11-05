@@ -37,7 +37,8 @@
     "capture": "تصوير",
     "delete": "حذف",
     "retry": "إعادة المحاولة",
-    "close": "إغلاق"
+    "close": "إغلاق",
+    "edit": "تعديل"
   },
   "fields": {
     "category": "التصنيف",
@@ -62,5 +63,16 @@
   "language": {
     "ar": "العربية",
     "en": "English"
+  },
+  "pager": {
+    "label": "الصفحات",
+    "summary": "عرض {from}–{to} من {total}",
+    "first": "الصفحة الأولى",
+    "previous": "الصفحة السابقة",
+    "next": "الصفحة التالية",
+    "last": "الصفحة الأخيرة",
+    "page": "صفحة {page}",
+    "pageSize": "عدد الصفوف في الصفحة",
+    "perPage": "{count} / صفحة"
   }
 }

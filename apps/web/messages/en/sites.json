@@ -1,0 +1,54 @@
+{
+  "title": "Sites",
+  "back": "Settings",
+  "new": "New site",
+  "tabs": {
+    "label": "Which sites",
+    "active": "Active",
+    "archived": "Archived"
+  },
+  "empty": {
+    "activeTitle": "No sites yet",
+    "activeBody": "Add the building or project you are auditing to start capturing.",
+    "archivedTitle": "No archived sites",
+    "archivedBody": "Sites you archive show here. Their issues stay searchable."
+  },
+  "loadFailed": "Couldn't load the sites.",
+  "counts": "{open} open · {total, plural, one {# issue} other {# issues}}",
+  "archivedBadge": "Archived",
+  "actions": {
+    "edit": "Edit",
+    "archive": "Archive",
+    "unarchive": "Restore",
+    "delete": "Delete"
+  },
+  "form": {
+    "createTitle": "New site",
+    "editTitle": "Edit site",
+    "name": "Name",
+    "namePlaceholder": "e.g. Palm Tower — Block B",
+    "address": "Address",
+    "addressPlaceholder": "e.g. 90th Street, New Cairo",
+    "notes": "Notes",
+    "notesPlaceholder": "e.g. Gate code, site manager's name",
+    "save": "Save",
+    "saving": "Saving…",
+    "nameRequired": "Enter the site's name.",
+    "duplicate": "Another site already has this name."
+  },
+  "delete": {
+    "title": "Delete this site?",
+    "body": "It has no issues. Deleting it can't be undone.",
+    "confirm": "Delete",
+    "inUseTitle": "This site has issues",
+    "inUseBody": "A site with issues is archived, never deleted. Archiving hides it from pickers and keeps its issues.",
+    "archiveInstead": "Archive instead"
+  },
+  "toast": {
+    "created": "Site added.",
+    "saved": "Site saved.",
+    "archived": "Site archived.",
+    "unarchived": "Site restored.",
+    "deleted": "Site deleted."
+  }
+}

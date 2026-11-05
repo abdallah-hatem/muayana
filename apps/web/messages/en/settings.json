@@ -38,5 +38,13 @@
     "hint": "You'll need your email and password to sign in again.",
     "button": "Sign out",
     "busy": "Signing out…"
+  },
+  "manage": {
+    "title": "Manage",
+    "hint": "The sites you audit and the trades you sort issues into.",
+    "sites": "Sites",
+    "sitesHint": "Add, rename and archive sites",
+    "categories": "Categories",
+    "categoriesHint": "Trades, colours and their order"
   }
 }
