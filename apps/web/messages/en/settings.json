@@ -1,0 +1,42 @@
+{
+  "title": "Settings",
+  "profile": {
+    "title": "Profile",
+    "name": "Name",
+    "namePlaceholder": "e.g. Eng. Ahmed Hassan",
+    "email": "Email",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Profile saved.",
+    "nameRequired": "Enter your name."
+  },
+  "language": {
+    "title": "Language",
+    "hint": "The app and the messages you send use this language.",
+    "saved": "Language changed."
+  },
+  "password": {
+    "title": "Change password",
+    "current": "Current password",
+    "currentPlaceholder": "Your current password",
+    "new": "New password",
+    "newPlaceholder": "At least {min} characters",
+    "confirm": "Confirm new password",
+    "confirmPlaceholder": "Type the new password again",
+    "submit": "Change password",
+    "submitting": "Changing…",
+    "changed": "Password changed.",
+    "errors": {
+      "WRONG_PASSWORD": "The current password is wrong.",
+      "currentRequired": "Enter your current password.",
+      "tooShort": "Use at least {min} characters.",
+      "mismatch": "The two passwords don't match."
+    }
+  },
+  "logout": {
+    "title": "Sign out",
+    "hint": "You'll need your email and password to sign in again.",
+    "button": "Sign out",
+    "busy": "Signing out…"
+  }
+}

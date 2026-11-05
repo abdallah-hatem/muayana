@@ -1,0 +1,16 @@
+{
+  "mainNav": "Main navigation",
+  "openSettings": "Settings",
+  "switchLanguage": "Switch to {language}",
+  "toggleTheme": "Switch light / dark",
+  "siteSwitcher": {
+    "placeholder": "All sites"
+  },
+  "placeholder": {
+    "body": "This screen is on its way."
+  },
+  "errors": {
+    "NETWORK_ERROR": "Can't reach the server. Check your connection and try again.",
+    "generic": "Something went wrong. Try again."
+  }
+}
