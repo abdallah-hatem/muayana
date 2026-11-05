@@ -41,6 +41,14 @@ export const envSchema = z
     ),
     /** Blob driver: the store's read-write token. */
     BLOB_READ_WRITE_TOKEN: optionalString,
+    /**
+     * Behind the web proxy (deployed): take the client IP from `X-Forwarded-For`, which the web
+     * server sets. Off locally, so a caller can't pick its own IP for the sign-in rate limit.
+     */
+    TRUST_PROXY: z
+      .enum(['true', 'false'])
+      .default('false')
+      .transform((value) => value === 'true'),
     /** Set by Vercel on every deployment: the database pool shrinks to one connection. */
     VERCEL: optionalString,
   })

@@ -1,0 +1,42 @@
+{
+  "title": "Export CSV",
+  "subtitle": "Uses the current filter.",
+  "count": "{count, plural, =0 {No matching issues} one {# matching issue} other {# matching issues}}",
+  "kind": {
+    "label": "What to export",
+    "issues": "Issues",
+    "history": "Status history"
+  },
+  "historyHint": "Every status change of the matching issues.",
+  "columns": {
+    "title": "Columns",
+    "selectAll": "Select all",
+    "selectNone": "Select none",
+    "none": "Choose at least one column.",
+    "number": "Number",
+    "site": "Site",
+    "status": "Status",
+    "category": "Category",
+    "worker": "Worker",
+    "workerPhone": "Worker phone",
+    "priority": "Priority",
+    "description": "Description",
+    "location": "Location",
+    "capturedAt": "Captured at",
+    "assignedAt": "Assigned at",
+    "sentAt": "Sent at",
+    "estimatedDate": "Estimated date",
+    "solvedAt": "Solved at",
+    "overdue": "Overdue",
+    "daysOpen": "Days open",
+    "photoLinks": "Photo links",
+    "afterPhotoLinks": "After-photo links",
+    "lastNote": "Last note"
+  },
+  "download": "Download",
+  "downloading": "Preparing file…",
+  "errors": {
+    "failed": "The export failed. Try again.",
+    "NETWORK_ERROR": "Can't reach the server. Check your connection and try again."
+  }
+}

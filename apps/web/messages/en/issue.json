@@ -1,0 +1,110 @@
+{
+  "workerPicker": {
+    "needsCategory": "Choose a category first.",
+    "none": "No worker",
+    "openCount": "{count} open",
+    "loadFailed": "Workers couldn't be loaded.",
+    "emptyForCategory": "No active worker has this category yet."
+  },
+  "errors": {
+    "generic": "Something went wrong. Try again.",
+    "NETWORK_ERROR": "Can't reach the server. Check your connection and try again.",
+    "PAYLOAD_TOO_LARGE": "That photo is too large (4 MB at most).",
+    "ISSUE_REQUIREMENTS": "This issue is missing what that status needs.",
+    "BACK_TO_NEW": "An issue can't go back to New.",
+    "LAST_PHOTO": "An issue keeps at least one photo.",
+    "PHOTO_LIMIT": "The 10-photo limit is reached.",
+    "WORKER_LACKS_CATEGORY": "This worker doesn't do this category.",
+    "INACTIVE_WORKER": "This worker is deactivated.",
+    "INACTIVE_CATEGORY": "This category is deactivated.",
+    "ARCHIVED_SITE": "This site is archived.",
+    "NOT_NEW": "Only an unsorted issue can be changed this way.",
+    "NOT_FOUND": "This issue no longer exists.",
+    "VALIDATION_FAILED": "Some details aren't valid. Check them and try again.",
+    "UNSUPPORTED_MEDIA_TYPE": "Only JPEG, PNG or WebP photos."
+  },
+  "reasons": {
+    "current": "It is already in this status.",
+    "backToNew": "An issue can't go back to New.",
+    "noWorker": "Remove the worker first.",
+    "needs": "Needs {list}."
+  },
+  "requirements": {
+    "category": "a category",
+    "description": "a description",
+    "worker": "a worker",
+    "estimatedDate": "an estimated date",
+    "noWorker": "no worker"
+  },
+  "actions": {
+    "title": "Status",
+    "reopen": "Reopen ({status})",
+    "estimate": "Estimated date",
+    "estimatePlaceholder": "Set the date the worker gave",
+    "to": {
+      "assigned": "Mark assigned",
+      "sent": "Mark sent",
+      "in_progress": "Mark in progress",
+      "solved": "Mark solved",
+      "cancelled": "Cancel issue"
+    }
+  },
+  "solve": {
+    "title": "Mark solved",
+    "body": "Add a note and photos of the fix if you have them.",
+    "confirm": "Mark solved",
+    "noteLabel": "Note",
+    "notePlaceholder": "Plastered and painted, checked on site",
+    "photosInput": "After photos",
+    "addPhotos": "Add after photos",
+    "chosen": "Chosen photos",
+    "removePhoto": "Remove {name}",
+    "notImage": "Only JPEG, PNG or WebP photos.",
+    "tooLarge": "A photo over 4 MB was left out.",
+    "tooMany": "At most {max} after photos."
+  },
+  "cancel": {
+    "title": "Cancel this issue",
+    "body": "Say why: not a real issue, a duplicate…",
+    "confirm": "Cancel issue",
+    "reasonLabel": "Reason",
+    "reasonPlaceholder": "Duplicate of #12",
+    "reasonRequired": "Write the reason."
+  },
+  "details": {
+    "errors": {
+      "category": "Choose a category.",
+      "description": "A sorted issue needs a description.",
+      "worker": "Choose a worker."
+    },
+    "placeholders": {
+      "description": "Crack in the wall next to the window, about 40 cm",
+      "location": "Floor 3, flat 7"
+    },
+    "workerDropped": "The worker was removed: he doesn't do this category.",
+    "noDescription": "No description yet",
+    "edit": "Edit"
+  },
+  "history": {
+    "title": "History",
+    "empty": "No status changes yet.",
+    "to": "to"
+  },
+  "stepper": "Step {current} of {total}: {status}",
+  "photos": {
+    "before": "Before ({count})",
+    "after": "After ({count})",
+    "alt": "Issue #{number}, photo",
+    "altAfter": "Issue #{number}, after photo",
+    "noAfter": "No after photos yet."
+  },
+  "worker": {
+    "call": "Call {name}",
+    "none": "No worker yet."
+  },
+  "delete": {
+    "button": "Delete issue",
+    "title": "Delete this issue?",
+    "body": "It hasn't been sorted yet. Its photos are deleted with it."
+  }
+}

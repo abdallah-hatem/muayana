@@ -1,3 +1,4 @@
+import { readLastSiteId, writeLastSiteId } from './last-site';
 /**
  * What the capture screen remembers on this phone (localStorage, per device): the last used site,
  * the active sites last fetched (so capture still works offline), and the last captured issue
@@ -55,8 +56,9 @@ const isLastIssue = (v: unknown): v is LastIssue =>
   isString((v as LastIssue).siteId);
 
 export const capturePrefs = {
-  lastSiteId: () => read(KEYS.site, isString),
-  setLastSiteId: (id: string | null) => write(KEYS.site, id),
+  // One remembered site for the whole app (shared with the top-bar switcher, §5.1).
+  lastSiteId: () => readLastSiteId(),
+  setLastSiteId: (id: string | null) => writeLastSiteId(id),
   cachedSites: () => read(KEYS.sites, isSites),
   setCachedSites: (sites: SiteOption[]) => write(KEYS.sites, sites),
   lastIssue: () => read(KEYS.lastIssue, isLastIssue),

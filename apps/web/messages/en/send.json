@@ -1,0 +1,16 @@
+{
+  "button": "Send on WhatsApp",
+  "needsWorker": "Choose a worker to send it to.",
+  "confirm": {
+    "title": "Mark as sent?",
+    "body": "Did the message reach the worker?",
+    "yes": "Yes, mark sent",
+    "no": "Not yet"
+  },
+  "batch": {
+    "button": "Send {count, plural, one {# assigned issue} other {# assigned issues}} on WhatsApp",
+    "inactive": "This worker is deactivated.",
+    "none": "No assigned issues to send.",
+    "confirmBody": "{count, plural, one {Mark the issue as sent?} other {Mark all # issues as sent?}}"
+  }
+}

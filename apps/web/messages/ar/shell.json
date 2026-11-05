@@ -4,7 +4,8 @@
   "switchLanguage": "التبديل إلى {language}",
   "toggleTheme": "تبديل الوضع الفاتح / الداكن",
   "siteSwitcher": {
-    "placeholder": "كل المواقع"
+    "placeholder": "كل المواقع",
+    "label": "الموقع"
   },
   "placeholder": {
     "body": "هذه الشاشة قادمة قريبًا."
