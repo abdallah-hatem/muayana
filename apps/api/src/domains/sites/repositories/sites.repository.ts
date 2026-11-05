@@ -2,10 +2,8 @@ import { Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import type { Paginated } from '../../../common/interfaces/api-response.interface';
 import type { Tx } from '../../../common/interfaces/transaction.interface';
-import {
-  overdueIssueWhere,
-  type StatusCountRow,
-} from '../../../common/utils/issue-counts.util';
+import type { StatusCountRow } from '../../../common/utils/issue-counts.util';
+import { overdueWhere } from '../../../common/utils/issue-filter.util';
 import { pageWindow, toPage } from '../../../common/utils/pagination.util';
 import { DatabaseService } from '../../../database/database.service';
 
@@ -74,7 +72,11 @@ export class SitesRepository {
     tx: Tx,
   ): Promise<{ id: string } | null> {
     return tx.site.findFirst({
-      where: { nameKey, archived: false, NOT: exceptId ? { id: exceptId } : undefined },
+      where: {
+        nameKey,
+        archived: false,
+        NOT: exceptId ? { id: exceptId } : undefined,
+      },
       select: { id: true },
     });
   }
@@ -122,7 +124,7 @@ export class SitesRepository {
       }),
       this.db.issue.groupBy({
         by: ['siteId'],
-        where: { ...scope, ...overdueIssueWhere(now) },
+        where: { ...scope, ...overdueWhere(now) },
         _count: { _all: true },
       }),
     ]);

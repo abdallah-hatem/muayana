@@ -24,7 +24,7 @@ import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
 
 /** `a,b , c` → `['a','b','c']` (contract: status and priority are comma lists). */
-const commaList = ({ value }: { value: unknown }): unknown =>
+export const commaList = ({ value }: { value: unknown }): unknown =>
   typeof value === 'string'
     ? value
         .split(',')

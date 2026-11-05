@@ -51,6 +51,28 @@ export type StatusChangeRow = Prisma.StatusChangeGetPayload<{
   select: typeof STATUS_CHANGE_SELECT;
 }>;
 
+/** What the issues CSV reads from an issue's history. */
+const ISSUE_CHANGE_SELECT = {
+  issueId: true,
+  to: true,
+  note: true,
+  createdAt: true,
+} satisfies Prisma.StatusChangeSelect;
+
+export type IssueChangeRow = Prisma.StatusChangeGetPayload<{
+  select: typeof ISSUE_CHANGE_SELECT;
+}>;
+
+/** One line of the status-history CSV. */
+const HISTORY_EXPORT_SELECT = {
+  ...STATUS_CHANGE_SELECT,
+  issue: { select: { number: true, site: { select: { name: true } } } },
+} satisfies Prisma.StatusChangeSelect;
+
+export type HistoryExportRow = Prisma.StatusChangeGetPayload<{
+  select: typeof HISTORY_EXPORT_SELECT;
+}>;
+
 /** The rule-bearing columns of an issue, read under its row lock before a change. */
 export const ISSUE_STATE_SELECT = {
   id: true,
@@ -135,6 +157,56 @@ export class IssueRepository {
       this.db.issue.count({ where }),
     ]);
     return { rows, total };
+  }
+
+  /** One slice of the matching issues in list order (the CSV export reads them batch by batch). */
+  findBatch(
+    where: Prisma.IssueWhereInput,
+    orderBy: Prisma.IssueOrderByWithRelationInput[],
+    skip: number,
+    take: number,
+  ): Promise<IssueRow[]> {
+    return this.db.issue.findMany({
+      where,
+      orderBy,
+      skip,
+      take,
+      select: ISSUE_SELECT,
+    });
+  }
+
+  /** Every status change of `issueIds`, newest first (last note and closing time per issue). */
+  findChangesOf(issueIds: string[]): Promise<IssueChangeRow[]> {
+    if (issueIds.length === 0) return Promise.resolve([]);
+    return this.db.statusChange.findMany({
+      where: { issueId: { in: issueIds } },
+      select: ISSUE_CHANGE_SELECT,
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    });
+  }
+
+  /**
+   * One slice of the status changes of the issues matching `where` (history CSV), grouped by
+   * site and issue number, oldest change first within an issue.
+   */
+  findHistoryBatch(
+    where: Prisma.IssueWhereInput,
+    skip: number,
+    take: number,
+  ): Promise<HistoryExportRow[]> {
+    return this.db.statusChange.findMany({
+      where: { issue: where },
+      select: HISTORY_EXPORT_SELECT,
+      orderBy: [
+        { issue: { site: { name: 'asc' } } },
+        { issue: { siteId: 'asc' } },
+        { issue: { number: 'asc' } },
+        { createdAt: 'asc' },
+        { id: 'asc' },
+      ],
+      skip,
+      take,
+    });
   }
 
   // ------------------------------------------------------------- locks

@@ -1,7 +1,6 @@
 import {
   emptyTally,
   openCount,
-  overdueIssueWhere,
   tallyByKey,
   totalCount,
 } from './issue-counts.util';
@@ -28,14 +27,6 @@ describe('issue counts', () => {
     const tally = emptyTally();
     for (const s of Object.keys(tally) as (keyof typeof tally)[]) tally[s] = 1;
     expect(openCount(tally)).toBe(5);
-  });
-
-  it('overdue compares with today in Cairo, not UTC (22:30 UTC is already tomorrow in Cairo)', () => {
-    const where = overdueIssueWhere(new Date('2026-11-05T22:30:00Z'));
-    expect(where).toEqual({
-      status: { notIn: ['solved', 'cancelled'] },
-      estimatedDate: { lt: new Date('2026-11-06T00:00:00.000Z') },
-    });
   });
 });
 

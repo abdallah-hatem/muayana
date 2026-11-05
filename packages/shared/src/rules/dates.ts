@@ -50,3 +50,15 @@ export const isOverdue = (
   issue.estimatedDate !== null &&
   !isClosed(issue.status) &&
   issue.estimatedDate < todayInCairo(now);
+
+const DAY_MS = 86_400_000;
+
+/**
+ * Whole Cairo calendar days from `from` to `to` (§7 "days open"): 0 on the same Cairo day,
+ * never negative.
+ */
+export const cairoDaysBetween = (from: Date, to: Date): number => {
+  const days =
+    (Date.parse(todayInCairo(to)) - Date.parse(todayInCairo(from))) / DAY_MS;
+  return Math.max(0, Math.round(days));
+};

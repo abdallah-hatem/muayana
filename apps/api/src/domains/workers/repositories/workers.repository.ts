@@ -2,10 +2,8 @@ import { Injectable } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import type { Paginated } from '../../../common/interfaces/api-response.interface';
 import type { Tx } from '../../../common/interfaces/transaction.interface';
-import {
-  overdueIssueWhere,
-  type StatusCountRow,
-} from '../../../common/utils/issue-counts.util';
+import type { StatusCountRow } from '../../../common/utils/issue-counts.util';
+import { overdueWhere } from '../../../common/utils/issue-filter.util';
 import { pageWindow, toPage } from '../../../common/utils/pagination.util';
 import { DatabaseService } from '../../../database/database.service';
 
@@ -106,7 +104,10 @@ export class WorkersRepository {
   }
 
   /** Another worker with this (normalised) phone. */
-  findByPhone(phone: string, exceptId?: string): Promise<{ id: string } | null> {
+  findByPhone(
+    phone: string,
+    exceptId?: string,
+  ): Promise<{ id: string } | null> {
     return this.db.worker.findFirst({
       where: { phone, NOT: exceptId ? { id: exceptId } : undefined },
       select: { id: true },
@@ -128,7 +129,9 @@ export class WorkersRepository {
     return this.db.worker.create({
       data: {
         ...data,
-        categories: { create: categoryIds.map((categoryId) => ({ categoryId })) },
+        categories: {
+          create: categoryIds.map((categoryId) => ({ categoryId })),
+        },
       },
       select: WORKER_SELECT,
     });
@@ -175,7 +178,7 @@ export class WorkersRepository {
       }),
       this.db.issue.groupBy({
         by: ['workerId'],
-        where: { ...scope, ...overdueIssueWhere(now) },
+        where: { ...scope, ...overdueWhere(now) },
         _count: { _all: true },
       }),
     ]);

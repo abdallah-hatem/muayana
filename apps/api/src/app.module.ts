@@ -9,6 +9,7 @@ import { validateEnv } from './config/env.validation';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './domains/auth/auth.module';
 import { CategoriesModule } from './domains/categories/categories.module';
+import { DashboardModule } from './domains/dashboard/dashboard.module';
 import { HealthModule } from './domains/health/health.module';
 import { IssuesModule } from './domains/issues/issues.module';
 import { StorageModule } from './common/storage/storage.module';
@@ -33,6 +34,7 @@ import { WorkersModule } from './domains/workers/workers.module';
     SitesModule,
     CategoriesModule,
     WorkersModule,
+    DashboardModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
