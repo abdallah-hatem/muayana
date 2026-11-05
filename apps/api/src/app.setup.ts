@@ -20,6 +20,9 @@ export function configureApp(app: INestApplication): void {
   (app as NestExpressApplication).useBodyParser('json', {
     limit: JSON_BODY_LIMIT,
   });
+  // Express then reads `req.ip` (the sign-in rate limit key) from X-Forwarded-For.
+  if (config.get('TRUST_PROXY', { infer: true }))
+    (app as NestExpressApplication).set('trust proxy', true);
   app.setGlobalPrefix(API_PREFIX);
   app.enableCors({
     origin: config.get('CORS_ORIGINS', { infer: true }),

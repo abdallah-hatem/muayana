@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 
-const { forwardToApi, upstreamUrl } = await import('./api-proxy');
+const { clientIp, forwardToApi, upstreamUrl } = await import('./api-proxy');
 
 const API = 'http://api.test/api/v1';
 
@@ -123,5 +123,41 @@ describe('forwardToApi', () => {
     );
     expect(res.status).toBe(502);
     expect(await res.json()).toMatchObject({ error: 'NETWORK_ERROR' });
+  });
+
+  it('forwards the client IP (first X-Forwarded-For entry) as X-Forwarded-For', async () => {
+    fetchMock.mockResolvedValue(Response.json({ success: true }));
+    await forwardToApi(
+      new Request('http://web.test/api/auth/login', {
+        method: 'POST',
+        body: '{}',
+        headers: { 'x-forwarded-for': '203.0.113.7, 10.0.0.1' },
+      }),
+      ['auth', 'login'],
+      undefined,
+    );
+    const [, init] = fetchMock.mock.calls[0];
+    expect(new Headers(init?.headers).get('x-forwarded-for')).toBe(
+      '203.0.113.7',
+    );
+  });
+
+  it('sends no X-Forwarded-For when the client IP is unknown', async () => {
+    fetchMock.mockResolvedValue(Response.json({ success: true }));
+    await forwardToApi(new Request('http://web.test/x'), ['auth', 'me'], 'tok');
+    const [, init] = fetchMock.mock.calls[0];
+    expect(new Headers(init?.headers).get('x-forwarded-for')).toBeNull();
+  });
+});
+
+describe('clientIp', () => {
+  it('falls back to X-Real-IP', () => {
+    expect(
+      clientIp(
+        new Request('http://web.test/', {
+          headers: { 'x-real-ip': ' 198.51.100.2 ' },
+        }),
+      ),
+    ).toBe('198.51.100.2');
   });
 });

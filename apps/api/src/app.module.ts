@@ -8,7 +8,10 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 import { validateEnv } from './config/env.validation';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './domains/auth/auth.module';
+import { CategoriesModule } from './domains/categories/categories.module';
 import { HealthModule } from './domains/health/health.module';
+import { SitesModule } from './domains/sites/sites.module';
+import { WorkersModule } from './domains/workers/workers.module';
 
 // Feature modules are added below (additive imports only — see the plan's collision notes).
 // Every route needs a token (global JwtAuthGuard) unless marked @Public().
@@ -23,6 +26,9 @@ import { HealthModule } from './domains/health/health.module';
     ClockModule,
     HealthModule,
     AuthModule,
+    SitesModule,
+    CategoriesModule,
+    WorkersModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },

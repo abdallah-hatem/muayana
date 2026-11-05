@@ -106,8 +106,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
       );
     }
 
+    // `type` overrides a Content-Type the route already set (the CSV exports' text/csv).
     res
       .status(status)
+      .type('application/json')
       .json(ResponseUtil.error(message, status, error, req.url, data));
   }
 
