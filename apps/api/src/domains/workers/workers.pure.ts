@@ -5,6 +5,7 @@ import {
   type Locale,
   type Worker,
 } from '@muayana/shared';
+import { categoryName, yesNo } from '../../common/utils/csv.util';
 import {
   emptyTally,
   openCount,
@@ -94,28 +95,18 @@ const CSV_HEADERS: Record<Locale, readonly string[]> = {
   ],
 };
 
-const YES_NO: Record<Locale, [string, string]> = {
-  ar: ['نعم', 'لا'],
-  en: ['Yes', 'No'],
-};
-
-/** A category's name in the export language (English falls back to Arabic). */
-const categoryName = (category: CategoryRef, lang: Locale): string =>
-  lang === 'en' ? (category.nameEn ?? category.nameAr) : category.nameAr;
-
 /**
  * The workers CSV (business §7): BOM, headers in `lang`, one row per worker with categories,
  * phone, active, notes and his counts per status, open and overdue. Text cells are
  * formula-guarded by toCsv.
  */
 export function workersCsv(workers: readonly Worker[], lang: Locale): string {
-  const [yes, no] = YES_NO[lang];
   return toCsv(
     workers.map((w) => [
       w.name,
       w.phone,
       w.categories.map((c) => categoryName(c, lang)).join(' / '),
-      w.active ? yes : no,
+      yesNo(w.active, lang),
       w.notes,
       w.counts.assigned,
       w.counts.sent,

@@ -1,9 +1,6 @@
-import type { Prisma } from '@prisma/client';
 import {
-  CLOSED_STATUSES,
   ISSUE_STATUSES,
   OPEN_STATUSES,
-  todayInCairo,
   type IssueStatus,
 } from '@muayana/shared';
 
@@ -39,14 +36,3 @@ export const openCount = (tally: StatusTally): number =>
 
 export const totalCount = (tally: StatusTally): number =>
   ISSUE_STATUSES.reduce((sum, status) => sum + tally[status], 0);
-
-/**
- * Overdue issues at `now` (business §4): an estimated date before today in Cairo, not solved
- * or cancelled. The same rule as `isOverdue` in @muayana/shared, as a database filter.
- */
-export function overdueIssueWhere(now: Date): Prisma.IssueWhereInput {
-  return {
-    status: { notIn: [...CLOSED_STATUSES] },
-    estimatedDate: { lt: new Date(`${todayInCairo(now)}T00:00:00.000Z`) },
-  };
-}

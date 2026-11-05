@@ -26,9 +26,9 @@ describe('IssueListQuerySchema', () => {
   });
 
   it('caps limit at 100', () => {
-    expect(IssueListQuerySchema.safeParse({ limit: PAGE_LIMIT_MAX }).success).toBe(
-      true,
-    );
+    expect(
+      IssueListQuerySchema.safeParse({ limit: PAGE_LIMIT_MAX }).success,
+    ).toBe(true);
     expect(
       IssueListQuerySchema.safeParse({ limit: PAGE_LIMIT_MAX + 1 }).success,
     ).toBe(false);
@@ -60,10 +60,16 @@ describe('UpdateIssueRequestSchema', () => {
     ).toEqual({ workerId: null, estimatedDate: null });
   });
 
+  it('accepts categoryId null (the API refuses it with 409 on a sorted issue, §6.1)', () => {
+    expect(UpdateIssueRequestSchema.parse({ categoryId: null })).toEqual({
+      categoryId: null,
+    });
+  });
+
   it('refuses unknown fields', () => {
-    expect(UpdateIssueRequestSchema.safeParse({ status: 'solved' }).success).toBe(
-      false,
-    );
+    expect(
+      UpdateIssueRequestSchema.safeParse({ status: 'solved' }).success,
+    ).toBe(false);
   });
 });
 

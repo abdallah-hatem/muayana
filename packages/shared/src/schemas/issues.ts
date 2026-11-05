@@ -23,7 +23,11 @@ export const STATUS_NOTE_MAX = 1000;
 export const PHOTOS_PER_KIND_MAX = 10;
 /** Upload cap per photo (contract: jpeg/png/webp ≤ 4 MB). */
 export const PHOTO_MAX_BYTES = 4 * 1024 * 1024;
-export const PHOTO_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
+export const PHOTO_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+] as const;
 /** Long side of a compressed photo (business §3). */
 export const PHOTO_MAX_DIMENSION = 1600;
 export const BULK_IDS_MAX = 200;
@@ -74,7 +78,6 @@ export const IssueDetailSchema = IssueSchema.extend({
   history: z.array(StatusChangeSchema),
 });
 
-
 /** The issues list filter (contract `IssueFilter`), shared by the list and the CSV exports. */
 export const IssueFilterSchema = z.object({
   siteId: z.uuid().optional(),
@@ -111,7 +114,8 @@ export const UpdateIssueRequestSchema = z.strictObject({
   description: z.string().trim().max(ISSUE_DESCRIPTION_MAX).optional(),
   location: z.string().trim().max(ISSUE_LOCATION_MAX).optional(),
   priority: PrioritySchema.optional(),
-  categoryId: z.uuid().optional(),
+  /** null is accepted so the API can refuse it with 409 on a sorted issue (§6.1). */
+  categoryId: z.uuid().nullable().optional(),
   /** null removes the worker. */
   workerId: z.uuid().nullable().optional(),
   /** null clears the date. */

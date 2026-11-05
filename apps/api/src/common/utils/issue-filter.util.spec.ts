@@ -4,6 +4,7 @@ import {
   dateOnlyToDb,
   dbToDateOnly,
   issueOrderBy,
+  overdueWhere,
 } from './issue-filter.util';
 
 const NOW = new Date('2026-11-05T12:00:00Z');
@@ -82,6 +83,13 @@ describe('buildIssueWhere', () => {
           status: { notIn: ['solved', 'cancelled'] },
         },
       ],
+    });
+  });
+
+  it('overdueWhere uses the Cairo day: 22:30 UTC is already tomorrow in Cairo', () => {
+    expect(overdueWhere(new Date('2026-11-05T22:30:00Z'))).toEqual({
+      estimatedDate: { lt: new Date('2026-11-06T00:00:00.000Z') },
+      status: { notIn: ['solved', 'cancelled'] },
     });
   });
 

@@ -14,8 +14,13 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PHOTO_MAX_BYTES } from '@muayana/shared';
+import { CsvResponse } from '../../common/decorators/csv-response.decorator';
 import { WithStatusInterceptor } from '../../common/interceptors/with-status.interceptor';
 import { ResponseUtil } from '../../common/utils/response.util';
+import {
+  IssueExportQueryDto,
+  IssueHistoryExportQueryDto,
+} from './dto/issue-export.dto';
 import { IssueListQueryDto } from './dto/issue-filter.dto';
 import {
   AddPhotoDto,
@@ -25,6 +30,7 @@ import {
   MergeIssuesDto,
   UpdateIssueDto,
 } from './dto/issue-requests.dto';
+import { IssuesExportService } from './issues-export.service';
 import { IssuesService, type UploadedPhoto } from './issues.service';
 
 /** One `photo` file per request, in memory, refused with 413 above 4 MB (contract). */
@@ -35,10 +41,16 @@ const photoUpload = () =>
 
 const uuid = new ParseUUIDPipe();
 
-/** Issues (contract "Issues"). Every route needs the engineer's token (global guard). */
+/**
+ * Issues (contract "Issues"). Every route needs the engineer's token (global guard). The CSV
+ * routes are declared before `:id` so they are not read as one.
+ */
 @Controller('issues')
 export class IssuesController {
-  constructor(private readonly issues: IssuesService) {}
+  constructor(
+    private readonly issues: IssuesService,
+    private readonly exports: IssuesExportService,
+  ) {}
 
   @Post()
   @UseInterceptors(photoUpload(), WithStatusInterceptor)
@@ -52,6 +64,20 @@ export class IssuesController {
   @Get()
   async list(@Query() query: IssueListQueryDto) {
     return ResponseUtil.paginated(await this.issues.list(query));
+  }
+
+  /** Every issue matching the list filter, chosen columns, header language (business §7). */
+  @Get('export.csv')
+  @CsvResponse('issues.csv')
+  exportCsv(@Query() query: IssueExportQueryDto) {
+    return this.exports.issuesCsv(query);
+  }
+
+  /** Every status change of the issues matching the list filter (business §7). */
+  @Get('history.csv')
+  @CsvResponse('status-history.csv')
+  historyCsv(@Query() query: IssueHistoryExportQueryDto) {
+    return this.exports.historyCsv(query);
   }
 
   @Post('bulk')

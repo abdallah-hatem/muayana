@@ -20,13 +20,12 @@ export const escapeCsvCell = (value: CsvValue): string => {
   return NEEDS_QUOTES.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 };
 
+/** One CSV line: the cells escaped, comma-separated, ending in CRLF (streamed exports write these). */
+export const csvRow = (row: readonly CsvValue[]): string =>
+  row.map(escapeCsvCell).join(',') + LINE_END;
+
 /** A whole CSV file: BOM, the header row, then one row per entry, CRLF line ends. */
 export const toCsv = (
   rows: readonly (readonly CsvValue[])[],
   headers: readonly string[],
-): string =>
-  CSV_BOM +
-  [headers, ...rows]
-    .map((row) => row.map(escapeCsvCell).join(','))
-    .map((line) => line + LINE_END)
-    .join('');
+): string => CSV_BOM + [headers, ...rows].map(csvRow).join('');

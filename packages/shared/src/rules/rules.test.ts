@@ -6,7 +6,9 @@ import {
   applyPatch,
   buildBatchMessage,
   buildIssueMessage,
+  cairoDaysBetween,
   canMove,
+  csvRow,
   escapeCsvCell,
   formatCairoDateTime,
   isOverdue,
@@ -414,6 +416,21 @@ describe('CSV (§7)', () => {
       '2026-07-01 12:00',
     );
     expect(formatCairoDateTime(null)).toBe('');
+  });
+
+  it('csvRow escapes each cell and ends in CRLF (streamed exports)', () => {
+    expect(csvRow(['=SUM(A1)', 'a,b', null, 3])).toBe(
+      `'=SUM(A1),"a,b",,3\r\n`,
+    );
+  });
+
+  it('cairoDaysBetween counts Cairo calendar days, never negative', () => {
+    // 21:30 UTC on the 5th is already the 5th 23:30 in Cairo; 22:30 UTC is the 6th.
+    const from = new Date('2026-11-05T21:30:00Z');
+    expect(cairoDaysBetween(from, new Date('2026-11-05T21:59:00Z'))).toBe(0);
+    expect(cairoDaysBetween(from, new Date('2026-11-05T22:30:00Z'))).toBe(1);
+    expect(cairoDaysBetween(from, new Date('2026-11-15T10:00:00Z'))).toBe(10);
+    expect(cairoDaysBetween(from, new Date('2026-11-01T10:00:00Z'))).toBe(0);
   });
 });
 

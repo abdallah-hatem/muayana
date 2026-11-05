@@ -3,14 +3,13 @@ import {
   Controller,
   Delete,
   Get,
-  Header,
   Param,
   ParseUUIDPipe,
   Patch,
   Post,
   Query,
 } from '@nestjs/common';
-import { RawResponse } from '../../common/decorators/raw-response.decorator';
+import { CsvResponse } from '../../common/decorators/csv-response.decorator';
 import { ResponseUtil } from '../../common/utils/response.util';
 import { CreateWorkerDto } from './dto/create-worker.dto';
 import { UpdateWorkerDto } from './dto/update-worker.dto';
@@ -32,9 +31,7 @@ export class WorkersController {
 
   /** The only non-envelope answer: `text/csv` with a BOM (contract header). */
   @Get('export.csv')
-  @RawResponse()
-  @Header('Content-Type', 'text/csv; charset=utf-8')
-  @Header('Content-Disposition', 'attachment; filename="workers.csv"')
+  @CsvResponse('workers.csv')
   exportCsv(@Query() query: WorkerExportQueryDto) {
     return this.workers.exportCsv(query);
   }
@@ -50,10 +47,7 @@ export class WorkersController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateWorkerDto,
-  ) {
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateWorkerDto) {
     return this.workers.update(id, dto);
   }
 
