@@ -1,7 +1,6 @@
 'use client';
 
 import { Combine, Loader2, Tags } from 'lucide-react';
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
 import {
@@ -11,6 +10,7 @@ import {
 } from '@muayana/shared';
 import { BottomSheet } from '@/components/bottom-sheet';
 import { CategoryChips } from '@/components/category-chips';
+import { FillPhoto } from '@/components/photo';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useApiErrorText } from '@/components/use-api-error-text';
@@ -102,13 +102,10 @@ export function BulkPanel({
               >
                 <span className="relative aspect-square bg-muted">
                   {cover && (
-                    <Image
+                    <FillPhoto
                       src={cover.url}
                       alt=""
-                      fill
-                      unoptimized
                       sizes="(min-width: 768px) 200px, 50vw"
-                      className="object-cover"
                     />
                   )}
                 </span>
@@ -139,7 +136,7 @@ export function BulkPanel({
 
       {/* A compact bar above the bottom nav: the count and two actions. The category chips live
           in a sheet, so on a phone the bar never covers the captures being selected. */}
-      <section className="sticky bottom-24 z-10 -mx-4 flex flex-col gap-2 border-t-2 border-border bg-background/95 px-4 py-2.5 backdrop-blur md:bottom-0 md:mx-0 md:rounded-lg md:border-2">
+      <section className="sticky bottom-(--bottom-nav-height) z-10 -mx-4 flex flex-col gap-2 border-t-2 border-border bg-background/95 px-4 py-2.5 backdrop-blur md:bottom-4 md:mx-0 md:rounded-lg md:border-2 md:shadow-float">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 [&>button]:flex-1 sm:[&>button]:flex-none">
           <p
             className="min-w-0 basis-full truncate type-small font-bold sm:flex-1 sm:basis-auto"

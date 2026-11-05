@@ -94,11 +94,18 @@ export function DashboardView({
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
       {siteId && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex min-w-0 items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 type-small font-bold text-secondary-foreground">
+          {/* The words stay whole; only the site name (isolated, so an Arabic name can't reorder
+              the English sentence) ends in an ellipsis. */}
+          <span className="inline-flex max-w-full min-w-0 items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 type-small font-bold whitespace-nowrap text-secondary-foreground">
             <MapPin className="size-4 shrink-0" aria-hidden />
-            <span className="truncate">
-              {t('site.showing', { site: siteName ?? '…' })}
-            </span>
+            {t.rich('site.showing', {
+              site: siteName ?? '…',
+              name: (chunks) => (
+                <bdi dir="auto" className="min-w-0 truncate">
+                  {chunks}
+                </bdi>
+              ),
+            })}
           </span>
           {onAllSites && (
             <Button

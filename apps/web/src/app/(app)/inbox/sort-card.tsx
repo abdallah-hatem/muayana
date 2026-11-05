@@ -234,7 +234,7 @@ export function SortCard({
         </p>
       )}
 
-      <div className="sticky bottom-24 z-10 -mx-4 flex gap-2 border-t-2 border-border bg-background/95 px-4 py-3 backdrop-blur md:bottom-0 md:mx-0 md:rounded-lg md:border-2">
+      <div className="sticky bottom-(--bottom-nav-height) z-10 -mx-4 flex gap-2 border-t-2 border-border bg-background/95 px-4 py-3 backdrop-blur md:bottom-4 md:mx-0 md:rounded-lg md:border-2 md:shadow-float">
         <Button
           type="button"
           variant="outline"

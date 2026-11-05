@@ -10,12 +10,18 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
+import { BOTTOM_NAV_QUERY, useMediaQuery } from '@/lib/use-media-query';
 import { cn } from '@/lib/utils';
 
 const DATE_ONLY = 'yyyy-MM-dd';
 
-/** Keep the calendar clear of the phone's bottom nav and its raised shutter (flip up instead). */
+/**
+ * On a phone, keep the calendar clear of the bottom nav and its raised shutter: Radix flips it
+ * above the trigger only when it would run under them. From md up there is no bottom nav, so it
+ * flips only at the window's edge.
+ */
 const CLEAR_BOTTOM_NAV = { top: 8, right: 8, bottom: 112, left: 8 };
+const CLEAR_EDGES = 8;
 
 const toDate = (value: string | null): Date | undefined =>
   value ? parse(value, DATE_ONLY, new Date()) : undefined;
@@ -44,6 +50,7 @@ export function DatePicker({
   describedBy?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const phone = useMediaQuery(BOTTOM_NAV_QUERY);
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -72,7 +79,7 @@ export function DatePicker({
       <PopoverContent
         className="w-auto p-0"
         align="start"
-        collisionPadding={CLEAR_BOTTOM_NAV}
+        collisionPadding={phone ? CLEAR_BOTTOM_NAV : CLEAR_EDGES}
       >
         <Calendar
           mode="single"

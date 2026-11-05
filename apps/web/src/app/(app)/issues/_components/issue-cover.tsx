@@ -1,6 +1,5 @@
 import type { Issue } from '@muayana/shared';
-import { ImageOff } from 'lucide-react';
-import Image from 'next/image';
+import { FillPhoto, PhotoMissingIcon } from '@/components/photo';
 import { cn } from '@/lib/utils';
 
 /** The first before-photo: what the engineer recognises an issue by. */
@@ -27,19 +26,9 @@ export function IssueCover({
       )}
     >
       {photo ? (
-        <Image
-          src={photo.url}
-          alt=""
-          fill
-          sizes="96px"
-          unoptimized
-          className="object-cover"
-        />
+        <FillPhoto src={photo.url} alt="" sizes="96px" />
       ) : (
-        <ImageOff
-          className="absolute inset-0 m-auto size-6 text-muted-foreground"
-          aria-hidden
-        />
+        <PhotoMissingIcon />
       )}
     </div>
   );
