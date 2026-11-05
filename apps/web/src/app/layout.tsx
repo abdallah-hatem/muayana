@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { directionOf } from '@muayana/shared';
+import { DirectionProvider } from '@/components/direction-provider';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 import { isLocale } from '@/i18n/config';
@@ -62,8 +63,10 @@ export default async function RootLayout({
       <body>
         <ThemeProvider>
           <NextIntlClientProvider>
-            {children}
-            <Toaster />
+            <DirectionProvider>
+              {children}
+              <Toaster />
+            </DirectionProvider>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>

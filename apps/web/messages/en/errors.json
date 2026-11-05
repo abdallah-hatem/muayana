@@ -1,0 +1,17 @@
+{
+  "notFound": {
+    "title": "Page not found",
+    "body": "This address doesn't lead anywhere. It may have been typed wrong or removed.",
+    "home": "Go to the dashboard",
+    "issue": {
+      "title": "Issue not found",
+      "body": "This issue doesn't exist or is no longer available.",
+      "back": "Back to issues"
+    },
+    "worker": {
+      "title": "Worker not found",
+      "body": "This worker doesn't exist any more.",
+      "back": "Back to workers"
+    }
+  }
+}

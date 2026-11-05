@@ -396,10 +396,25 @@
   }
   html {
     @apply scrollbar-clean;
-    scrollbar-gutter: auto;
+    /* The page scrollbar's room is always reserved, so a page that starts or stops overflowing
+       doesn't move, and neither does one under an open overlay (see body[data-scroll-locked]). */
+    scrollbar-gutter: stable;
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+  }
+  /* Opening an overlay never moves the page. Radix locks scroll with react-remove-scroll, which
+     hides <body>'s overflow (Chrome then drops even a stable gutter) and pads <body> with a
+     physical margin-right the scrollbar's width — the wrong side in RTL, so the fixed side nav
+     jumped 10px on every open. Keep overflow visible and undo the compensation; the lock still
+     blocks wheel and touch scrolling behind the overlay. */
+  html body[data-scroll-locked] {
+    overflow: visible !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    --removed-body-scroll-bar-size: 0px !important;
   }
   .scrollbar-clean:not(html, body) {
     overscroll-behavior: contain;

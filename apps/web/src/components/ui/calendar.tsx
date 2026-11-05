@@ -7,13 +7,25 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from 'lucide-react';
+import { useLocale } from 'next-intl';
 import {
   DayPicker,
   getDefaultClassNames,
   type DayButton,
 } from 'react-day-picker';
+import { ar, enUS } from 'react-day-picker/locale';
 
 import { Button, buttonVariants } from '@/components/ui/button';
+
+/**
+ * The calendar speaks the app's language: Arabic month and day names, right-to-left (previous
+ * month on the right, pointing right) and weeks from Saturday in Arabic; English from Sunday.
+ * Day numbers stay Latin, like every number in the app.
+ */
+const CALENDAR_LOCALES = {
+  ar: { locale: ar, dir: 'rtl', weekStartsOn: 6 },
+  en: { locale: enUS, dir: 'ltr', weekStartsOn: 0 },
+} as const;
 
 function Calendar({
   className,
@@ -28,20 +40,23 @@ function Calendar({
   buttonVariant?: React.ComponentProps<typeof Button>['variant'];
 }) {
   const defaultClassNames = getDefaultClassNames();
+  const { locale, dir, weekStartsOn } =
+    CALENDAR_LOCALES[useLocale() === 'en' ? 'en' : 'ar'];
 
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
+      locale={locale}
+      dir={dir}
+      weekStartsOn={weekStartsOn}
       className={cn(
-        'group/calendar bg-background p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent',
-        String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
-        String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
+        'group/calendar bg-card p-2 [--cell-size:--spacing(11)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent',
         className,
       )}
       captionLayout={captionLayout}
       formatters={{
         formatMonthDropdown: (date) =>
-          date.toLocaleString('default', { month: 'short' }),
+          date.toLocaleString(locale.code, { month: 'short' }),
         ...formatters,
       }}
       classNames={{
@@ -70,7 +85,7 @@ function Calendar({
           defaultClassNames.month_caption,
         ),
         dropdowns: cn(
-          'flex h-(--cell-size) w-full items-center justify-center gap-1.5 text-sm font-medium',
+          'flex h-(--cell-size) w-full items-center justify-center gap-1.5 text-base font-bold',
           defaultClassNames.dropdowns,
         ),
         dropdown_root: cn(
@@ -82,16 +97,16 @@ function Calendar({
           defaultClassNames.dropdown,
         ),
         caption_label: cn(
-          'font-medium select-none',
+          'font-bold select-none',
           captionLayout === 'label'
-            ? 'text-sm'
-            : 'flex h-8 items-center gap-1 rounded-md ps-2 pe-1 text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground',
+            ? 'text-base'
+            : 'flex h-8 items-center gap-1 rounded-md ps-2 pe-1 text-base [&>svg]:size-3.5 [&>svg]:text-muted-foreground',
           defaultClassNames.caption_label,
         ),
         month_grid: cn('w-full border-collapse', defaultClassNames.month_grid),
         weekdays: cn('flex', defaultClassNames.weekdays),
         weekday: cn(
-          'flex-1 rounded-md text-[0.8rem] font-normal text-muted-foreground select-none',
+          'flex-1 rounded-md type-micro text-muted-foreground select-none',
           defaultClassNames.weekday,
         ),
         week: cn('mt-2 flex w-full', defaultClassNames.week),
@@ -117,7 +132,7 @@ function Calendar({
         range_middle: cn('rounded-none', defaultClassNames.range_middle),
         range_end: cn('rounded-e-md bg-accent', defaultClassNames.range_end),
         today: cn(
-          'rounded-md bg-accent text-accent-foreground data-[selected=true]:rounded-none',
+          'rounded-md text-primary-ink data-[selected=true]:rounded-none [&_button]:border-2 [&_button]:border-primary-ink',
           defaultClassNames.today,
         ),
         outside: cn(
@@ -143,16 +158,23 @@ function Calendar({
           );
         },
         Chevron: ({ className, orientation, ...props }) => {
+          // DayPicker's nav always asks for "left" on previous; in RTL previous sits on the
+          // right and points right, so the arrows swap.
+          if (
+            dir === 'rtl' &&
+            (orientation === 'left' || orientation === 'right')
+          )
+            orientation = orientation === 'left' ? 'right' : 'left';
           if (orientation === 'left') {
             return (
-              <ChevronLeftIcon className={cn('size-4', className)} {...props} />
+              <ChevronLeftIcon className={cn('size-5', className)} {...props} />
             );
           }
 
           if (orientation === 'right') {
             return (
               <ChevronRightIcon
-                className={cn('size-4', className)}
+                className={cn('size-5', className)}
                 {...props}
               />
             );
@@ -208,7 +230,7 @@ function CalendarDayButton({
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
       className={cn(
-        'flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50 data-[range-end=true]:rounded-md data-[range-end=true]:rounded-e-md data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground data-[range-start=true]:rounded-md data-[range-start=true]:rounded-s-md data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-accent-foreground [&>span]:text-xs [&>span]:opacity-70',
+        'flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 type-stencil text-base leading-none font-bold group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50 data-[range-end=true]:rounded-md data-[range-end=true]:rounded-e-md data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground data-[range-start=true]:rounded-md data-[range-start=true]:rounded-s-md data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-accent-foreground [&>span]:text-xs [&>span]:opacity-70',
         defaultClassNames.day,
         className,
       )}
