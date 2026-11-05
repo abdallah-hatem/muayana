@@ -46,6 +46,8 @@ test('@smoke Capture: a photo uploads as a new issue; offline it waits in the qu
   page,
   context,
 }) => {
+  // Sign-in waits up to 60s for a cold `next dev` to compile /capture: the test needs more than 30s.
+  test.setTimeout(90_000);
   await signIn(page, '/capture');
 
   // A site of its own, so the test never depends on seed data.

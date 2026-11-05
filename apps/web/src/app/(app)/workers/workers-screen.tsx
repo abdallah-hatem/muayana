@@ -62,8 +62,13 @@ export function WorkersScreen() {
 
   const filter: WorkerFilter = { search: settledSearch, categoryId, active };
   const fetchPage = useCallback(
-    (page: number, limit: number) =>
-      listWorkers({ search: settledSearch, categoryId, active }, page, limit),
+    (page: number, limit: number, signal: AbortSignal) =>
+      listWorkers(
+        { search: settledSearch, categoryId, active },
+        page,
+        limit,
+        signal,
+      ),
     [settledSearch, categoryId, active],
   );
   const list = usePagedList(fetchPage);

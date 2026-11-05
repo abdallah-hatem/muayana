@@ -13,5 +13,8 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
     css: false,
+    // A full parallel run on a loaded machine stretches the heavier user-event flows (sort card,
+    // a 250-row worker view: ~1s alone) past vitest's 5s default.
+    testTimeout: 15_000,
   },
 });

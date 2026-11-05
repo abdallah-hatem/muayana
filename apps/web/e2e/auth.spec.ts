@@ -27,6 +27,9 @@ const nav = (page: Page) => page.getByRole('navigation');
 test('@smoke Web: unauthenticated visit to /issues → redirect to /login, then sign in and walk the nav', async ({
   page,
 }) => {
+  // The walk is the first visit to most routes: in `next dev` each one compiles on the way, and the
+  // 60s waits below can't fit in the default 30s test budget.
+  test.setTimeout(90_000);
   await page.goto('/issues');
   await expect(page).toHaveURL(/\/login\?next=%2Fissues$/);
 

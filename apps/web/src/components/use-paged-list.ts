@@ -4,7 +4,12 @@ import { useCallback, useEffect, useState } from 'react';
 import type { ApiResult } from '@/lib/api-result';
 import { DEFAULT_PAGE_SIZE } from './list-pager';
 
-type FetchPage<T> = (page: number, limit: number) => Promise<ApiResult<T[]>>;
+/** One page; `signal` aborts it when the list unmounts or asks for another page. */
+type FetchPage<T> = (
+  page: number,
+  limit: number,
+  signal: AbortSignal,
+) => Promise<ApiResult<T[]>>;
 
 interface Request<T> {
   fetchPage: FetchPage<T>;
@@ -36,8 +41,10 @@ export function usePagedList<T>(fetchPage: FetchPage<T>) {
 
   useEffect(() => {
     let live = true;
+    // Leaving the screen must not leave its request holding a connection the next page needs.
+    const controller = new AbortController();
     const request = { fetchPage, page, limit, version };
-    void fetchPage(page, limit).then((res) => {
+    void fetchPage(page, limit, controller.signal).then((res) => {
       if (!live) return;
       if (!res.success) return setLoaded({ status: 'error', request });
       // The last row of a later page went away: show the page before it.
@@ -51,6 +58,7 @@ export function usePagedList<T>(fetchPage: FetchPage<T>) {
     });
     return () => {
       live = false;
+      controller.abort();
     };
   }, [fetchPage, page, limit, version]);
 

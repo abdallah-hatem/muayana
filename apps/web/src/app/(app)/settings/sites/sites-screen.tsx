@@ -47,7 +47,8 @@ export function SitesScreen() {
   const { sitesChanged } = useSiteSelection();
   const [tab, setTab] = useState<SiteTab>('active');
   const fetchPage = useCallback(
-    (page: number, limit: number) => listSites(tab, page, limit),
+    (page: number, limit: number, signal: AbortSignal) =>
+      listSites(tab, page, limit, signal),
     [tab],
   );
   const list = usePagedList(fetchPage);
