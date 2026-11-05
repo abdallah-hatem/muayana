@@ -1,0 +1,68 @@
+{
+  "search": {
+    "label": "ابحث في الملاحظات",
+    "placeholder": "شرخ، الدور الثالث، #38"
+  },
+  "sort": {
+    "label": "الترتيب",
+    "newest": "الأحدث أولًا",
+    "oldest": "الأقدم أولًا",
+    "priority": "الأولوية",
+    "estimate": "الموعد المتوقع"
+  },
+  "filters": {
+    "button": "فلتر",
+    "title": "فلترة الملاحظات",
+    "apply": "عرض النتائج",
+    "clearAll": "مسح الكل",
+    "any": "الكل",
+    "overdueOnly": "المتأخرة فقط",
+    "captured": "تاريخ التصوير",
+    "solved": "تاريخ الحل",
+    "from": "من",
+    "to": "إلى",
+    "pickDate": "اختر تاريخًا",
+    "clearDate": "مسح التاريخ",
+    "active": "الفلاتر الحالية",
+    "remove": "إزالة الفلتر: {label}"
+  },
+  "chip": {
+    "overdue": "متأخر",
+    "capturedFrom": "صُوّرت من {date}",
+    "capturedTo": "صُوّرت حتى {date}",
+    "solvedFrom": "حُلّت من {date}",
+    "solvedTo": "حُلّت حتى {date}",
+    "q": "«{q}»",
+    "unknown": "غير معروف"
+  },
+  "list": {
+    "count": "{count, plural, =0 {لا ملاحظات} one {ملاحظة واحدة} two {ملاحظتان} few {# ملاحظات} many {# ملاحظة} other {# ملاحظة}}",
+    "loadMore": "عرض المزيد",
+    "loading": "جارٍ تحميل الملاحظات",
+    "error": "تعذّر تحميل الملاحظات.",
+    "retry": "حاول مرة أخرى"
+  },
+  "empty": {
+    "title": "لا توجد ملاحظات هنا",
+    "none": "تظهر الملاحظات هنا بعد تصويرها في الموقع.",
+    "filtered": "لا شيء يطابق هذا الفلتر. أزل فلترًا أو امسح الكل."
+  },
+  "card": {
+    "noDescription": "بلا وصف بعد",
+    "noWorker": "بلا عامل",
+    "due": "الموعد",
+    "open": "فتح الملاحظة #{number}"
+  },
+  "table": {
+    "caption": "الملاحظات",
+    "number": "#",
+    "photo": "الصورة",
+    "description": "الوصف",
+    "status": "الحالة",
+    "category": "التصنيف",
+    "worker": "العامل",
+    "location": "الموقع · المكان",
+    "estimate": "الموعد"
+  },
+  "export": "تصدير CSV"
+}

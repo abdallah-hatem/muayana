@@ -15,12 +15,16 @@ export const NAMESPACES = [
   'auth',
   'shell',
   'settings',
+  'capture',
   'inbox',
   'issue',
   'send',
   'sites',
   'categories',
   'workers',
+  'issues',
+  'export',
+  'dashboard',
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 

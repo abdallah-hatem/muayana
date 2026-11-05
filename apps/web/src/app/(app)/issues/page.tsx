@@ -1,10 +1,14 @@
-import { getTranslations } from 'next-intl/server';
-import { PlaceholderScreen } from '@/components/shell/app-shell';
+import { Suspense } from 'react';
+import { IssuesScreen } from './_components/issues-screen';
 
-/** Placeholder until its screen lands; the shell and nav already lead here. */
-export default async function Page() {
-  const t = await getTranslations('shell');
+/** Issues list (§5.8): filters in the address, cards on the phone, a table from md up. */
+export default function IssuesPage() {
   return (
-    <PlaceholderScreen testId="screen-issues" body={t('placeholder.body')} />
+    <div data-testid="screen-issues" className="flex flex-1 flex-col">
+      {/* useSearchParams needs a boundary; the screen shows its own skeleton while loading. */}
+      <Suspense>
+        <IssuesScreen />
+      </Suspense>
+    </div>
   );
 }

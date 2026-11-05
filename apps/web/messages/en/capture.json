@@ -1,0 +1,63 @@
+{
+  "shutter": "Take a photo",
+  "addToPrevious": "To previous",
+  "addToPreviousLabel": "Add the next photo to the previous issue",
+  "addToPreviousUnavailable": "Take a first photo on this site to add more to it",
+  "lastShot": "Last photo",
+  "hint": "One photo = one new issue · add the details later",
+  "empty": "Tap the shutter to photograph a defect.",
+  "saving": "Saving the photo on the phone…",
+  "saved": "Saved. It uploads by itself.",
+  "attached": "Added to the previous issue.",
+  "location": "Location",
+  "locationPlaceholder": "Floor 3 – Flat 7",
+  "note": "Quick note",
+  "notePlaceholder": "Cracked tile by the bathroom door",
+  "addNote": "Add a note",
+  "hideNote": "Hide the note",
+  "optional": "(optional)",
+  "needsConnection": "Needs a connection. Only capture works offline.",
+  "offline": "Offline — photos are kept on the phone.",
+  "site": {
+    "label": "Site",
+    "choose": "Choose a site",
+    "title": "Which site are you on?",
+    "description": "New photos go to this site. It stays chosen next time.",
+    "loading": "Loading sites…",
+    "none": "No active sites yet. Add one in Settings, then come back.",
+    "offlineList": "Offline — showing the sites from your last visit."
+  },
+  "queue": {
+    "chip": "{count} waiting to upload",
+    "open": "Show the upload queue",
+    "title": "Waiting to upload",
+    "description": "Photos stay on this phone until they upload. Nothing is lost if you close the app.",
+    "empty": "Everything is uploaded.",
+    "offline": "You're offline. These upload when the connection returns.",
+    "kind": {
+      "create": "New issue",
+      "addPhoto": "Photo for the previous issue"
+    },
+    "pending": "Waiting",
+    "failed": "Failed",
+    "tries": "{count, plural, one {Tried once} other {Tried # times}}",
+    "retry": "Retry",
+    "discard": "Discard",
+    "discardConfirm": "Discard this photo? It hasn't uploaded and can't be brought back.",
+    "discardYes": "Yes, discard",
+    "keep": "Keep",
+    "thumbnail": "Photo taken {time}"
+  },
+  "errors": {
+    "ARCHIVED_SITE": "The site is archived, so it can't take new issues.",
+    "NOT_FOUND": "The issue or site no longer exists.",
+    "PHOTO_LIMIT": "That issue already has 10 photos.",
+    "PAYLOAD_TOO_LARGE": "The photo is too large to upload.",
+    "UNSUPPORTED_MEDIA_TYPE": "This photo format can't be uploaded.",
+    "VALIDATION_FAILED": "The upload was refused as invalid.",
+    "NETWORK_ERROR": "No connection on the last try.",
+    "PHOTO_UNREADABLE": "This photo couldn't be read. Take it again.",
+    "SITES_FAILED": "Couldn't load the sites. Try again later.",
+    "generic": "The upload failed."
+  }
+}

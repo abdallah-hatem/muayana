@@ -31,7 +31,12 @@ function makeFilter(nodeEnv = 'test') {
 function capture(filter: AllExceptionsFilter, exception: unknown) {
   let status = 0;
   let body: ApiResponse | undefined;
+  let contentType: string | undefined;
   const res = {
+    type(value: string) {
+      contentType = value;
+      return this;
+    },
     status(code: number) {
       status = code;
       return this;
@@ -49,7 +54,7 @@ function capture(filter: AllExceptionsFilter, exception: unknown) {
   } as unknown as ArgumentsHost;
   filter.catch(exception, host);
   if (!body) throw new Error('filter wrote no body');
-  return { status, body };
+  return { status, body, contentType };
 }
 
 function prismaError(code: string, meta?: Record<string, unknown>) {
@@ -70,11 +75,13 @@ class SignUpDto {
 
 describe('AllExceptionsFilter', () => {
   it('shapes an HttpException into the error envelope', () => {
-    const { status, body } = capture(
+    const { status, body, contentType } = capture(
       makeFilter(),
       new NotFoundException('Issue not found'),
     );
     expect(status).toBe(404);
+    // JSON even on a route that set its own Content-Type (CSV exports).
+    expect(contentType).toBe('application/json');
     expect(body).toEqual({
       success: false,
       message: 'Issue not found',

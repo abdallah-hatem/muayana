@@ -22,6 +22,16 @@ const DROP_RESPONSE_HEADERS = new Set([
   'set-cookie',
 ]);
 
+/**
+ * The browser's IP as this server received it: the first `X-Forwarded-For` entry (set by the
+ * platform in front of Next — Vercel, or Next's own server locally), else `X-Real-IP`.
+ */
+export function clientIp(request: Request): string | undefined {
+  const forwarded = request.headers.get('x-forwarded-for')?.split(',')[0];
+  const ip = forwarded?.trim() || request.headers.get('x-real-ip')?.trim();
+  return ip || undefined;
+}
+
 /** `/api/proxy/a/b?x=1` → `<API_URL>/a/b?x=1`. Segments are re-encoded one by one. */
 export function upstreamUrl(segments: string[], search: string): string {
   const path = segments.map(encodeURIComponent).join('/');
@@ -44,6 +54,9 @@ export async function forwardToApi(
     if (value) headers.set(name, value);
   }
   if (token) headers.set('authorization', `Bearer ${token}`);
+  // The API keys the sign-in rate limit on the client's IP, not this server's (TRUST_PROXY).
+  const ip = clientIp(request);
+  if (ip) headers.set('x-forwarded-for', ip);
 
   const method = request.method.toUpperCase();
   const hasBody = method !== 'GET' && method !== 'HEAD' && request.body;

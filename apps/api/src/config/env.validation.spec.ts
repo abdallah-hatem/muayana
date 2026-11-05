@@ -73,4 +73,14 @@ describe('validateEnv', () => {
       'STORAGE_DRIVER',
     );
   });
+
+  it('TRUST_PROXY defaults to false and reads "true"', () => {
+    expect(validateEnv(valid).TRUST_PROXY).toBe(false);
+    expect(validateEnv({ ...valid, TRUST_PROXY: 'true' }).TRUST_PROXY).toBe(
+      true,
+    );
+    expect(() => validateEnv({ ...valid, TRUST_PROXY: 'yes' })).toThrow(
+      'TRUST_PROXY',
+    );
+  });
 });

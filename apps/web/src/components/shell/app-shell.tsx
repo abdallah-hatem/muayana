@@ -1,3 +1,5 @@
+import { QueueSheetProvider } from '@/components/offline-queue/queue-sheet';
+import { QueueSync } from '@/components/offline-queue/queue-sync';
 import { SiteProvider } from '@/components/site/site-context';
 import { BottomNav } from './bottom-nav';
 import { ShellTitleProvider } from './shell-title';
@@ -11,6 +13,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <SiteProvider>
       <ShellTitleProvider>
+        <QueueSheetProvider>
+          <QueueSync />
         <div className="flex min-h-dvh flex-col md:ps-24">
           <TopBar />
           <main className="flex flex-1 flex-col px-4 pt-4 pb-36 md:px-6 md:pb-8">
@@ -18,6 +22,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </main>
           <BottomNav />
         </div>
+        </QueueSheetProvider>
       </ShellTitleProvider>
     </SiteProvider>
   );
