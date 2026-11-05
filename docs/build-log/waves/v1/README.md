@@ -7,3 +7,4 @@
 - T11 merged (fd513d3) · web 55 tests · smoke specs pending APIs. Wave 3b: T8+T9 batched into the freed slot (both CRUD screens; T9 mounts BatchSendToWorker from T11).
 - T6 (5dd521a), T4+T5, T12 merged (d24c15e) — app.module + i18n config conflicts were additive, resolved by keeping both. Wave 4: T7 alone (needs T5+T6) · T8+T9 and T10 still running.
 - T10 merged (fc493b6) after resolving shell/top-bar/i18n conflicts in its worktree (kept both: SiteProvider + QueueSheetProvider; SiteSwitcher + QueueChip); capture now uses the shared last-site key. Merged dev: shared 46, api 121, web 125(+T10) tests, lint, typecheck green.
+- Merged smoke run (local seeded servers): 9/16 pass. Missing `idb` was the first blocker (main checkout needed npm install after the T10 merge). Remaining: issues-dashboard (waits on T7), capture sites stuck loading + nav from /capture → fix/smoke-capture-nav agent.
