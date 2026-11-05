@@ -8,5 +8,5 @@
 - **Status history CSV** — every status change of the filtered issues. **GUESS**
 - Files are UTF-8 with a byte-order mark so Excel shows Arabic; dates as `YYYY-MM-DD HH:mm` in Cairo
   time; headers in the app's current language. **GUESS**
-- A value that begins with `=`, `+`, `-` or `@` is prefixed with an apostrophe so spreadsheets don't
+- A text value that begins with `=`, `+`, `-`, `@`, a tab or a carriage return is prefixed with an apostrophe so spreadsheets don't
   run it as a formula. **DECIDED**

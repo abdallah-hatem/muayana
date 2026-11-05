@@ -18,7 +18,7 @@ Name in Arabic (required) and English (optional), a colour, a sort order, an act
 
 ## Worker
 Name (required), phone (required, stored in international form, e.g. +2010…; Egyptian local numbers
-like 010… are accepted and converted), one or more categories (at least one), notes, active flag.
+like 010…, landlines, spaces/dashes and Arabic-Indic digits are accepted and converted), one or more categories (at least one), notes, active flag.
 - Phone is unique among workers. **GUESS**
 - A worker with issues is deactivated, never deleted. A worker with none may be deleted. A deactivated
   worker can't receive new issues but keeps the ones he has. **DECIDED**
@@ -29,7 +29,7 @@ One defect. Belongs to exactly one site.
 - **Photos:** 1–10 "before" photos (at least one, from capture) and 0–10 "after" photos added when
   solving. The first before-photo is the cover. Photos are stored compressed (long side at most 1600px,
   JPEG).
-- **Description** — optional while `new`; required in every other status. **Location** — free text
+- **Description** — optional while `new`; required in every other status (spaces only count as empty). **Location** — free text
   (floor / unit / room). **Priority** — low, normal, high or urgent (default normal).
 - **Category** — empty while `new`; required in every other status.
 - **Worker** — must have the issue's category when assigned. If the issue's category changes to one

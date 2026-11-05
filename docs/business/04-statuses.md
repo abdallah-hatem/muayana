@@ -19,7 +19,8 @@ Moves (**DECIDED** unless marked):
   the category instead).
 - `unassigned` can't be reached while a worker is set; removing the worker is the way back to it.
   Removing the worker moves the issue to `unassigned`. Choosing a worker on an `unassigned` issue moves
-  it to `assigned`; choosing a different worker on a later status keeps the status. **GUESS**
+  it to `assigned` (a worker can't be chosen on a `new` issue unless the same save also sorts it — then it
+  goes straight to `assigned`); choosing a different worker on a later status keeps the status. **GUESS**
 - Setting an estimated date on an `assigned` or `sent` issue moves it to `estimated`. **GUESS**
 - `solved` and `cancelled` can be **reopened** to `assigned` (or `unassigned` if no worker).
 - **Overdue** = has an estimated date before today (Cairo time) and is not `solved` or `cancelled`.
