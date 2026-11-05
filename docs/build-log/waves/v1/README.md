@@ -14,3 +14,4 @@
 - UI audit (whole app): 1 blocker, 11 major, 7 minor, 1 nit → fix wave: fix/ui-kit (shared primitives: Select dir/style, calendar locale, overlay layout shift, close/tap targets, not-found) ‖ fix/ui-screens (inbox bulk blocker, issues table, top bar/switcher/queue chip/nav labels at 360, batch-send paging from the release review).
 - UI fix wave merged (fix/ui-screens b90871e, fix/ui-kit 705557d) + deploy readiness (74a1081) + DB login lockout (3efb4ac). Merged dev: lint ✔ tc ✔ · shared 49 · api 144 unit + 125 e2e · web 197. Smoke on merged dev: 18 pass, 2 flaky, 2 fail (capture site chip, nav from /capture, overlay-shift desktop) → fix/smoke-after-ui-fixes.
 - Final merged dev (ef85578): lint ✔ tc ✔ · web 200 · smoke 22/22 (+2 desktop-only skips) with no retries. UI re-audit of the fixed screens dispatched.
+- UI re-audit: 18/21 earlier findings fixed; new 1 major + 8 minor + 4 nits → fix/ui-polish.
