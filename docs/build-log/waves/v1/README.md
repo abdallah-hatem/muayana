@@ -10,3 +10,4 @@
 - Merged smoke run (local seeded servers): 9/16 pass. Missing `idb` was the first blocker (main checkout needed npm install after the T10 merge). Remaining: issues-dashboard (waits on T7), capture sites stuck loading + nav from /capture → fix/smoke-capture-nav agent.
 - T7 (7c6627c) and T8+T9 (4821dfe) merged. All plan tasks T1–T12 are in dev. Next: smoke fix merge, full verify.
 - Verify on merged dev (98f5176): lint ✔ typecheck ✔ · shared 49 · api 128 unit · web 179 (158 in the full run + 21 in two files whose fork worker timed out under load; they pass alone).
+- Full smoke on merged dev (b95b36d, local seeded servers): 20/20 (mobile + desktop). The nav walk fails only on a cold `next dev` route compile — re-run warm passes; not an app bug.
