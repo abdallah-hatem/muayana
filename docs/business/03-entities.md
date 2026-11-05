@@ -34,6 +34,8 @@ One defect. Belongs to exactly one site.
 - **Category** — empty while `new`; required in every other status.
 - **Worker** — must have the issue's category when assigned. If the issue's category changes to one
   the worker doesn't have, the worker is removed and the issue goes back to `unassigned`.
+  Exception: a `cancelled` issue stays `cancelled` (the worker is still removed) — a category fix
+  must never silently reopen it. **GUESS**
 - **Estimated completion date** — set when the worker's estimate arrives.
 - **Number** — a short running number per site (#1, #2…) for talking about it with workers. Never reused.
 - **Captured at** — the moment the photo was taken on the phone, even if it uploaded later.
