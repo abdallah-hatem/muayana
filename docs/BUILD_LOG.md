@@ -4,7 +4,7 @@ Goal (current): mobile-first web app for an audit engineer — capture defect ph
 Current stage: 6 — Build · T1 merged into dev · wave 2 (T2 ‖ T3) running in `D:\Personal\muayana-wt\t2`, `t3`
 
 ## Waiting on the user
-- **GitHub repo** — creating the public repo `abdallah-hatem/muayana` was refused by the permission check. Needs the user to allow it (or create it) — local `dev`/`production` branches are ready to push.
+- (GitHub repo created 2026-11-05: abdallah-hatem/muayana, public — user approved. First push waits for an author rewrite: 6 early commits used the work email; user: always commit + push as abdallah-hatem.)
 - **Vercel access** (at Ship) — the Vercel CLI isn't signed in on this machine; needed for Neon + Blob + deploys.
 ## Blocked
 - (none)
