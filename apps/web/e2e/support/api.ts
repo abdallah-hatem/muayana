@@ -26,9 +26,9 @@ export async function signIn(page: Page, next = '/'): Promise<void> {
   await expect(page).not.toHaveURL(/\/login/, { timeout: 60_000 });
 }
 
-async function api<T>(
+export async function api<T>(
   page: Page,
-  method: 'GET' | 'POST' | 'PATCH',
+  method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
   path: string,
   data?: unknown,
 ): Promise<T> {

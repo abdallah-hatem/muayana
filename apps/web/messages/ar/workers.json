@@ -1,0 +1,101 @@
+{
+  "new": "عامل",
+  "newLong": "عامل جديد",
+  "export": "تصدير CSV",
+  "exporting": "جارٍ التصدير…",
+  "exportFailed": "تعذّر تصدير العمال.",
+  "searchLabel": "بحث في العمال",
+  "searchPlaceholder": "بحث بالاسم أو الرقم",
+  "filterLabel": "تصفية حسب التصنيف",
+  "allCategories": "الكل",
+  "activity": {
+    "label": "أي العمال",
+    "true": "النشطون",
+    "false": "الموقوفون"
+  },
+  "loadFailed": "تعذّر تحميل العمال.",
+  "empty": {
+    "title": "لا يوجد عمال بعد",
+    "body": "أضف من ترسل لهم الملاحظات، مع صنايعهم ورقم الواتساب.",
+    "filteredTitle": "لا يوجد عمال مطابقون",
+    "filteredBody": "جرّب اسمًا أو تصنيفًا آخر.",
+    "inactiveTitle": "لا يوجد عمال موقوفون",
+    "inactiveBody": "العمال الذين توقفهم يظهرون هنا ويحتفظون بملاحظاتهم."
+  },
+  "inactiveBadge": "موقوف",
+  "whatsapp": "واتساب {name}",
+  "call": "اتصال",
+  "whatsappButton": "واتساب",
+  "columns": {
+    "name": "الاسم",
+    "categories": "التصنيفات",
+    "phone": "الهاتف",
+    "open": "الملاحظات المفتوحة",
+    "contact": "تواصل"
+  },
+  "count": {
+    "assigned": "مُسند {count}",
+    "sent": "أُرسل {count}",
+    "estimated": "موعد {count}",
+    "in_progress": "جاري {count}",
+    "solved": "تم {count}",
+    "overdue": "متأخر {count}"
+  },
+  "noOpen": "لا ملاحظات مفتوحة",
+  "form": {
+    "createTitle": "عامل جديد",
+    "editTitle": "تعديل العامل",
+    "back": "العمال",
+    "name": "الاسم",
+    "namePlaceholder": "مثال: عم سيد",
+    "phone": "الهاتف",
+    "phonePlaceholder": "مثال: 0100 123 4567",
+    "phoneHint": "موبايل أو أرضي. يمكن كتابة +20 أو أرقام عربية.",
+    "categories": "التصنيفات",
+    "categoriesHint": "الصنايع التي يعمل بها. ملاحظات هذه الصنايع يمكن إسنادها له.",
+    "noCategories": "لا توجد تصنيفات نشطة. أضف تصنيفًا من الإعدادات ← التصنيفات أولًا.",
+    "inactiveCategory": "{name} (موقوف)",
+    "notes": "ملاحظات",
+    "notesPlaceholder": "مثال: يأتي أيام الأحد فقط، ومعه سقالته",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ…",
+    "create": "إضافة العامل",
+    "errors": {
+      "nameRequired": "اكتب اسم العامل.",
+      "phoneRequired": "اكتب رقم هاتف العامل.",
+      "badPhone": "هذا ليس رقمًا مصريًا، مثال: 01001234567.",
+      "duplicatePhone": "يوجد عامل آخر بنفس الرقم.",
+      "categoriesRequired": "اختر تصنيفًا واحدًا على الأقل.",
+      "inactiveCategory": "أحد التصنيفات المختارة تم إيقافه. اختر من جديد."
+    }
+  },
+  "detail": {
+    "categories": "التصنيفات",
+    "notes": "ملاحظات",
+    "issues": "الملاحظات",
+    "issuesFailed": "تعذّر تحميل ملاحظاته.",
+    "noIssues": "لا توجد ملاحظات بعد.",
+    "openCount": "{count, plural, =0 {لا ملاحظات مفتوحة} one {ملاحظة مفتوحة واحدة} two {ملاحظتان مفتوحتان} few {# ملاحظات مفتوحة} many {# ملاحظة مفتوحة} other {# ملاحظة مفتوحة}}"
+  },
+  "actions": {
+    "edit": "تعديل",
+    "deactivate": "إيقاف",
+    "activate": "تفعيل",
+    "delete": "حذف"
+  },
+  "delete": {
+    "title": "حذف هذا العامل؟",
+    "body": "ليس عليه ملاحظات. لا يمكن التراجع عن الحذف.",
+    "confirm": "حذف",
+    "inUseTitle": "هذا العامل عليه ملاحظات",
+    "inUseBody": "العامل الذي عليه ملاحظات يُوقف ولا يُحذف. يحتفظ بملاحظاته ولا تُسند له ملاحظات جديدة.",
+    "deactivateInstead": "إيقاف بدلاً من ذلك"
+  },
+  "toast": {
+    "created": "تمت إضافة العامل.",
+    "saved": "تم حفظ العامل.",
+    "deactivated": "تم إيقاف العامل.",
+    "activated": "تم تفعيل العامل.",
+    "deleted": "تم حذف العامل."
+  }
+}

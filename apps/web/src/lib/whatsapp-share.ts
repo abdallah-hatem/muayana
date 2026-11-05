@@ -85,3 +85,11 @@ export async function shareToWhatsApp({
 /** An absolute link for a photo URL (dev serves relative `/uploads/…`). */
 export const photoBaseUrl = (): string | undefined =>
   typeof window === 'undefined' ? undefined : window.location.origin;
+
+/** A WhatsApp chat with the number, no message (the worker list's and page's WhatsApp buttons). */
+export const whatsappChatUrl = (phone: string): string =>
+  `https://wa.me/${phone.replace(/\D/g, '')}`;
+
+/** The phone dialler. */
+export const telUrl = (phone: string): string =>
+  `tel:${phone.replace(/[^\d+]/g, '')}`;

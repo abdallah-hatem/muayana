@@ -16,12 +16,17 @@ interface SiteSelection {
   setSiteId: (siteId: string | null) => void;
   /** False until the remembered site has been read (avoid fetching "all sites" first). */
   ready: boolean;
+  /** Bumped when sites are created, renamed or archived: the switcher reloads its list. */
+  sitesVersion: number;
+  sitesChanged: () => void;
 }
 
 const SiteContext = createContext<SiteSelection>({
   siteId: null,
   setSiteId: () => undefined,
   ready: true,
+  sitesVersion: 0,
+  sitesChanged: () => undefined,
 });
 
 /**
@@ -31,6 +36,8 @@ const SiteContext = createContext<SiteSelection>({
 export function SiteProvider({ children }: { children: React.ReactNode }) {
   const [siteId, setState] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const [sitesVersion, setSitesVersion] = useState(0);
+  const sitesChanged = useCallback(() => setSitesVersion((v) => v + 1), []);
 
   useEffect(() => {
     // localStorage exists only in the browser: read it after the first paint.
@@ -45,8 +52,8 @@ export function SiteProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ siteId, setSiteId, ready }),
-    [siteId, setSiteId, ready],
+    () => ({ siteId, setSiteId, ready, sitesVersion, sitesChanged }),
+    [siteId, setSiteId, ready, sitesVersion, sitesChanged],
   );
   return <SiteContext.Provider value={value}>{children}</SiteContext.Provider>;
 }

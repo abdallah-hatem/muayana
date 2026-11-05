@@ -23,7 +23,7 @@ const ALL = '__all__';
  */
 export function SiteSwitcher() {
   const t = useTranslations('shell.siteSwitcher');
-  const { siteId, setSiteId, ready } = useSiteSelection();
+  const { siteId, setSiteId, ready, sitesVersion } = useSiteSelection();
   const [sites, setSites] = useState<Site[] | null>(null);
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export function SiteSwitcher() {
     return () => {
       live = false;
     };
-  }, []);
+  }, [sitesVersion]);
 
   useEffect(() => {
     if (!ready || sites === null || siteId === null) return;

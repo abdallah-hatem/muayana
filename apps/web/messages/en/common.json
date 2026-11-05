@@ -37,7 +37,8 @@
     "capture": "Capture",
     "delete": "Delete",
     "retry": "Retry",
-    "close": "Close"
+    "close": "Close",
+    "edit": "Edit"
   },
   "fields": {
     "category": "Category",
@@ -62,5 +63,16 @@
   "language": {
     "ar": "العربية",
     "en": "English"
+  },
+  "pager": {
+    "label": "Pages",
+    "summary": "Showing {from}–{to} of {total}",
+    "first": "First page",
+    "previous": "Previous page",
+    "next": "Next page",
+    "last": "Last page",
+    "page": "Page {page}",
+    "pageSize": "Rows per page",
+    "perPage": "{count} / page"
   }
 }
