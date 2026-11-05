@@ -1,3 +1,5 @@
+import { QueueSheetProvider } from '@/components/offline-queue/queue-sheet';
+import { QueueSync } from '@/components/offline-queue/queue-sync';
 import { BottomNav } from './bottom-nav';
 import { ShellTitleProvider } from './shell-title';
 import { TopBar } from './top-bar';
@@ -9,13 +11,16 @@ import { TopBar } from './top-bar';
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <ShellTitleProvider>
-      <div className="flex min-h-dvh flex-col md:ps-24">
-        <TopBar />
-        <main className="flex flex-1 flex-col px-4 pt-4 pb-36 md:px-6 md:pb-8">
-          {children}
-        </main>
-        <BottomNav />
-      </div>
+      <QueueSheetProvider>
+        <QueueSync />
+        <div className="flex min-h-dvh flex-col md:ps-24">
+          <TopBar />
+          <main className="flex flex-1 flex-col px-4 pt-4 pb-36 md:px-6 md:pb-8">
+            {children}
+          </main>
+          <BottomNav />
+        </div>
+      </QueueSheetProvider>
     </ShellTitleProvider>
   );
 }

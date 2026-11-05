@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useQueueCount } from '@/lib/offline-queue';
 import { cn } from '@/lib/utils';
 import { NAV_ITEMS, isActive, type NavItem } from './nav-items';
 
@@ -71,8 +72,10 @@ function NavLink({ item: { href, icon: Icon }, label, active }: ItemProps) {
 }
 
 function Shutter({ item: { href, icon: Icon }, label, active }: ItemProps) {
+  const t = useTranslations('capture.queue');
+  const waiting = useQueueCount();
   return (
-    <div className="flex justify-center md:order-first md:mb-3">
+    <div className="relative flex justify-center md:order-first md:mb-3">
       <Link
         href={href}
         aria-current={active ? 'page' : undefined}
@@ -84,6 +87,15 @@ function Shutter({ item: { href, icon: Icon }, label, active }: ItemProps) {
       >
         <Icon className="size-8 md:size-7" aria-hidden />
       </Link>
+      {waiting > 0 && (
+        <span
+          data-testid="shutter-badge"
+          aria-label={t('chip', { count: waiting })}
+          className="pointer-events-none absolute end-[calc(50%-2.75rem)] -top-9 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-card bg-status-new px-1.5 type-stencil text-xs text-status-new-foreground md:end-1 md:-top-1"
+        >
+          {waiting}
+        </span>
+      )}
     </div>
   );
 }
