@@ -49,7 +49,7 @@ unguessable URLs (Blob) or `/uploads/*` locally.
 |---|---|---|---|
 | GET | `/workers` | `?search&categoryId&active=true\|false\|all&page&limit` | `Worker[]` + meta. `Worker = { id, name, phone, notes, active, categories: CategoryRef[], counts: { assigned, sent, estimated, in_progress, solved, open, overdue } }` |
 | GET | `/workers/:id` | — | Worker |
-| POST | `/workers` | `{ name (1–120), phone, categoryIds (≥1), notes? }` | Worker · 400 bad phone / inactive category · 409 duplicate phone |
+| POST | `/workers` | `{ name (1–120), phone, categoryIds (≥1), notes? }` | Worker · 400 bad phone · 409 INACTIVE_CATEGORY · 409 duplicate phone |
 | PATCH | `/workers/:id` | partial + `active?` | Worker |
 | DELETE | `/workers/:id` | — | `{ id }` · 409 has issues |
 | GET | `/workers/export.csv` | same filters as list | CSV |
@@ -61,7 +61,7 @@ unguessable URLs (Blob) or `/uploads/*` locally.
 
 | Method | Path | Body / query | Data |
 |---|---|---|---|
-| POST | `/issues` | multipart: `id` (uuid, client), `siteId`, `capturedAt`, `description?`, `location?`, `photo` (jpeg/png/webp ≤ 4 MB) | Issue (201 created, **200 with the existing issue if `id` already exists** — idempotent) · 400 archived site · 404 site |
+| POST | `/issues` | multipart: `id` (uuid, client), `siteId`, `capturedAt`, `description?`, `location?`, `photo` (jpeg/png/webp ≤ 4 MB) | Issue (201 created, **200 with the existing issue if `id` already exists** — idempotent) · 409 ARCHIVED_SITE · 404 site |
 | POST | `/issues/:id/photos` | multipart `photo`, `kind` | Issue · 409 limit 10 reached |
 | DELETE | `/issues/:id/photos/:photoId` | — | Issue · 409 last before-photo |
 | GET | `/issues` | `IssueFilter`: `siteId, categoryId, workerId, status (comma list), priority (comma list), overdue (bool), capturedFrom, capturedTo, solvedFrom, solvedTo, q, sort (newest\|oldest\|priority\|estimate), page, limit` | `Issue[]` + meta |

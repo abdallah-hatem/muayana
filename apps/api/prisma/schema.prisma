@@ -1,0 +1,226 @@
+// Muayana — database schema.
+// The connection URL lives in prisma.config.ts (Prisma 7), read from DATABASE_URL.
+//
+// Conventions: UUID keys, camelCase fields mapped to snake_case, an index on every foreign key
+// and filtered column. Guards Prisma can't express (CHECK constraints) are added by hand at the
+// end of the migration that creates the table — see prisma/migrations/*/migration.sql.
+//
+// Enums mirror packages/shared/src/schemas/enums.ts; src/database/schema-enums.spec.ts fails
+// if the two drift.
+//
+// Deletion rules (docs/business/03-entities.md):
+// - A site, category or worker that issues point at is archived/deactivated, never deleted:
+//   their foreign keys from issues are Restrict, so a delete fails at the database too.
+// - Only a `new` issue may be deleted; its photos and (empty) history go with it (Cascade).
+// - Status changes are append-only; nothing updates them.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ------------------------------------------------------------------ enums
+
+enum IssueStatus {
+  new
+  unassigned
+  assigned
+  sent
+  estimated
+  in_progress
+  solved
+  cancelled
+
+  @@map("issue_status")
+}
+
+enum Priority {
+  low
+  normal
+  high
+  urgent
+
+  @@map("priority")
+}
+
+enum PhotoKind {
+  before
+  after
+
+  @@map("photo_kind")
+}
+
+enum Locale {
+  ar
+  en
+
+  @@map("locale")
+}
+
+// ----------------------------------------------------------------- models
+
+/// The one engineer account (business §2).
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  /// Stored trimmed and lower-cased.
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  name         String
+  locale       Locale   @default(ar)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+/// A building or project being audited.
+model Site {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String
+  /// nameKey(name) from @muayana/shared: unique among non-archived sites (checked by the service).
+  nameKey    String   @map("name_key")
+  address    String?
+  notes      String?
+  archived   Boolean  @default(false)
+  /// The next issue number on this site. Incremented in the create transaction; never reused.
+  nextNumber Int      @default(1) @map("next_number")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  issues Issue[]
+
+  @@index([nameKey])
+  @@index([archived])
+  @@map("sites")
+}
+
+/// A trade (painting, electrical…).
+model Category {
+  id        String   @id @default(uuid()) @db.Uuid
+  nameAr    String   @map("name_ar")
+  /// nameKey(nameAr): Arabic names are unique ignoring case and surrounding spaces.
+  nameKey   String   @unique @map("name_key")
+  nameEn    String?  @map("name_en")
+  /// #RRGGBB
+  color     String
+  sortOrder Int      @default(0) @map("sort_order")
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  issues  Issue[]
+  workers WorkerCategory[]
+
+  @@index([active, sortOrder])
+  @@map("categories")
+}
+
+/// A tradesman the engineer sends issues to. A record, not a user.
+model Worker {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  /// International form (+20…), unique among workers.
+  phone     String   @unique
+  notes     String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  categories WorkerCategory[]
+  issues     Issue[]
+
+  @@index([active])
+  @@index([name])
+  @@map("workers")
+}
+
+model WorkerCategory {
+  workerId   String @map("worker_id") @db.Uuid
+  categoryId String @map("category_id") @db.Uuid
+
+  worker   Worker   @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@id([workerId, categoryId])
+  @@index([categoryId])
+  @@map("worker_categories")
+}
+
+/// One defect on one site.
+model Issue {
+  /// Generated on the phone (UUID v4) so an offline create can be retried idempotently.
+  id            String      @id @db.Uuid
+  siteId        String      @map("site_id") @db.Uuid
+  /// Running number per site (#1, #2…), never reused.
+  number        Int
+  status        IssueStatus @default(new)
+  priority      Priority    @default(normal)
+  description   String?
+  location      String?
+  categoryId    String?     @map("category_id") @db.Uuid
+  workerId      String?     @map("worker_id") @db.Uuid
+  estimatedDate DateTime?   @map("estimated_date") @db.Date
+  /// When the photo was taken on the phone, even if it uploaded later.
+  capturedAt    DateTime    @map("captured_at")
+  /// First time the issue reached assigned / sent / solved (kept for reports).
+  assignedAt    DateTime?   @map("assigned_at")
+  sentAt        DateTime?   @map("sent_at")
+  solvedAt      DateTime?   @map("solved_at")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  site     Site           @relation(fields: [siteId], references: [id], onDelete: Restrict)
+  category Category?      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  worker   Worker?        @relation(fields: [workerId], references: [id], onDelete: Restrict)
+  photos   Photo[]
+  history  StatusChange[]
+
+  @@unique([siteId, number])
+  @@index([siteId, status])
+  @@index([status])
+  @@index([categoryId])
+  @@index([workerId, status])
+  @@index([priority])
+  @@index([estimatedDate])
+  @@index([capturedAt])
+  @@index([solvedAt])
+  @@map("issues")
+}
+
+model Photo {
+  id         String    @id @default(uuid()) @db.Uuid
+  issueId    String    @map("issue_id") @db.Uuid
+  kind       PhotoKind
+  /// Key in the storage driver (local path or Blob pathname), for deleting the file.
+  storageKey String    @map("storage_key")
+  url        String
+  width      Int
+  height     Int
+  /// Order within its kind; the first before-photo is the cover.
+  sortOrder  Int       @default(0) @map("sort_order")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  @@index([issueId, kind, sortOrder])
+  @@map("photos")
+}
+
+/// Append-only status history (business §3, §6.7).
+model StatusChange {
+  id        String       @id @default(uuid()) @db.Uuid
+  issueId   String       @map("issue_id") @db.Uuid
+  from      IssueStatus?
+  to        IssueStatus
+  note      String?
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  @@index([issueId, createdAt])
+  @@index([createdAt])
+  @@map("status_changes")
+}

@@ -1,0 +1,66 @@
+{
+  "app": {
+    "name": "معاينة",
+    "tagline": "ملاحظات الموقع: صوّر، صنّف، وأرسل."
+  },
+  "nav": {
+    "dashboard": "الرئيسية",
+    "issues": "الملاحظات",
+    "capture": "تصوير",
+    "inbox": "الوارد",
+    "workers": "العمال",
+    "settings": "الإعدادات"
+  },
+  "status": {
+    "new": "جديد",
+    "unassigned": "غير مُسند",
+    "assigned": "مُسند",
+    "sent": "أُرسل للعامل",
+    "estimated": "تم تحديد موعد",
+    "in_progress": "جاري العمل",
+    "solved": "تم الحل",
+    "cancelled": "ملغي"
+  },
+  "priority": {
+    "low": "منخفضة",
+    "normal": "عادية",
+    "high": "عالية",
+    "urgent": "عاجلة"
+  },
+  "actions": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "next": "التالي",
+    "skip": "تخطي",
+    "assign": "إسناد",
+    "send": "إرسال على واتساب",
+    "capture": "تصوير",
+    "delete": "حذف",
+    "retry": "إعادة المحاولة",
+    "close": "إغلاق"
+  },
+  "fields": {
+    "category": "التصنيف",
+    "worker": "العامل",
+    "description": "الوصف",
+    "location": "المكان",
+    "priority": "الأولوية",
+    "estimatedDate": "الموعد المتوقع",
+    "site": "الموقع"
+  },
+  "labels": {
+    "overdue": "متأخر",
+    "issueNumber": "#{number}",
+    "photos": "{count, plural, one {صورة واحدة} two {صورتان} few {# صور} many {# صورة} other {# صورة}}",
+    "inboxLeft": "متبقٍ {count} للتصنيف"
+  },
+  "theme": {
+    "light": "فاتح",
+    "dark": "داكن",
+    "system": "النظام"
+  },
+  "language": {
+    "ar": "العربية",
+    "en": "English"
+  }
+}

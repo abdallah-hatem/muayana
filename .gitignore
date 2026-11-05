@@ -4,6 +4,7 @@ dist/
 .env
 .env.*
 !.env.example
+!.env.*.example
 *.local.md
 .logs/
 coverage/
@@ -12,3 +13,8 @@ playwright-report/
 .turbo/
 *.tsbuildinfo
 .vercel
+.DS_Store
+next-env.d.ts
+apps/api/uploads/
+**/e2e/.auth/
+apps/api/uploads-test/

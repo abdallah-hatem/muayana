@@ -1,0 +1,66 @@
+{
+  "app": {
+    "name": "Muayana",
+    "tagline": "Site snags, photographed, sorted and sent."
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "issues": "Issues",
+    "capture": "Capture",
+    "inbox": "Inbox",
+    "workers": "Workers",
+    "settings": "Settings"
+  },
+  "status": {
+    "new": "New",
+    "unassigned": "Unassigned",
+    "assigned": "Assigned",
+    "sent": "Sent",
+    "estimated": "Estimated",
+    "in_progress": "In progress",
+    "solved": "Solved",
+    "cancelled": "Cancelled"
+  },
+  "priority": {
+    "low": "Low",
+    "normal": "Normal",
+    "high": "High",
+    "urgent": "Urgent"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "next": "Next",
+    "skip": "Skip",
+    "assign": "Assign",
+    "send": "Send on WhatsApp",
+    "capture": "Capture",
+    "delete": "Delete",
+    "retry": "Retry",
+    "close": "Close"
+  },
+  "fields": {
+    "category": "Category",
+    "worker": "Worker",
+    "description": "Description",
+    "location": "Location",
+    "priority": "Priority",
+    "estimatedDate": "Estimated date",
+    "site": "Site"
+  },
+  "labels": {
+    "overdue": "Overdue",
+    "issueNumber": "#{number}",
+    "photos": "{count, plural, one {# photo} other {# photos}}",
+    "inboxLeft": "{count} left to sort"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "language": {
+    "ar": "العربية",
+    "en": "English"
+  }
+}
