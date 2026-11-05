@@ -5,6 +5,8 @@
   estimated date, solved at, overdue, days open, photo links, after-photo links, last note. **DECIDED**
 - **Workers CSV** — every worker matching the workers filter, with categories, phone, active, notes,
   and counts per status and overdue. **DECIDED**
+- **Days open** counts from capture to today, or to the last status change for a `solved` or `cancelled`
+  issue. **GUESS**
 - **Status history CSV** — every status change of the filtered issues. **GUESS**
 - Files are UTF-8 with a byte-order mark so Excel shows Arabic; dates as `YYYY-MM-DD HH:mm` in Cairo
   time; headers in the app's current language. **GUESS**
