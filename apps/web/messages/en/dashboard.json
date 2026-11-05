@@ -1,0 +1,29 @@
+{
+  "inbox": {
+    "title": "Waiting to be sorted",
+    "start": "Start sorting"
+  },
+  "stats": {
+    "label": "Issue counts",
+    "open": "Open",
+    "overdue": "Overdue",
+    "sent": "Sent to workers",
+    "solved": "Solved"
+  },
+  "bars": {
+    "byCategory": "By trade",
+    "byWorker": "By worker",
+    "bySite": "By site",
+    "open": "{name}: {count} open",
+    "overdue": "{count} overdue",
+    "overdueLabel": "{name}: {count} overdue",
+    "empty": "Nothing open here."
+  },
+  "site": {
+    "showing": "Showing {site} only",
+    "all": "Show all sites"
+  },
+  "error": "Couldn't load the dashboard.",
+  "retry": "Try again",
+  "loading": "Loading the dashboard"
+}

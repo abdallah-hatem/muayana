@@ -1,10 +1,10 @@
-import { getTranslations } from 'next-intl/server';
-import { PlaceholderScreen } from '@/components/shell/app-shell';
+import { DashboardScreen } from './_dashboard/dashboard-screen';
 
-/** Dashboard placeholder until T12. */
-export default async function DashboardPage() {
-  const t = await getTranslations('shell');
+/** Dashboard (§5.9): the inbox, the counts, and bars by trade / worker / site. */
+export default function DashboardPage() {
   return (
-    <PlaceholderScreen testId="screen-dashboard" body={t('placeholder.body')} />
+    <div data-testid="screen-dashboard" className="flex flex-1 flex-col">
+      <DashboardScreen />
+    </div>
   );
 }
