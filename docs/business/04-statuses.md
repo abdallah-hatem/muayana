@@ -22,7 +22,9 @@ Moves (**DECIDED** unless marked):
   it to `assigned` (a worker can't be chosen on a `new` issue unless the same save also sorts it — then it
   goes straight to `assigned`); choosing a different worker on a later status keeps the status. **GUESS**
 - Setting an estimated date on an `assigned` or `sent` issue moves it to `estimated`. **GUESS**
-- `solved` and `cancelled` can be **reopened** to `assigned` (or `unassigned` if no worker).
+- `solved` and `cancelled` can be **reopened** to `assigned` (or `unassigned` if no worker); a reopen request
+  lands on whichever of the two the worker rule allows. Asking for the status the issue already has changes
+  nothing and writes no record. **GUESS**
 - **Overdue** = has an estimated date before today (Cairo time) and is not `solved` or `cancelled`.
   It is a flag computed from the date, not a status.
 - Every move writes one status change (§3) with an optional note. Saving without a status change

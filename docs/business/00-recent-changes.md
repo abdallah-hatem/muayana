@@ -1,4 +1,5 @@
 # Recent changes
+- 2026-11-05 — Wave 3 review: creation history record (§3), reopen landing + no-op (§4), re-send never moves back and batch uses links (§5.5), bulk all-or-nothing (§5.3), category worker count (§3).
 - 2026-11-05 — T3 review: phone formats accepted (§3), blank descriptions (§3), worker on a new issue (§4), CSV formula guard applies to text values (§7).
 - 2026-11-05 — T3: a category change on a cancelled issue removes a worker who lacks it but keeps it cancelled (§3).
 - 2026-11-05 — After plan review: photo files are the one exception to "nothing without sign-in" (§6.10);

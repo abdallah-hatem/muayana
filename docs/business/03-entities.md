@@ -14,7 +14,8 @@ Name in Arabic (required) and English (optional), a colour, a sort order, an act
 - Arabic names are unique (ignoring case and surrounding spaces). The engineer can add, rename,
   recolour, reorder and deactivate categories.
 - A category in use (by an issue or a worker) is deactivated, never deleted. An unused one may be
-  deleted. A deactivated category is hidden from pickers but stays on existing issues and workers.
+  deleted. A deactivated category is hidden from pickers but stays on existing issues and workers. A category's
+  worker count counts active workers only. **GUESS**
 
 ## Worker
 Name (required), phone (required, stored in international form, e.g. +2010…; Egyptian local numbers
@@ -43,3 +44,5 @@ One defect. Belongs to exactly one site.
 
 ## Status change
 Every status move is recorded: from, to, when, optional note. Append-only; never edited or deleted.
+Creating an issue writes the first record (none → `new`). A `new` issue removed by merge or deletion takes
+its records with it (it never left `new`). **GUESS**

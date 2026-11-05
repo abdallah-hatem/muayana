@@ -20,7 +20,8 @@ upload"; nothing is lost if the app is closed. **DECIDED**
 The inbox lists `new` issues (per site, oldest first). One at a time with the photo large: choose a
 category, write the description, adjust location and priority, optionally choose a worker → saved and
 moved to `unassigned` (or `assigned` with a worker) → next. Bulk: select several and set one category
-(they stay `new` until each gets a description). **GUESS**
+(they stay `new` until each gets a description). **GUESS** Bulk changes (category, worker, or status; up to
+200 issues) are all-or-nothing: if any issue breaks a rule, none change and the failing ones are named. **DECIDED**
 **Merge:** two captures of the same defect can be merged: the photos move to one issue and the other
 is removed (it never left `new`, so it has no history to lose). The merged issue keeps at most 10 photos.
 
@@ -31,10 +32,11 @@ issues they hold.
 ## 5.5 Send
 "Send on WhatsApp" builds an Arabic message: site, issue number, location, category, description,
 priority, and the photos. On a phone that can share files, the photos and text go through the share
-sheet to WhatsApp; otherwise a WhatsApp link opens with the text and links to the photos. When the
+sheet to WhatsApp; otherwise a WhatsApp link opens with the text and links to the photos. Re-sending an issue
+that is already `sent` or further along never asks and never moves it back. **GUESS** When the
 engineer comes back, the app asks "Mark as sent?"; only his yes changes the status. **DECIDED**
 Batch: from a worker's page, send all of the worker's `assigned` issues in one message, then mark them
-sent together.
+sent together. The batch message carries photo links, not photo files. **GUESS**
 
 ## 5.6 Track
 From the issue page, in one tap each: set the estimate date (→ `estimated`), mark `in_progress`, mark
