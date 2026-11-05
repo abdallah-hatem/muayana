@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ar" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Muayana mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+:root{--y:#FFC21A;--ink:#15171B;}
+.light{--bg:#F3EFE6;--card:#FFFDF8;--muted:#E7E1D4;--border:#D6CEBD;--fg:#15171B;--fg2:#5D5848;--chip:#ECE6D8}
+.dark{--bg:#121417;--card:#1C1F24;--muted:#262A31;--border:#343A43;--fg:#F4F1EA;--fg2:#A5A9B1;--chip:#262A31}
+*{box-sizing:border-box;margin:0;padding:0}
+@media (max-width:1200px){body{zoom:.62}} body{font-family:'Readex Pro',sans-serif;background:#8A8578;padding:32px 24px;color:#15171B}
+h1{font-weight:800;font-size:28px;color:#fff;margin-bottom:4px}
+.sub{color:#F3EFE6;margin-bottom:24px;font-size:15px}
+.row{display:flex;gap:28px;flex-wrap:wrap;justify-content:center;margin-bottom:40px}
+.label{color:#fff;font-weight:700;font-size:14px;margin-bottom:8px;text-align:center}
+.phone{width:360px;height:740px;border-radius:40px;background:var(--bg);color:var(--fg);border:10px solid #0A0B0D;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;justify-content:space-between;padding:18px 18px 10px}
+.title{font-weight:800;font-size:22px}
+.site{display:flex;align-items:center;gap:6px;background:var(--chip);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600}
+.mono{font-family:'IBM Plex Mono',monospace}
+.content{flex:1;overflow:hidden;padding:0 16px}
+.nav{height:78px;background:var(--ink);display:flex;align-items:center;justify-content:space-around;padding:0 8px;position:relative}
+.nav a{color:#9DA2AB;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px;font-weight:600;text-decoration:none;width:56px}
+.nav a i{font-size:24px}
+.nav a.on{color:var(--y)}
+.shutter{width:72px;height:72px;border-radius:50%;background:var(--y);border:6px solid var(--ink);margin-top:-36px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px var(--y)}
+.shutter i{font-size:32px;color:var(--ink)}
+.hazard{background:repeating-linear-gradient(-45deg,var(--y) 0 14px,var(--ink) 14px 28px)}
+.stat{background:var(--card);border:2px solid var(--border);border-radius:16px;padding:12px}
+.stat b{font-size:30px;font-weight:800;display:block;line-height:1.1}
+.stat span{font-size:12px;color:var(--fg2);font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;letter-spacing:.02em}
+.s-new{background:#FFC21A;color:#15171B}.s-un{background:#8E8A80;color:#fff}.s-as{background:#3B6FD8;color:#fff}
+.s-sent{background:#7A4FD0;color:#fff}.s-est{background:#0E8C8C;color:#fff}.s-prog{background:#E5701F;color:#fff}
+.s-done{background:#1F9D55;color:#fff}.s-over{background:#D7263D;color:#fff}
+.photo{border-radius:14px;position:relative;overflow:hidden}
+.wall{background:
+ linear-gradient(115deg,transparent 46%,#3a3226 47%,#3a3226 48%,transparent 49%),
+ linear-gradient(70deg,transparent 52%,#3a3226 52.6%,transparent 53.4%),
+ repeating-linear-gradient(0deg,#b9a68c 0 22px,#cbb89c 22px 24px),#c4b093}
+.wall2{background:radial-gradient(circle at 30% 40%,#6b5d49 0 18%,transparent 19%),radial-gradient(circle at 65% 60%,#7a6a54 0 12%,transparent 13%),linear-gradient(#d8d2c4,#bfb6a3)}
+.wall3{background:repeating-linear-gradient(90deg,#9d4b35 0 40px,#b9644a 40px 42px),#a65640}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border-radius:14px;font-weight:800;font-size:16px}
+.btn-y{background:var(--y);color:var(--ink)}
+.btn-o{border:2px solid var(--fg);color:var(--fg)}
+.wa{background:#1FAF5A;color:#fff}
+.cats{display:flex;flex-wrap:wrap;gap:8px}
+.cat{border:2px solid var(--border);border-radius:12px;padding:8px 12px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px;background:var(--card)}
+.cat .dot{width:10px;height:10px;border-radius:50%}
+.cat.on{background:var(--ink);color:var(--y);border-color:var(--ink)}
+.dark .cat.on{background:var(--y);color:var(--ink);border-color:var(--y)}
+.field{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--fg)}
+.lbl{font-size:12px;font-weight:700;color:var(--fg2);margin:10px 0 4px}
+.card{background:var(--card);border:2px solid var(--border);border-radius:16px;padding:10px;display:flex;gap:10px;margin-bottom:10px}
+.thumb{width:76px;height:76px;border-radius:10px;flex-shrink:0}
+.steps{display:flex;gap:4px;margin:10px 0}
+.steps div{flex:1;height:6px;border-radius:3px;background:var(--muted)}
+.steps div.f{background:var(--y)}
+.bar{height:10px;border-radius:5px;background:var(--y)}
+.avatar{width:44px;height:44px;border-radius:12px;background:var(--ink);color:var(--y);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px}
+.dark .avatar{background:var(--y);color:var(--ink)}
+</style>
+</head>
+<body>
+<h1>معاينة · Muayana — "Site tape" direction</h1>
+<p class="sub">Safety yellow on ink, concrete paper in light mode, graphite in dark. Heavy type (Readex Pro), stencil mono numbers, stamped status chips, a big capture shutter in the middle of the bottom bar.</p>
+
+<div class="row">
+ <!-- 1 Dashboard light -->
+ <div><div class="label">1 · Dashboard (light)</div>
+ <div dir="rtl" class="phone light">
+  <div class="top"><div class="title">الرئيسية</div><div class="site"><i class="ti ti-building"></i>برج النخيل<i class="ti ti-chevron-down"></i></div></div>
+  <div class="content">
+   <div class="hazard" style="border-radius:16px;padding:4px;margin-bottom:12px"><div style="background:var(--ink);color:#fff;border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:space-between">
+    <div><div style="font-size:13px;color:var(--y);font-weight:700">بانتظار التصنيف</div><div style="font-size:34px;font-weight:800" class="mono">23</div></div>
+    <div class="btn btn-y" style="height:44px;padding:0 16px;font-size:14px">ابدأ التصنيف<i class="ti ti-arrow-left"></i></div></div></div>
+   <div class="grid" style="margin-bottom:12px">
+    <div class="stat"><b class="mono">41</b><span>مفتوحة</span></div>
+    <div class="stat" style="border-color:#D7263D"><b class="mono" style="color:#D7263D">6</b><span>متأخرة عن الموعد</span></div>
+    <div class="stat"><b class="mono">12</b><span>أُرسلت للعمال</span></div>
+    <div class="stat"><b class="mono">87</b><span>تم الحل</span></div>
+   </div>
+   <div style="font-weight:800;margin:6px 0 8px">حسب الصنعة</div>
+   <div style="display:grid;grid-template-columns:70px 1fr 24px;gap:8px 10px;align-items:center;font-size:13px;font-weight:600">
+    <span>نقاشة</span><div class="bar" style="width:92%"></div><span class="mono">14</span>
+    <span>كهرباء</span><div class="bar" style="width:60%;background:#3B6FD8"></div><span class="mono">9</span>
+    <span>سباكة</span><div class="bar" style="width:46%;background:#0E8C8C"></div><span class="mono">7</span>
+    <span>محارة</span><div class="bar" style="width:38%;background:#E5701F"></div><span class="mono">6</span>
+    <span>نظافة</span><div class="bar" style="width:22%;background:#8E8A80"></div><span class="mono">3</span>
+   </div>
+  </div>
+  <div class="nav"><a class="on"><i class="ti ti-layout-dashboard"></i>الرئيسية</a><a><i class="ti ti-list-details"></i>الملاحظات</a><div class="shutter"><i class="ti ti-camera"></i></div><a><i class="ti ti-inbox"></i>التصنيف</a><a><i class="ti ti-users"></i>العمال</a></div>
+ </div></div>
+
+ <!-- 2 Capture -->
+ <div><div class="label">2 · Capture on site (works offline)</div>
+ <div dir="rtl" class="phone dark" style="background:#000">
+  <div class="photo wall" style="position:absolute;inset:0;border-radius:0"></div>
+  <div style="position:relative;display:flex;justify-content:space-between;align-items:center;padding:18px">
+   <div class="site" style="background:rgba(0,0,0,.6);color:#fff"><i class="ti ti-building"></i>برج النخيل</div>
+   <div class="chip s-new"><i class="ti ti-cloud-off"></i> 4 بانتظار الرفع</div>
+  </div>
+  <div style="flex:1"></div>
+  <div style="position:relative;padding:14px;background:rgba(10,11,13,.85)">
+   <div class="field" style="background:#1C1F24;color:#A5A9B1;border-color:#343A43;margin-bottom:12px">الموقع: الدور ٣ – شقة ٧ (اختياري)</div>
+   <div style="display:flex;align-items:center;justify-content:space-between">
+    <div style="width:56px;height:56px;border-radius:12px;border:2px solid var(--y)" class="wall2"></div>
+    <div style="width:84px;height:84px;border-radius:50%;border:5px solid #fff;display:flex;align-items:center;justify-content:center"><div style="width:64px;height:64px;border-radius:50%;background:var(--y)"></div></div>
+    <div style="color:#fff;font-size:11px;text-align:center;font-weight:600;width:56px"><i class="ti ti-photo-plus" style="font-size:26px;display:block"></i>للسابقة</div>
+   </div>
+   <div style="color:#A5A9B1;text-align:center;font-size:12px;margin-top:10px">صورة = ملاحظة جديدة · اكتب التفاصيل لاحقاً</div>
+  </div>
+ </div></div>
+
+ <!-- 3 Sort inbox -->
+ <div><div class="label">3 · Sort inbox (after the walk)</div>
+ <div dir="rtl" class="phone light">
+  <div class="top"><div class="title">التصنيف</div><div class="mono" style="font-weight:600;color:var(--fg2)">3 / 23</div></div>
+  <div class="content">
+   <div class="photo wall" style="height:230px"><div class="chip s-new" style="position:absolute;top:10px;right:10px">جديد · <span class="mono">#38</span></div></div>
+   <div class="lbl">الصنعة</div>
+   <div class="cats">
+    <div class="cat on"><span class="dot" style="background:var(--y)"></span>محارة</div>
+    <div class="cat"><span class="dot" style="background:#E5701F"></span>نقاشة</div>
+    <div class="cat"><span class="dot" style="background:#3B6FD8"></span>كهرباء</div>
+    <div class="cat"><span class="dot" style="background:#0E8C8C"></span>سباكة</div>
+    <div class="cat"><span class="dot" style="background:#9d4b35"></span>مباني</div>
+    <div class="cat">+ المزيد</div>
+   </div>
+   <div class="lbl">الوصف</div>
+   <div class="field">شرخ في الحائط بجوار الشباك، طول تقريباً ٤٠ سم</div>
+   <div class="lbl">العامل (محارة فقط)</div>
+   <div class="field" style="display:flex;justify-content:space-between"><span><b>عم سيد</b> · <span class="mono" style="color:var(--fg2)">3 مفتوحة</span></span><i class="ti ti-chevron-down"></i></div>
+  </div>
+  <div style="padding:12px 16px 18px;display:flex;gap:10px"><div class="btn btn-o" style="width:70px"><i class="ti ti-arrow-right"></i></div><div class="btn btn-y" style="flex:1">حفظ والتالي<i class="ti ti-arrow-left"></i></div></div>
+ </div></div>
+</div>
+
+<div class="row">
+ <!-- 4 Issue detail dark -->
+ <div><div class="label">4 · Issue page + WhatsApp send (dark)</div>
+ <div dir="rtl" class="phone dark">
+  <div class="top"><div style="display:flex;align-items:center;gap:8px"><i class="ti ti-arrow-right" style="font-size:22px"></i><div class="title mono">#38</div></div><div class="chip s-as" style="font-size:13px;padding:5px 10px">مُسند</div></div>
+  <div class="content">
+   <div style="display:grid;grid-template-columns:2fr 1fr;gap:6px;height:180px">
+    <div class="photo wall"></div><div style="display:grid;gap:6px"><div class="photo wall2"></div><div class="photo wall3"></div></div></div>
+   <div class="steps"><div class="f"></div><div class="f"></div><div></div><div></div><div></div><div></div></div>
+   <div style="font-weight:800;font-size:18px;margin:4px 0">شرخ في الحائط بجوار الشباك</div>
+   <div style="color:var(--fg2);font-size:13px;display:flex;gap:12px;flex-wrap:wrap"><span><i class="ti ti-map-pin"></i> الدور ٣ – شقة ٧</span><span><i class="ti ti-tool"></i> محارة</span><span class="chip s-over">عاجل</span></div>
+   <div class="card" style="margin-top:12px;align-items:center"><div class="avatar">س</div><div style="flex:1"><b>عم سيد</b><div class="mono" style="color:var(--fg2);font-size:13px">+20 100 123 4567</div></div><i class="ti ti-phone" style="font-size:22px"></i></div>
+   <div class="btn wa"><i class="ti ti-brand-whatsapp" style="font-size:22px"></i>إرسال على واتساب</div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+    <div class="btn btn-o" style="font-size:14px;height:46px"><i class="ti ti-calendar"></i>موعد التنفيذ</div>
+    <div class="btn btn-o" style="font-size:14px;height:46px"><i class="ti ti-check"></i>تم الحل</div>
+   </div>
+  </div>
+  <div style="height:16px"></div>
+ </div></div>
+
+ <!-- 5 Workers -->
+ <div><div class="label">5 · Workers</div>
+ <div dir="rtl" class="phone light">
+  <div class="top"><div class="title">العمال</div><div class="btn btn-y" style="height:40px;padding:0 14px;font-size:14px"><i class="ti ti-plus"></i>عامل</div></div>
+  <div class="content">
+   <div class="field" style="margin-bottom:10px;color:var(--fg2)"><i class="ti ti-search"></i> بحث بالاسم أو الرقم</div>
+   <div style="display:flex;gap:6px;margin-bottom:12px;overflow:hidden"><span class="cat on" style="padding:5px 10px;font-size:13px">الكل</span><span class="cat" style="padding:5px 10px;font-size:13px">نقاشة</span><span class="cat" style="padding:5px 10px;font-size:13px">كهرباء</span><span class="cat" style="padding:5px 10px;font-size:13px">سباكة</span></div>
+   <div class="card"><div class="avatar">س</div><div style="flex:1"><b>عم سيد</b><div style="font-size:12px;color:var(--fg2)">محارة · مباني</div><div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap"><span class="chip s-as">مُسند 3</span><span class="chip s-prog">جاري 2</span><span class="chip s-over">متأخر 1</span></div></div><i class="ti ti-brand-whatsapp" style="font-size:24px;color:#1FAF5A"></i></div>
+   <div class="card"><div class="avatar">م</div><div style="flex:1"><b>محمود الكهربائي</b><div style="font-size:12px;color:var(--fg2)">كهرباء</div><div style="display:flex;gap:4px;margin-top:6px"><span class="chip s-sent">أُرسل 4</span><span class="chip s-est">موعد 2</span></div></div><i class="ti ti-brand-whatsapp" style="font-size:24px;color:#1FAF5A"></i></div>
+   <div class="card"><div class="avatar">ح</div><div style="flex:1"><b>حسن النقاش</b><div style="font-size:12px;color:var(--fg2)">نقاشة · محارة</div><div style="display:flex;gap:4px;margin-top:6px"><span class="chip s-prog">جاري 5</span><span class="chip s-done">تم 18</span></div></div><i class="ti ti-brand-whatsapp" style="font-size:24px;color:#1FAF5A"></i></div>
+  </div>
+  <div class="nav"><a><i class="ti ti-layout-dashboard"></i>الرئيسية</a><a><i class="ti ti-list-details"></i>الملاحظات</a><div class="shutter"><i class="ti ti-camera"></i></div><a><i class="ti ti-inbox"></i>التصنيف</a><a class="on"><i class="ti ti-users"></i>العمال</a></div>
+ </div></div>
+
+ <!-- 6 Issues list + export -->
+ <div><div class="label">6 · Issues list, filters, CSV export (dark)</div>
+ <div dir="rtl" class="phone dark">
+  <div class="top"><div class="title">الملاحظات</div><div style="display:flex;gap:8px"><div class="btn btn-o" style="height:40px;width:44px"><i class="ti ti-file-spreadsheet"></i></div><div class="btn btn-y" style="height:40px;padding:0 12px;font-size:14px"><i class="ti ti-adjustments"></i>فلتر 3</div></div></div>
+  <div class="content">
+   <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap"><span class="chip s-sent" style="font-size:12px">أُرسل ✕</span><span class="chip s-est" style="font-size:12px">موعد ✕</span><span class="chip" style="background:var(--muted);color:var(--fg);font-size:12px">نقاشة ✕</span></div>
+   <div class="card"><div class="thumb wall"></div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><b class="mono">#38</b><span class="chip s-sent">أُرسل</span></div><div style="font-size:14px;font-weight:600;margin:4px 0">شرخ في الحائط بجوار الشباك</div><div style="font-size:12px;color:var(--fg2)">الدور ٣ · عم سيد</div></div></div>
+   <div class="card"><div class="thumb wall2"></div><div style="flex:1"><div style="display:flex;justify-content:space-between"><b class="mono">#31</b><span class="chip s-over">متأخر</span></div><div style="font-size:14px;font-weight:600;margin:4px 0">بقع رطوبة في سقف الحمام</div><div style="font-size:12px;color:var(--fg2)">الموعد <span class="mono">11-02</span> · حسن</div></div></div>
+   <div class="card"><div class="thumb wall3"></div><div style="flex:1"><div style="display:flex;justify-content:space-between"><b class="mono">#27</b><span class="chip s-est">موعد</span></div><div style="font-size:14px;font-weight:600;margin:4px 0">طوب مكسور في السور الخارجي</div><div style="font-size:12px;color:var(--fg2)">الموعد <span class="mono">11-09</span> · عم سيد</div></div></div>
+   <div class="hazard" style="height:6px;border-radius:3px;margin:6px 0 10px"></div>
+   <div style="background:var(--card);border:2px solid var(--y);border-radius:16px;padding:12px"><b>تصدير CSV · 18 ملاحظة</b><div style="font-size:12px;color:var(--fg2);margin:4px 0 8px">بنفس الفلتر الحالي · اختر الأعمدة</div><div style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px"><span class="chip s-new">الرقم</span><span class="chip s-new">الحالة</span><span class="chip s-new">العامل</span><span class="chip s-new">الوصف</span><span class="chip" style="background:var(--muted);color:var(--fg2)">+ 14</span></div></div>
+  </div>
+  <div class="nav"><a><i class="ti ti-layout-dashboard"></i>الرئيسية</a><a class="on"><i class="ti ti-list-details"></i>الملاحظات</a><div class="shutter"><i class="ti ti-camera"></i></div><a><i class="ti ti-inbox"></i>التصنيف</a><a><i class="ti ti-users"></i>العمال</a></div>
+ </div></div>
+</div>
+</body>
+</html>

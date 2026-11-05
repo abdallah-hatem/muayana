@@ -51,4 +51,5 @@ The current filter lives in the address, so it can be bookmarked and is exactly 
 
 ## 5.9 Dashboard
 Unsorted count (with a button to the inbox), open issues by status, overdue, by category, by worker,
-and per site. Each number opens the issues list filtered to it.
+and per site. Each number opens the issues list filtered to it. Archived sites are left out of the
+dashboard (their issues stay in the issues list and exports when the archived filter includes them). **GUESS**

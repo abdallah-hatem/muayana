@@ -27,9 +27,9 @@ confident — not a soft SaaS dashboard.
   banner, the inbox header, empty states. Never behind body text.
 
 ## Type
-- One family for Arabic and Latin: **Readex Pro** (variable, Arabic + Latin), weights 400/500/700/800.
+- One family for Arabic and Latin: **Readex Pro** (variable, Arabic + Latin), weights 400/500/700 (Readex Pro tops out at 700).
 - Mono for numbers, dates and phone numbers: **IBM Plex Mono** (Latin digits, tabular).
-- Scale: display 32/800 · title 22/700 · heading 18/700 · body 16/400 · small 14/500 · micro 12/600.
+- Scale: display 32/700 · title 22/700 · heading 18/700 · body 16/400 · small 14/500 · micro 12/600.
 
 ## Motion
 - Short and physical: 120ms press feedback (scale 0.97), 200ms sheet/page transitions, a shutter
