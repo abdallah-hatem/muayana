@@ -9,7 +9,7 @@ const LANDLINE = /^[2-9]\d{7,8}$/;
 const SEPARATORS = /[\s\-().\p{Cf}]/gu;
 
 /** Arabic-Indic (U+0660–0669) and Persian (U+06F0–06F9) digits → ASCII. */
-const toAsciiDigits = (value: string): string =>
+export const toAsciiDigits = (value: string): string =>
   value.replace(/\p{Nd}/gu, (d) => {
     const code = d.charCodeAt(0);
     const isEastern =
