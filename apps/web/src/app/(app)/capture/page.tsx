@@ -1,10 +1,6 @@
-import { getTranslations } from 'next-intl/server';
-import { PlaceholderScreen } from '@/components/shell/app-shell';
+import { CaptureScreen } from './capture-screen';
 
-/** Placeholder until its screen lands; the shell and nav already lead here. */
-export default async function Page() {
-  const t = await getTranslations('shell');
-  return (
-    <PlaceholderScreen testId="screen-capture" body={t('placeholder.body')} />
-  );
+/** Capture on site: works offline (the service worker keeps this page; photos queue on the phone). */
+export default function Page() {
+  return <CaptureScreen />;
 }
