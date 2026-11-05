@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import type { Locale } from '@muayana/shared';
+import { QueueChip } from '@/components/offline-queue/queue-sheet';
 import { SiteSwitcher } from '@/components/site/site-switcher';
 import { Button } from '@/components/ui/button';
 import { ROUTES } from '@/lib/routes';
@@ -17,12 +18,15 @@ import { useSwitchLocale } from './use-switch-locale';
 export function TopBar() {
   const title = useDefaultTitle();
   const override = useShellTitleOverride();
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between gap-2 border-b-2 border-border bg-background/95 px-4 pt-[max(env(safe-area-inset-top),0.5rem)] pb-2 backdrop-blur md:px-6">
       <div className="flex min-w-0 items-center gap-3">
         <h1 className="truncate type-title">{override ?? title}</h1>
         <SiteSwitcher />
+        {/* The capture screen shows its own badge over the camera view. */}
+        {!isActive(pathname, ROUTES.capture) && <QueueChip />}
       </div>
       <div className="flex shrink-0 items-center gap-1">
         <LanguageToggle />

@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { isLocale } from '@/i18n/config';
 import { cn } from '@/lib/utils';
 import { plexMono, readex } from './fonts';
+import { PWA_BACKGROUND_DARK, PWA_THEME_COLOR } from './manifest';
 import './globals.css';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -21,6 +22,12 @@ export async function generateMetadata(): Promise<Metadata> {
       statusBarStyle: 'default',
     },
     formatDetection: { telephone: false },
+    icons: {
+      icon: [
+        { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+      ],
+      apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
+    },
   };
 }
 
@@ -31,6 +38,11 @@ export const viewport: Viewport = {
   // Pinch-zoom stays on: no maximum-scale or user-scalable=no.
   viewportFit: 'cover',
   colorScheme: 'light dark',
+  // The browser bar in safety yellow; graphite in dark mode.
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: PWA_THEME_COLOR },
+    { media: '(prefers-color-scheme: dark)', color: PWA_BACKGROUND_DARK },
+  ],
 };
 
 export default async function RootLayout({
