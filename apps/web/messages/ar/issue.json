@@ -1,0 +1,110 @@
+{
+  "workerPicker": {
+    "needsCategory": "اختر الصنعة أولاً.",
+    "none": "بدون عامل",
+    "openCount": "{count} مفتوحة",
+    "loadFailed": "تعذّر تحميل العمال.",
+    "emptyForCategory": "لا يوجد عامل مفعّل لهذه الصنعة بعد."
+  },
+  "errors": {
+    "generic": "حدث خطأ. حاول مرة أخرى.",
+    "NETWORK_ERROR": "تعذّر الوصول إلى الخادم. تحقق من الاتصال وحاول مرة أخرى.",
+    "PAYLOAD_TOO_LARGE": "الصورة كبيرة جداً (٤ ميجابايت كحد أقصى).",
+    "ISSUE_REQUIREMENTS": "الملاحظة ينقصها ما تتطلبه هذه الحالة.",
+    "BACK_TO_NEW": "لا يمكن إرجاع الملاحظة إلى جديد.",
+    "LAST_PHOTO": "يجب أن تبقى صورة واحدة على الأقل.",
+    "PHOTO_LIMIT": "تم الوصول إلى الحد الأقصى ١٠ صور.",
+    "WORKER_LACKS_CATEGORY": "هذا العامل لا يعمل في هذه الصنعة.",
+    "INACTIVE_WORKER": "هذا العامل موقوف.",
+    "INACTIVE_CATEGORY": "هذه الصنعة موقوفة.",
+    "ARCHIVED_SITE": "هذا الموقع مؤرشف.",
+    "NOT_NEW": "هذا الإجراء للملاحظات غير المصنّفة فقط.",
+    "NOT_FOUND": "هذه الملاحظة لم تعد موجودة.",
+    "VALIDATION_FAILED": "بعض البيانات غير صحيحة. راجعها وحاول مرة أخرى.",
+    "UNSUPPORTED_MEDIA_TYPE": "الصور بصيغة JPEG أو PNG أو WebP فقط."
+  },
+  "reasons": {
+    "current": "الملاحظة في هذه الحالة بالفعل.",
+    "backToNew": "لا يمكن إرجاع الملاحظة إلى جديد.",
+    "noWorker": "أزل العامل أولاً.",
+    "needs": "تحتاج {list}."
+  },
+  "requirements": {
+    "category": "صنعة",
+    "description": "وصفاً",
+    "worker": "عاملاً",
+    "estimatedDate": "موعد تنفيذ",
+    "noWorker": "بدون عامل"
+  },
+  "actions": {
+    "title": "الحالة",
+    "reopen": "إعادة فتح ({status})",
+    "estimate": "موعد التنفيذ",
+    "estimatePlaceholder": "حدّد الموعد الذي قاله العامل",
+    "to": {
+      "assigned": "مُسند",
+      "sent": "أُرسل للعامل",
+      "in_progress": "جاري العمل",
+      "solved": "تم الحل",
+      "cancelled": "إلغاء الملاحظة"
+    }
+  },
+  "solve": {
+    "title": "تم الحل",
+    "body": "أضف ملاحظة وصور بعد الإصلاح إن وُجدت.",
+    "confirm": "تم الحل",
+    "noteLabel": "ملاحظة",
+    "notePlaceholder": "تمت المحارة والدهان، وتمت المعاينة",
+    "photosInput": "صور بعد الإصلاح",
+    "addPhotos": "إضافة صور بعد الإصلاح",
+    "chosen": "الصور المختارة",
+    "removePhoto": "إزالة {name}",
+    "notImage": "الصور بصيغة JPEG أو PNG أو WebP فقط.",
+    "tooLarge": "تم استبعاد صورة أكبر من ٤ ميجابايت.",
+    "tooMany": "{max} صور بعد الإصلاح كحد أقصى."
+  },
+  "cancel": {
+    "title": "إلغاء الملاحظة",
+    "body": "اذكر السبب: ليست ملاحظة حقيقية، مكررة…",
+    "confirm": "إلغاء الملاحظة",
+    "reasonLabel": "السبب",
+    "reasonPlaceholder": "مكررة من #12",
+    "reasonRequired": "اكتب السبب."
+  },
+  "details": {
+    "errors": {
+      "category": "اختر الصنعة.",
+      "description": "الملاحظة المصنّفة تحتاج وصفاً.",
+      "worker": "اختر العامل."
+    },
+    "placeholders": {
+      "description": "شرخ في الحائط بجوار الشباك، طوله تقريباً ٤٠ سم",
+      "location": "الدور ٣ – شقة ٧"
+    },
+    "workerDropped": "تمت إزالة العامل: لا يعمل في هذه الصنعة.",
+    "noDescription": "لا يوجد وصف بعد",
+    "edit": "تعديل"
+  },
+  "history": {
+    "title": "السجل",
+    "empty": "لا توجد تغييرات حالة بعد.",
+    "to": "إلى"
+  },
+  "stepper": "المرحلة {current} من {total}: {status}",
+  "photos": {
+    "before": "قبل ({count})",
+    "after": "بعد ({count})",
+    "alt": "ملاحظة #{number}، صورة",
+    "altAfter": "ملاحظة #{number}، صورة بعد الإصلاح",
+    "noAfter": "لا توجد صور بعد الإصلاح."
+  },
+  "worker": {
+    "call": "اتصال بـ {name}",
+    "none": "لا يوجد عامل بعد."
+  },
+  "delete": {
+    "button": "حذف الملاحظة",
+    "title": "حذف هذه الملاحظة؟",
+    "body": "لم تُصنّف بعد. ستُحذف صورها معها."
+  }
+}

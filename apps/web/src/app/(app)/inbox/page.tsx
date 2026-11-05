@@ -1,10 +1,6 @@
-import { getTranslations } from 'next-intl/server';
-import { PlaceholderScreen } from '@/components/shell/app-shell';
+import { InboxScreen } from './inbox-screen';
 
-/** Placeholder until its screen lands; the shell and nav already lead here. */
-export default async function Page() {
-  const t = await getTranslations('shell');
-  return (
-    <PlaceholderScreen testId="screen-inbox" body={t('placeholder.body')} />
-  );
+/** The sort inbox: client-side, because the chosen site lives on the phone (business §5.1). */
+export default function Page() {
+  return <InboxScreen />;
 }
