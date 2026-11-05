@@ -13,7 +13,7 @@ const buttonVariants = cva(
         destructive:
           'bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
         outline:
-          'border-2 border-foreground/80 bg-background hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
+          'border-2 border-foreground/80 bg-background hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-card dark:hover:bg-secondary',
         secondary:
           'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ghost:
@@ -24,11 +24,12 @@ const buttonVariants = cva(
         default:
           "h-12 px-5 py-2 has-[>svg]:px-4 [&_svg:not([class*='size-'])]:size-5",
         xs: "h-8 gap-1 rounded-md px-2.5 text-xs has-[>svg]:px-2 [&_svg:not([class*='size-'])]:size-3",
-        sm: 'h-10 gap-1.5 rounded-md px-4 text-sm has-[>svg]:px-3',
+        // 44px: the smallest tap target in the app (docs/DESIGN.md asks 48 for primary actions).
+        sm: 'h-11 gap-1.5 rounded-md px-4 text-sm has-[>svg]:px-3',
         lg: "h-14 rounded-lg px-7 text-lg has-[>svg]:px-5 [&_svg:not([class*='size-'])]:size-6",
         icon: "size-12 [&_svg:not([class*='size-'])]:size-5",
         'icon-xs': "size-8 rounded-md [&_svg:not([class*='size-'])]:size-3",
-        'icon-sm': 'size-10',
+        'icon-sm': 'size-11',
         'icon-lg': "size-14 [&_svg:not([class*='size-'])]:size-6",
       },
     },

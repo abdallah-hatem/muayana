@@ -14,6 +14,9 @@ import { cn } from '@/lib/utils';
 
 const DATE_ONLY = 'yyyy-MM-dd';
 
+/** Keep the calendar clear of the phone's bottom nav and its raised shutter (flip up instead). */
+const CLEAR_BOTTOM_NAV = { top: 8, right: 8, bottom: 112, left: 8 };
+
 const toDate = (value: string | null): Date | undefined =>
   value ? parse(value, DATE_ONLY, new Date()) : undefined;
 
@@ -66,7 +69,11 @@ export function DatePicker({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent
+        className="w-auto p-0"
+        align="start"
+        collisionPadding={CLEAR_BOTTOM_NAV}
+      >
         <Calendar
           mode="single"
           selected={toDate(value)}
