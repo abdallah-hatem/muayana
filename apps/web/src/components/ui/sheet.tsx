@@ -50,6 +50,7 @@ function SheetContent({
   children,
   side = 'right',
   showCloseButton = true,
+  onOpenAutoFocus,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
   side?: 'top' | 'right' | 'bottom' | 'left';
@@ -73,6 +74,17 @@ function SheetContent({
             'inset-x-0 bottom-0 h-auto border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
           className,
         )}
+        // Radix would focus the first control on open; on a phone a text field there pops the
+        // keyboard over the sheet. Focus the sheet itself instead (focus stays trapped inside, so
+        // keyboard and screen-reader users are still in it); a field focuses only when tapped.
+        onOpenAutoFocus={(event) => {
+          onOpenAutoFocus?.(event);
+          if (event.defaultPrevented) return;
+          event.preventDefault();
+          (event.currentTarget as HTMLElement | null)?.focus({
+            preventScroll: true,
+          });
+        }}
         {...props}
       >
         {side === 'bottom' && <div aria-hidden className={SHEET_GRABBER} />}
