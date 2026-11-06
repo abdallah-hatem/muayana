@@ -13,6 +13,9 @@ Name in Arabic (required) and English (optional), a colour, a sort order, an act
 نظافة (cleaning), أخرى (other). **GUESS**
 - Arabic names are unique (ignoring case and surrounding spaces). The engineer can add, rename,
   recolour, reorder and deactivate categories.
+- A new category starts with a colour no other category uses: the first free palette colour (24
+  colours), then a generated colour no category uses once the palette is taken. The engineer can
+  still pick any palette colour, used or not.
 - A category in use (by an issue or a worker) is deactivated, never deleted. An unused one may be
   deleted. A deactivated category is hidden from pickers but stays on existing issues and workers. A category's
   worker count counts active workers only. **GUESS**

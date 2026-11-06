@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useApiErrorText } from '@/components/use-api-error-text';
 import { usePendingAction } from '@/components/use-pending-action';
-import { CATEGORY_PALETTE } from '@/lib/category-palette';
+import { CATEGORY_PALETTE, isOffPalette } from '@/lib/category-palette';
 import { createCategory, updateCategory } from '@/lib/directory-endpoints';
 import { cn } from '@/lib/utils';
 
@@ -48,18 +48,23 @@ export function CategoryFormSheet({
   const [error, setError] = useState<string | null>(null);
   const { pending, run } = usePendingAction();
 
-  // A colour from before the palette stays choosable as "current colour".
-  const custom =
-    category &&
-    !CATEGORY_PALETTE.some((c) => c.hex === category.color.toUpperCase())
-      ? category.color.toUpperCase()
-      : null;
+  // A colour outside the palette stays choosable: an edited category's own ("current colour"),
+  // or the generated unused colour a new one starts with once every swatch is taken ("new colour").
+  const initial = (category?.color ?? defaultColor).toUpperCase();
+  const custom = isOffPalette(initial) ? initial : null;
   const swatches = [
     ...CATEGORY_PALETTE.map((c) => ({
       hex: c.hex as string,
       label: t(`colors.${c.key}`),
     })),
-    ...(custom ? [{ hex: custom, label: t('colors.current') }] : []),
+    ...(custom
+      ? [
+          {
+            hex: custom,
+            label: category ? t('colors.current') : t('colors.new'),
+          },
+        ]
+      : []),
   ];
 
   async function submit(event: React.FormEvent) {
