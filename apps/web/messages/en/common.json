@@ -78,8 +78,6 @@
     "previous": "Previous page",
     "next": "Next page",
     "last": "Last page",
-    "page": "Page {page}",
-    "pageSize": "Rows per page",
-    "perPage": "{count} / page"
+    "page": "Page {page}"
   }
 }

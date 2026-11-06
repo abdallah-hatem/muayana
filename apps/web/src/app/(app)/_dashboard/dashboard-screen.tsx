@@ -1,39 +1,48 @@
 'use client';
 
-import type { Dashboard, Locale } from '@muayana/shared';
+import { UuidSchema, type Dashboard, type Locale } from '@muayana/shared';
 import { ArrowRight, MapPin, X } from 'lucide-react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
+import { useSiteSelection } from '@/components/site/site-context';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { clientFetch } from '@/lib/api-client';
 import { categoryName, formatCount } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import {
-  INBOX_HREF,
-  dashboardLinks,
-  openCount,
-  readLastSiteId,
-} from './dashboard-links';
+import { INBOX_HREF, dashboardLinks, openCount } from './dashboard-links';
 
 type Load =
   | { state: 'loading' }
-  | { state: 'error' }
-  | { state: 'ready'; data: Dashboard };
+  | { state: 'error'; key: string }
+  | { state: 'ready'; key: string; data: Dashboard };
 
 /**
- * The dashboard (§5.9). Scoped to the site last chosen in the site switcher when there is one
- * (with a way back to all sites); every number opens the issues list filtered to it.
+ * The dashboard (§5.9). Scoped to the site chosen in the top bar's site switcher when there is one
+ * (with a way back to all sites), and reloads the moment the switcher changes; every number opens
+ * the issues list filtered to it.
  */
 export function DashboardScreen() {
-  const [siteId, setSiteId] = useState<string | undefined>(() =>
-    typeof window === 'undefined' ? undefined : readLastSiteId(),
-  );
-  const [load, setLoad] = useState<Load>({ state: 'loading' });
+  const selection = useSiteSelection();
+  // A remembered value that is not an id (old or broken storage) means all sites.
+  const siteId =
+    selection.siteId && UuidSchema.safeParse(selection.siteId).success
+      ? selection.siteId
+      : undefined;
+  const [fetched, setFetched] = useState<Load>({ state: 'loading' });
   const [attempt, setAttempt] = useState(0);
+  const key = `${siteId ?? ''}#${attempt}`;
+  // A result for another site (or an earlier attempt) is not shown: the skeleton is, until the
+  // current one arrives.
+  const load: Load =
+    fetched.state !== 'loading' && fetched.key === key
+      ? fetched
+      : { state: 'loading' };
 
   useEffect(() => {
+    // Wait for the remembered site, so "all sites" is not fetched first.
+    if (!selection.ready) return;
     let alive = true;
     const controller = new AbortController();
     const path = siteId
@@ -42,10 +51,10 @@ export function DashboardScreen() {
     void clientFetch<Dashboard>(path, { signal: controller.signal }).then(
       (res) => {
         if (!alive) return;
-        setLoad(
+        setFetched(
           res.success && res.data
-            ? { state: 'ready', data: res.data }
-            : { state: 'error' },
+            ? { state: 'ready', key, data: res.data }
+            : { state: 'error', key },
         );
       },
     );
@@ -53,12 +62,9 @@ export function DashboardScreen() {
       alive = false;
       controller.abort();
     };
-  }, [siteId, attempt]);
+  }, [selection.ready, siteId, key]);
 
-  const retry = useCallback(() => {
-    setLoad({ state: 'loading' });
-    setAttempt((n) => n + 1);
-  }, []);
+  const retry = useCallback(() => setAttempt((n) => n + 1), []);
 
   if (load.state === 'loading') return <DashboardSkeleton />;
   if (load.state === 'error') return <DashboardError onRetry={retry} />;
@@ -66,10 +72,7 @@ export function DashboardScreen() {
     <DashboardView
       data={load.data}
       siteId={siteId}
-      onAllSites={() => {
-        setLoad({ state: 'loading' });
-        setSiteId(undefined);
-      }}
+      onAllSites={() => selection.setSiteId(null)}
     />
   );
 }

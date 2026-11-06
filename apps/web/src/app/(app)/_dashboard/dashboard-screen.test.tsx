@@ -9,7 +9,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { clientFetch } from '@/lib/api-client';
 import { searchParamsToFilter } from '@/lib/issue-filter-url';
 import { renderIntl } from '@/test-utils/render-intl';
-import { LAST_SITE_KEY } from './dashboard-links';
+import { SiteProvider, useSiteSelection } from '@/components/site/site-context';
+import { LAST_SITE_KEY } from '@/lib/last-site';
 import { DashboardScreen, DashboardView } from './dashboard-screen';
 
 vi.mock('@/lib/api-client', () => ({
@@ -200,14 +201,49 @@ describe('Each dashboard number links to the list with the matching filter (§5.
   });
 });
 
+/** The dashboard inside the app's site selection, plus a stand-in for the top-bar switcher. */
+function PickSite({ id }: { id: string }) {
+  const { setSiteId } = useSiteSelection();
+  return (
+    <button type="button" onClick={() => setSiteId(id)}>
+      pick site
+    </button>
+  );
+}
+function renderDashboard() {
+  return renderIntl(
+    <SiteProvider>
+      <PickSite id={SITE_B} />
+      <DashboardScreen />
+    </SiteProvider>,
+  );
+}
+
 describe('dashboard loading', () => {
-  afterEach(() => fetchMock.mockReset());
+  afterEach(() => {
+    fetchMock.mockReset();
+    window.localStorage.clear();
+  });
+
+  it('changing the site in the switcher reloads the dashboard for it, without a refresh', async () => {
+    fetchMock.mockResolvedValue({ success: true, status: 200, data: DATA });
+    const user = userEvent.setup();
+    renderDashboard();
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith('/dashboard', expect.anything()),
+    );
+    await user.click(screen.getByRole('button', { name: 'pick site' }));
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenLastCalledWith(`/dashboard?siteId=${SITE_B}`, expect.anything()),
+    );
+    expect(await screen.findByText('Nile Villas', { selector: 'bdi' })).toBeInTheDocument();
+  });
 
   it('uses the site switcher’s last site, and "show all sites" drops it', async () => {
     window.localStorage.setItem(LAST_SITE_KEY, SITE_A);
     fetchMock.mockResolvedValue({ success: true, status: 200, data: DATA });
     const user = userEvent.setup();
-    renderIntl(<DashboardScreen />);
+    renderDashboard();
     await waitFor(() =>
       expect(fetchMock).toHaveBeenCalledWith(`/dashboard?siteId=${SITE_A}`, expect.anything()),
     );
@@ -223,7 +259,7 @@ describe('dashboard loading', () => {
   it('no remembered site (or a broken value) loads every site', async () => {
     window.localStorage.setItem(LAST_SITE_KEY, 'garbage');
     fetchMock.mockResolvedValue({ success: true, status: 200, data: DATA });
-    renderIntl(<DashboardScreen />);
+    renderDashboard();
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith('/dashboard', expect.anything()));
   });
 
@@ -236,7 +272,7 @@ describe('dashboard loading', () => {
     });
     fetchMock.mockResolvedValueOnce({ success: true, status: 200, data: DATA });
     const user = userEvent.setup();
-    renderIntl(<DashboardScreen />);
+    renderDashboard();
     expect(await screen.findByRole('alert')).toHaveTextContent(
       "Couldn't load the dashboard.",
     );

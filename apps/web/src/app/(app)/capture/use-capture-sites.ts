@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSiteSelection } from '@/components/site/site-context';
 import { capturePrefs, type SiteOption } from '@/lib/capture-prefs';
 import { listActiveSites } from '@/lib/issue-endpoints';
 
@@ -11,16 +12,12 @@ export type SitesState =
 /**
  * The sites the engineer can capture on, and the chosen one (the last used is preselected,
  * business §5.1). Fetched when online; the last list is kept on the phone so capture still works
- * with no signal (`stale`). A chosen site that is no longer active is dropped.
+ * with no signal (`stale`). A chosen site that is no longer active is dropped. The chosen site is
+ * the app's one site selection, so the top-bar switcher and capture's own picker always agree.
  */
 export function useCaptureSites() {
   const [state, setState] = useState<SitesState>({ phase: 'loading' });
-  const [siteId, setSiteIdState] = useState<string | null>(null);
-
-  const setSiteId = useCallback((id: string | null) => {
-    setSiteIdState(id);
-    capturePrefs.setLastSiteId(id);
-  }, []);
+  const { siteId, setSiteId } = useSiteSelection();
 
   useEffect(() => {
     let cancelled = false;
@@ -36,8 +33,7 @@ export function useCaptureSites() {
             ? sites[0].id
             : null;
       setState({ phase: 'ready', sites, stale, failed });
-      setSiteIdState(keep);
-      if (keep !== last) capturePrefs.setLastSiteId(keep);
+      if (keep !== last) setSiteId(keep);
     };
 
     if (!navigator.onLine) {
@@ -65,7 +61,7 @@ export function useCaptureSites() {
       cancelled = true;
       controller.abort();
     };
-  }, []);
+  }, [setSiteId]);
 
   const sites = state.phase === 'ready' ? state.sites : [];
   const site = sites.find((s) => s.id === siteId) ?? null;

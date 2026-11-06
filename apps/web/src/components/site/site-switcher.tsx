@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { capturePrefs } from '@/lib/capture-prefs';
 import { listActiveSites } from '@/lib/issue-endpoints';
 import { useSiteSelection } from './site-context';
 
@@ -24,13 +25,20 @@ const ALL = '__all__';
 export function SiteSwitcher() {
   const t = useTranslations('shell.siteSwitcher');
   const { siteId, setSiteId, ready, sitesVersion } = useSiteSelection();
-  const [sites, setSites] = useState<Site[] | null>(null);
+  const [sites, setSites] = useState<Pick<Site, 'id' | 'name'>[] | null>(
+    null,
+  );
+  // Only a list the API gave can prove the remembered site is gone; the phone's copy (offline)
+  // can be out of date.
+  const [confirmed, setConfirmed] = useState(false);
 
   useEffect(() => {
     let live = true;
     const controller = new AbortController();
     void listActiveSites(controller.signal).then((res) => {
-      if (live) setSites(res.success ? res.data : []);
+      if (!live) return;
+      setConfirmed(res.success);
+      setSites(res.success ? res.data : (capturePrefs.cachedSites() ?? []));
     });
     return () => {
       live = false;
@@ -39,9 +47,9 @@ export function SiteSwitcher() {
   }, [sitesVersion]);
 
   useEffect(() => {
-    if (!ready || sites === null || siteId === null) return;
+    if (!ready || !confirmed || sites === null || siteId === null) return;
     if (!sites.some((s) => s.id === siteId)) setSiteId(null);
-  }, [ready, sites, siteId, setSiteId]);
+  }, [ready, confirmed, sites, siteId, setSiteId]);
 
   const current = sites?.find((s) => s.id === siteId);
   const value = current ? current.id : ALL;

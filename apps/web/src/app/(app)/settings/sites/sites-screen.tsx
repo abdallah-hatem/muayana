@@ -222,7 +222,6 @@ export function SitesScreen() {
             total={list.total}
             disabled={list.refreshing}
             onPageChange={list.setPage}
-            onLimitChange={list.setLimit}
           />
         </>
       )}

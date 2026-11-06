@@ -8,17 +8,10 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
-export const PAGE_SIZES = [10, 20, 50] as const;
-export const DEFAULT_PAGE_SIZE = 20;
+/** Rows per page on every managed list (fixed: there is no page-size choice). */
+export const PAGE_SIZE = 10;
 
 /** Up to five page numbers around the current one. */
 function pageWindow(page: number, pages: number): number[] {
@@ -29,7 +22,7 @@ function pageWindow(page: number, pages: number): number[] {
 
 /**
  * A managed list's pagination, always shown: "Showing 1–10 of 14", first / previous / page numbers /
- * next / last, and the page size.
+ * next / last.
  */
 export function ListPager({
   page,
@@ -37,14 +30,12 @@ export function ListPager({
   total,
   disabled = false,
   onPageChange,
-  onLimitChange,
 }: {
   page: number;
   limit: number;
   total: number;
   disabled?: boolean;
   onPageChange: (page: number) => void;
-  onLimitChange: (limit: number) => void;
 }) {
   const t = useTranslations('common.pager');
   const pages = Math.max(1, Math.ceil(total / limit));
@@ -119,25 +110,6 @@ export function ListPager({
         >
           <ChevronsRight className="flip-rtl" aria-hidden />
         </Button>
-        <Select
-          value={String(limit)}
-          onValueChange={(v) => onLimitChange(Number(v))}
-          disabled={disabled}
-        >
-          <SelectTrigger
-            aria-label={t('pageSize')}
-            className="ms-2 h-10 w-auto min-w-20"
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent position="popper" align="end">
-            {PAGE_SIZES.map((size) => (
-              <SelectItem key={size} value={String(size)}>
-                {t('perPage', { count: size })}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
     </nav>
   );

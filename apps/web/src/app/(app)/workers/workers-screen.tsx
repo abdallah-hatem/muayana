@@ -206,7 +206,6 @@ export function WorkersScreen() {
             total={list.total}
             disabled={list.refreshing}
             onPageChange={list.setPage}
-            onLimitChange={list.setLimit}
           />
         </>
       )}

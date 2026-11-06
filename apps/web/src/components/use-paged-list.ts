@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { ApiResult } from '@/lib/api-result';
-import { DEFAULT_PAGE_SIZE } from './list-pager';
+import { PAGE_SIZE } from './list-pager';
 
 /** One page; `signal` aborts it when the list unmounts or asks for another page. */
 type FetchPage<T> = (
@@ -28,7 +28,7 @@ type Loaded<T> =
  */
 export function usePagedList<T>(fetchPage: FetchPage<T>) {
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE);
+  const limit = PAGE_SIZE;
   const [version, setVersion] = useState(0);
   const [loaded, setLoaded] = useState<Loaded<T> | null>(null);
   const [lastFetch, setLastFetch] = useState<FetchPage<T>>(() => fetchPage);
@@ -75,10 +75,6 @@ export function usePagedList<T>(fetchPage: FetchPage<T>) {
     page,
     limit,
     setPage,
-    setLimit: (next: number) => {
-      setLimit(next);
-      setPage(1);
-    },
     reload,
     refreshing,
     /** `loading` only before anything has loaded. */

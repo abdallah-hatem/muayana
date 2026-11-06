@@ -1,6 +1,5 @@
 import {
   OPEN_STATUSES,
-  UuidSchema,
   type Dashboard,
   type IssueStatus,
 } from '@muayana/shared';
@@ -43,16 +42,3 @@ export const dashboardLinks = (siteId?: string) => ({
 /** The open count: the open statuses summed. */
 export const openCount = (byStatus: Dashboard['byStatus']): number =>
   OPEN_STATUSES.reduce((sum, status) => sum + (byStatus[status] ?? 0), 0);
-
-/** The SiteSwitcher remembers the last site here (T8). */
-export const LAST_SITE_KEY = 'muayana:lastSiteId';
-
-/** The last site chosen in the switcher, if it left a valid id. */
-export function readLastSiteId(): string | undefined {
-  try {
-    const value = window.localStorage.getItem(LAST_SITE_KEY);
-    return value && UuidSchema.safeParse(value).success ? value : undefined;
-  } catch {
-    return undefined;
-  }
-}
