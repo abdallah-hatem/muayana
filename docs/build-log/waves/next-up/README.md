@@ -5,3 +5,4 @@
 - N3 merged (cfb4921) · web 226, shared 51 · smoke sort-issue-send + workers 10/10. Follow-up: batch photo prefetch on page open → move to when the send action opens (after N4).
 - N4 merged (10aeab4) · shared 54, api 145+125, web 229 · CSV byte-identical after column move · smoke contractor-excel 2/2.
 - N1 merged · shared 53, api 146+138, web 225 · capture smoke 2/2. Full smoke under next dev flaky (proxy timeouts) → final check on a production build.
+- Merged dev (f0967e7): lint ✔ tc ✔ · shared 60 · api 147 unit + 138 e2e · web 258 · smoke on a PRODUCTION build: 24/24 app specs pass (the 2 /design failures are expected: dev-only page). UI audit of the changed screens dispatched.
