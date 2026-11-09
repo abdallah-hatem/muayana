@@ -6,7 +6,7 @@ The engineer moves every issue himself. **DECIDED**
 | `new` | جديد – لم يُصنّف | captured, not sorted yet | at least one photo, a site |
 | `unassigned` | غير مُسند | sorted into a category, no worker | category, description |
 | `assigned` | مُسند | worker chosen, not sent yet | + worker |
-| `sent` | أُرسل للعامل | sent to the worker (WhatsApp, call…) | + worker |
+| `sent` | أُرسل للمقاول | sent to the worker (WhatsApp, call…) | + worker |
 | `estimated` | تم تحديد موعد | the worker gave an estimated completion date | + worker, estimated date |
 | `in_progress` | جاري العمل | the worker is working on it | + worker |
 | `solved` | تم الحل | fixed | + worker |

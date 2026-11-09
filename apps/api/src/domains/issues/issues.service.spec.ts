@@ -14,29 +14,30 @@ import type {
 const NOW = new Date('2026-11-05T12:00:00Z');
 const ID = '11111111-1111-4111-8111-111111111111';
 const SITE = '22222222-2222-4222-8222-222222222222';
+const CAT = '33333333-3333-4333-8333-333333333333';
+const WORKER = '44444444-4444-4444-8444-444444444444';
 
-const row = (over: Partial<IssueRow> = {}): IssueRow =>
-  ({
-    id: ID,
-    siteId: SITE,
-    number: 1,
-    status: 'new',
-    priority: 'normal',
-    description: null,
-    location: null,
-    estimatedDate: null,
-    capturedAt: NOW,
-    createdAt: NOW,
-    updatedAt: NOW,
-    assignedAt: null,
-    sentAt: null,
-    solvedAt: null,
-    site: { id: SITE, name: 'Tower' },
-    category: null,
-    worker: null,
-    photos: [],
-    ...over,
-  });
+const row = (over: Partial<IssueRow> = {}): IssueRow => ({
+  id: ID,
+  siteId: SITE,
+  number: 1,
+  status: 'new',
+  priority: 'normal',
+  description: null,
+  location: null,
+  estimatedDate: null,
+  capturedAt: NOW,
+  createdAt: NOW,
+  updatedAt: NOW,
+  assignedAt: null,
+  sentAt: null,
+  solvedAt: null,
+  site: { id: SITE, name: 'Tower' },
+  category: null,
+  worker: null,
+  photos: [],
+  ...over,
+});
 
 const stateRow = (over: Partial<IssueStateRow> = {}): IssueStateRow => ({
   id: ID,
@@ -147,6 +148,55 @@ describe('IssuesService.create', () => {
       {},
       { issueId: ID, from: null, to: 'new' },
     );
+  });
+
+  it('a capture with trade, description and contractor lands in assigned with assignedAt and two history rows', async () => {
+    const { service, issues, refs } = makeService();
+    refs.findCategory.mockResolvedValue({ id: CAT, active: true });
+    refs.findWorker.mockResolvedValue({
+      id: WORKER,
+      active: true,
+      categoryIds: [CAT],
+    });
+    issues.findById.mockResolvedValueOnce(null).mockResolvedValue(row());
+    await service.create(
+      { ...dto, categoryId: CAT, description: 'Crack', workerId: WORKER },
+      photo,
+    );
+    expect(issues.createIssue).toHaveBeenCalledWith(
+      {},
+      expect.objectContaining({
+        status: 'assigned',
+        categoryId: CAT,
+        workerId: WORKER,
+        description: 'Crack',
+        assignedAt: NOW,
+      }),
+    );
+    expect(issues.addStatusChange.mock.calls.map((c) => c[1])).toEqual([
+      { issueId: ID, from: null, to: 'new' },
+      { issueId: ID, from: 'new', to: 'assigned' },
+    ]);
+  });
+
+  it('a refused contractor stores no photo and opens no write', async () => {
+    const { service, issues, refs, storage } = makeService();
+    refs.findCategory.mockResolvedValue({ id: CAT, active: true });
+    refs.findWorker.mockResolvedValue({
+      id: WORKER,
+      active: true,
+      categoryIds: ['other'],
+    });
+    await expect(
+      service.create(
+        { ...dto, categoryId: CAT, description: 'Crack', workerId: WORKER },
+        photo,
+      ),
+    ).rejects.toMatchObject({
+      response: { error: DomainErrorCode.WORKER_LACKS_CATEGORY },
+    });
+    expect(storage.put).not.toHaveBeenCalled();
+    expect(issues.transaction).not.toHaveBeenCalled();
   });
 });
 

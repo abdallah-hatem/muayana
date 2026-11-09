@@ -71,7 +71,7 @@ describe('Export request carries exactly the list’s filter + chosen columns + 
       'ar',
     );
     // Untick two columns (labels in Arabic: the dialog follows the app language).
-    await user.click(screen.getByLabelText('هاتف العامل'));
+    await user.click(screen.getByLabelText('هاتف المقاول'));
     await user.click(screen.getByLabelText('آخر ملاحظة'));
     await user.click(screen.getByRole('button', { name: 'تنزيل' }));
 

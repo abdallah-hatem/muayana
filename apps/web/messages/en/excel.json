@@ -1,0 +1,30 @@
+{
+  "button": "Send as Excel",
+  "title": "Send as Excel",
+  "subtitle": "An Excel file of this worker's issues with their photos, shared to WhatsApp.",
+  "statuses": {
+    "label": "Which issues",
+    "none": "Choose at least one status."
+  },
+  "build": "Prepare file",
+  "building": "Preparing…",
+  "progress": "Reading photos {done} of {total}…",
+  "reading": "Reading issues…",
+  "ready": "{count, plural, one {File ready: # issue} other {File ready: # issues}}, {size} MB.",
+  "share": "Share file",
+  "empty": "No issues in the chosen statuses.",
+  "tooBig": "The file would be {size} MB — too big to send on WhatsApp (about 15 MB at most). It can hold the first {fit} of the {total} issues.",
+  "fewer": "{count, plural, one {Include the first issue only} other {Include the first # issues}}",
+  "failed": "The file couldn't be prepared. Try again.",
+  "confirm": {
+    "title": "Mark as sent?",
+    "body": "{count, plural, one {Mark the assigned issue in the file as sent?} other {Mark the # assigned issues in the file as sent?}} Other statuses don't change.",
+    "yes": "Yes, mark sent",
+    "no": "Not yet",
+    "refused": "Nothing was changed: issue {numbers} can't be marked sent.",
+    "partly": "{count, plural, one {# issue was already marked sent before the refusal.} other {# issues were already marked sent before the refusal.}}"
+  },
+  "toast": {
+    "marked": "{count, plural, one {# issue marked sent.} other {# issues marked sent.}}"
+  }
+}

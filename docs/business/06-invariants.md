@@ -13,7 +13,8 @@ Rules that must never break. Each has a test that tries to break it.
 8. A worker, category or site that is referenced is deactivated or archived, never deleted. **DECIDED**
 9. Uploading the same captured issue twice (offline retry) creates it once. **DECIDED**
 10. Nothing is reachable without signing in — **except photo files**, which are served at long,
-    unguessable addresses so they can be sent to workers over WhatsApp and opened without an account.
+    unguessable addresses so a contractor can open them from the fallback WhatsApp link (and the
+    shared files and Excel embed them directly) without an account.
     Their addresses are never listed anywhere public. **DECIDED**
 11. A deactivated worker can't be newly assigned; a deactivated category can't be newly chosen; an
     archived site can't receive new captures. **DECIDED**

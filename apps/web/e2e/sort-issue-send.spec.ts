@@ -129,3 +129,77 @@ test('@smoke Web: send on WhatsApp — wa.me fallback, then "Mark as sent?" yes 
   await expect(page.locator('[data-status="sent"]').first()).toBeVisible();
   expect((await getIssue(page, issue.id)).status).toBe('sent');
 });
+
+test('@smoke Web: send on WhatsApp — the photo goes as a file, caption without links (§5.5, spec F3)', async ({
+  page,
+}) => {
+  // Web Share with files: record what is shared instead of opening a share sheet.
+  await page.addInitScript(() => {
+    const w = window as unknown as {
+      __shared: { names: string[]; types: string[]; text: string }[];
+      __opened: string[];
+    };
+    w.__shared = [];
+    w.__opened = [];
+    Object.defineProperty(navigator, 'canShare', {
+      value: (data: ShareData) => Boolean(data.files?.length),
+    });
+    Object.defineProperty(navigator, 'share', {
+      value: async (data: ShareData) => {
+        w.__shared.push({
+          names: (data.files ?? []).map((f) => f.name),
+          types: (data.files ?? []).map((f) => f.type),
+          text: data.text ?? '',
+        });
+      },
+    });
+    window.open = (url?: string | URL) => {
+      w.__opened.push(String(url));
+      return null;
+    };
+  });
+  await signIn(page);
+  const f = await createFixture(page);
+  const issue = await assignedIssue(page, f);
+
+  // Photo downloads for sharing are fetch() calls (the page's thumbnails are <img> loads).
+  const photoFetches: string[] = [];
+  page.on('request', (req) => {
+    if (req.resourceType() === 'fetch' && req.url().includes('/uploads/'))
+      photoFetches.push(req.url());
+  });
+
+  await page.goto(`/issues/${issue.id}`);
+  await expect(page.getByTestId('screen-issue')).toBeVisible({
+    timeout: 60_000,
+  });
+  // Nothing is downloaded until the engineer taps "Prepare photos"; then the button shares.
+  const prepare = page.getByRole('button', { name: /تجهيز|Prepare/ });
+  await expect(prepare).toBeEnabled();
+  expect(photoFetches).toEqual([]);
+  await prepare.click();
+  const send = page.getByRole('button', { name: /واتساب|WhatsApp/ });
+  await expect(send).toBeEnabled();
+  expect(photoFetches).toHaveLength(1);
+  await send.click();
+
+  const sheet = page.getByRole('dialog');
+  await expect(sheet).toBeVisible();
+  const { shared, opened } = await page.evaluate(() => {
+    const w = window as unknown as {
+      __shared: { names: string[]; types: string[]; text: string }[];
+      __opened: string[];
+    };
+    return { shared: w.__shared, opened: w.__opened };
+  });
+  expect(opened).toEqual([]);
+  expect(shared).toHaveLength(1);
+  expect(shared[0].names).toEqual([`#${issue.number}-1.jpg`]);
+  expect(shared[0].types).toEqual(['image/jpeg']);
+  expect(shared[0].text).toContain(`#${issue.number}`);
+  expect(shared[0].text).not.toMatch(/https?:\/\/|\/uploads\//);
+
+  await sheet.locator('[data-slot="sheet-footer"] button').last().click();
+  await expect(page.locator('[data-status="sent"]').first()).toBeVisible();
+  expect((await getIssue(page, issue.id)).status).toBe('sent');
+});

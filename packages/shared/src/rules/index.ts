@@ -5,3 +5,4 @@ export * from './phone';
 export * from './csv';
 export * from './whatsapp';
 export * from './labels';
+export * from './issue-export';

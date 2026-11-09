@@ -8,7 +8,7 @@
     "issues": "الملاحظات",
     "capture": "تصوير",
     "inbox": "الوارد",
-    "workers": "العمال",
+    "workers": "المقاولون",
     "settings": "الإعدادات"
   },
   "navShort": {
@@ -16,13 +16,13 @@
     "issues": "الملاحظات",
     "capture": "تصوير",
     "inbox": "الوارد",
-    "workers": "العمال"
+    "workers": "المقاولون"
   },
   "status": {
     "new": "جديد",
     "unassigned": "غير مُسند",
     "assigned": "مُسند",
-    "sent": "أُرسل للعامل",
+    "sent": "أُرسل للمقاول",
     "estimated": "تم تحديد موعد",
     "in_progress": "جاري العمل",
     "solved": "تم الحل",
@@ -49,7 +49,7 @@
   },
   "fields": {
     "category": "التصنيف",
-    "worker": "العامل",
+    "worker": "المقاول",
     "description": "الوصف",
     "location": "المكان",
     "priority": "الأولوية",

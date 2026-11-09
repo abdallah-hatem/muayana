@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CSV_BOM,
+  DomainErrorCode,
   type IssueState,
   type WhatsAppIssue,
   applyPatch,
@@ -12,6 +13,7 @@ import {
   escapeCsvCell,
   formatCairoDateTime,
   isOverdue,
+  planCapture,
   normalizeEgyptPhone,
   priorityLabelKey,
   priorityRank,
@@ -332,6 +334,68 @@ describe('applyPatch (§4 automatic moves)', () => {
   });
 });
 
+describe('planCapture (§5.1)', () => {
+  const painter = { categoryIds: ['paint'], active: true };
+
+  it('photo only stays new with no move', () => {
+    const r = planCapture({}, { worker: null });
+    expect(r).toMatchObject({ ok: true, statusChange: null });
+    if (r.ok) expect(r.state.status).toBe('new');
+  });
+
+  it('trade + description → unassigned; + contractor → assigned', () => {
+    expect(
+      planCapture({ categoryId: 'paint', description: 'x' }, { worker: null }),
+    ).toMatchObject({
+      ok: true,
+      statusChange: { from: 'new', to: 'unassigned' },
+    });
+    expect(
+      planCapture(
+        { categoryId: 'paint', description: 'x', workerId: 'w' },
+        { worker: painter },
+      ),
+    ).toMatchObject({
+      ok: true,
+      statusChange: { from: 'new', to: 'assigned' },
+    });
+  });
+
+  it('trade without description stays new keeping the trade', () => {
+    const r = planCapture({ categoryId: 'paint' }, { worker: null });
+    expect(r).toMatchObject({
+      ok: true,
+      statusChange: null,
+      state: { status: 'new', categoryId: 'paint' },
+    });
+  });
+
+  it('contractor without trade, without description, lacking the trade, inactive → refused', () => {
+    expect(
+      planCapture({ workerId: 'w', description: 'x' }, { worker: painter }),
+    ).toMatchObject({ ok: false, code: DomainErrorCode.ISSUE_REQUIREMENTS });
+    expect(
+      planCapture({ categoryId: 'paint', workerId: 'w' }, { worker: painter }),
+    ).toMatchObject({
+      ok: false,
+      code: DomainErrorCode.ISSUE_REQUIREMENTS,
+      missing: ['description'],
+    });
+    expect(
+      planCapture(
+        { categoryId: 'elec', description: 'x', workerId: 'w' },
+        { worker: painter },
+      ),
+    ).toMatchObject({ ok: false, code: DomainErrorCode.WORKER_LACKS_CATEGORY });
+    expect(
+      planCapture(
+        { categoryId: 'paint', description: 'x', workerId: 'w' },
+        { worker: { ...painter, active: false } },
+      ),
+    ).toMatchObject({ ok: false, code: DomainErrorCode.INACTIVE_WORKER });
+  });
+});
+
 describe('isOverdue (§4)', () => {
   const now = new Date('2026-11-05T10:00:00Z');
 
@@ -419,9 +483,7 @@ describe('CSV (§7)', () => {
   });
 
   it('csvRow escapes each cell and ends in CRLF (streamed exports)', () => {
-    expect(csvRow(['=SUM(A1)', 'a,b', null, 3])).toBe(
-      `'=SUM(A1),"a,b",,3\r\n`,
-    );
+    expect(csvRow(['=SUM(A1)', 'a,b', null, 3])).toBe(`'=SUM(A1),"a,b",,3\r\n`);
   });
 
   it('cairoDaysBetween counts Cairo calendar days, never negative', () => {
@@ -511,6 +573,44 @@ describe('WhatsApp (§5.5)', () => {
     expect(
       buildIssueMessage(local, 'en', { baseUrl: 'http://localhost:3101/' }),
     ).toContain('http://localhost:3101/uploads/x.jpg');
+  });
+
+  it('withPhotoLinks: false → caption with every detail and no photo URL (§5.5)', () => {
+    const issueCaption = buildIssueMessage(issue, 'ar', {
+      withPhotoLinks: false,
+    });
+    const batchCaption = buildBatchMessage([issue], { name: 'Ali' }, 'ar', {
+      withPhotoLinks: false,
+    });
+    for (const caption of [issueCaption, batchCaption]) {
+      expect(caption).toContain('#14');
+      expect(caption).toContain('نقاشة');
+      expect(caption).not.toContain('https://');
+      expect(caption).not.toContain('الصور');
+    }
+  });
+
+  it('share part and missing photos: "(1/3)" first, a line naming the missing issue last (spec F3)', () => {
+    const text = buildBatchMessage(
+      [issue, { ...issue, number: 15 }],
+      { name: 'Ali' },
+      'ar',
+      {
+        withPhotoLinks: false,
+        part: { index: 1, count: 3 },
+        missingPhotos: [15, 15],
+        total: 40,
+      },
+    );
+    const lines = text.split('\n');
+    expect(lines[0]).toBe('(1/3)');
+    expect(lines[1]).toContain('40');
+    expect(lines.at(-1)).toContain('#15');
+    expect(lines.at(-1)).not.toContain('#14');
+    expect(lines.at(-1)?.match(/#15/g)).toHaveLength(1);
+    expect(
+      buildIssueMessage(issue, 'en', { part: { index: 1, count: 1 } }),
+    ).not.toContain('(1/1)');
   });
 
   it('English message falls back to the Arabic category name (discovered)', () => {

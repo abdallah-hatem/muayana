@@ -1,11 +1,12 @@
 import {
+  exportCategoryName,
+  yesNo,
   toAsciiDigits,
   toCsv,
   type CategoryRef,
   type Locale,
   type Worker,
 } from '@muayana/shared';
-import { categoryName, yesNo } from '../../common/utils/csv.util';
 import {
   emptyTally,
   openCount,
@@ -36,6 +37,7 @@ export function toWorker(
       estimated: tally.estimated,
       in_progress: tally.in_progress,
       solved: tally.solved,
+      cancelled: tally.cancelled,
       open: openCount(tally),
       overdue,
     },
@@ -72,7 +74,7 @@ const CSV_HEADERS: Record<Locale, readonly string[]> = {
     'نشط',
     'ملاحظات',
     'مُسند',
-    'أُرسل للعامل',
+    'أُرسل للمقاول',
     'تم تحديد موعد',
     'جاري العمل',
     'تم الحل',
@@ -105,7 +107,7 @@ export function workersCsv(workers: readonly Worker[], lang: Locale): string {
     workers.map((w) => [
       w.name,
       w.phone,
-      w.categories.map((c) => categoryName(c, lang)).join(' / '),
+      w.categories.map((c) => exportCategoryName(c, lang)).join(' / '),
       yesNo(w.active, lang),
       w.notes,
       w.counts.assigned,

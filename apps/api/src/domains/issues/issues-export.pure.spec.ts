@@ -1,10 +1,15 @@
-import type { IssueStatus } from '@muayana/shared';
 import {
+  ISSUE_EXPORT_COLUMNS,
   daysOpen,
   exportColumns,
+  issueExportCells,
+  type IssueStatus,
+} from '@muayana/shared';
+import {
   historyCells,
   historyFacts,
   issueCells,
+  toExportIssue,
 } from './issues-export.pure';
 import type {
   HistoryExportRow,
@@ -73,6 +78,18 @@ const change = (
 ): IssueChangeRow => ({ issueId: 'i1', to, note, createdAt: new Date(at) });
 
 describe('issues CSV cells (§7)', () => {
+  it('Column list is the same single shared definition used by the issues CSV (API refactored to it)', () => {
+    const facts = { lastNote: 'call him', enteredStatusAt: null };
+    for (const lang of ['ar', 'en'] as const)
+      expect(issueCells(row(), facts, ISSUE_EXPORT_COLUMNS, lang, NOW)).toEqual(
+        issueExportCells(toExportIssue(row()), ISSUE_EXPORT_COLUMNS, {
+          lang,
+          now: NOW,
+          facts,
+        }),
+      );
+  });
+
   it('default columns are all of §7 in order; requested keep their order', () => {
     expect(exportColumns(undefined)[0]).toBe('number');
     expect(exportColumns(['status', 'number'])).toEqual(['status', 'number']);

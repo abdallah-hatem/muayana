@@ -48,6 +48,7 @@ export function makeWorker(overrides: Partial<Worker> = {}): Worker {
       estimated: 0,
       in_progress: 1,
       solved: 4,
+      cancelled: 0,
       open: 3,
       overdue: 0,
     },

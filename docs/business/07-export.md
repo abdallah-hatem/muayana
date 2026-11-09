@@ -3,6 +3,9 @@
   not just the visible page. The engineer picks the columns (default: all) from: number, site, status,
   category, worker, worker phone, priority, description, location, captured at, assigned at, sent at,
   estimated date, solved at, overdue, days open, photo links, after-photo links, last note. **DECIDED**
+- **Contractor Excel** — the same column list and header language as the issues CSV, for one
+  contractor's issues, with the issue's photos embedded as small pictures in its row (not links); right-to-left
+  sheet in Arabic. Built on the phone. **DECIDED**
 - **Workers CSV** — every worker matching the workers filter, with categories, phone, active, notes,
   and counts per status and overdue. **DECIDED**
 - **Days open** counts from capture to today, or to the last status change for a `solved` or `cancelled`

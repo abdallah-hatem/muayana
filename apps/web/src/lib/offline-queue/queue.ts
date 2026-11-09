@@ -1,4 +1,5 @@
 import { newUuid } from '@/lib/uuid';
+import type { Priority } from '@muayana/shared';
 import { queueDb, type QueueItem, type QueueKind } from './db';
 
 export interface EnqueueInput {
@@ -9,7 +10,21 @@ export interface EnqueueInput {
   capturedAt: string;
   note?: string | null;
   location?: string | null;
+  categoryId?: string | null;
+  workerId?: string | null;
+  priority?: Priority | null;
   photo: Blob;
+  /** `draft` while the capture sheet is open: kept, not uploaded (see QueueStatus). */
+  draft?: boolean;
+}
+
+/** The capture sheet's fields, saved onto a drafted `create` item (§5.1). */
+export interface CaptureDetails {
+  note?: string | null;
+  location?: string | null;
+  categoryId?: string | null;
+  workerId?: string | null;
+  priority?: Priority | null;
 }
 
 const listeners = new Set<() => void>();
@@ -46,9 +61,12 @@ export async function enqueue(input: EnqueueInput): Promise<QueueItem> {
     capturedAt: input.capturedAt,
     note: blank(input.note),
     location: blank(input.location),
+    categoryId: input.categoryId ?? null,
+    workerId: input.workerId ?? null,
+    priority: input.priority ?? null,
     photo: { bytes, type: input.photo.type || 'image/jpeg' },
     attempts: 0,
-    status: 'pending',
+    status: input.draft ? 'draft' : 'pending',
     lastError: null,
     seq: (last?.value.seq ?? 0) + 1,
     nextAttemptAt: 0,
@@ -117,5 +135,73 @@ export async function resetItem(id: string): Promise<void> {
     attempts: 0,
     lastError: null,
     nextAttemptAt: 0,
+  });
+}
+
+/**
+ * The capture sheet is saved: the drafted new issue takes the sheet's fields, and it and the
+ * photos drafted for it become uploads, in the order they were taken.
+ */
+export async function commitDraft(
+  issueId: string,
+  details: CaptureDetails = {},
+): Promise<void> {
+  const db = await queueDb();
+  const tx = db.transaction('queue', 'readwrite');
+  let cursor = await tx.store.openCursor();
+  while (cursor) {
+    const item = cursor.value;
+    if (item.status === 'draft' && item.issueId === issueId) {
+      await cursor.update(
+        item.kind === 'create'
+          ? {
+              ...item,
+              status: 'pending',
+              note: blank(details.note),
+              location: blank(details.location),
+              categoryId: details.categoryId ?? null,
+              workerId: details.workerId ?? null,
+              priority: details.priority ?? null,
+            }
+          : { ...item, status: 'pending' },
+      );
+    }
+    cursor = await cursor.continue();
+  }
+  await tx.done;
+  emitChange();
+}
+
+/**
+ * Drafts left behind by an app closed with the capture sheet open become photo-only uploads, so
+ * the photos are never lost (§5.1). Called when the sync starts, before any sheet can be open.
+ */
+export async function promoteDrafts(): Promise<void> {
+  const db = await queueDb();
+  const tx = db.transaction('queue', 'readwrite');
+  let promoted = false;
+  let cursor = await tx.store.openCursor();
+  while (cursor) {
+    if (cursor.value.status === 'draft') {
+      await cursor.update({ ...cursor.value, status: 'pending' });
+      promoted = true;
+    }
+    cursor = await cursor.continue();
+  }
+  await tx.done;
+  if (promoted) emitChange();
+}
+
+/**
+ * "Retry without contractor" (§5.2): a new issue refused for its contractor uploads again under
+ * the same id without him — the server never created it, so the id is still free. A refused
+ * trade (deactivated since the phone last saw it) is dropped with him; the description stays.
+ */
+export async function dropContractor(id: string): Promise<void> {
+  const item = await getItem(id);
+  if (!item || item.kind !== 'create') return;
+  await patchItem(id, {
+    workerId: null,
+    ...(item.lastError === 'INACTIVE_CATEGORY' && { categoryId: null }),
   });
 }

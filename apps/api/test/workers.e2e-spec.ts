@@ -90,6 +90,7 @@ describe('Workers (e2e)', () => {
         estimated: 0,
         in_progress: 0,
         solved: 0,
+        cancelled: 0,
         open: 0,
         overdue: 0,
       },
@@ -134,10 +135,16 @@ describe('Workers (e2e)', () => {
     }).expect(201);
     expect(first.body.data.phone).toBe('+201012345678');
 
-    for (const phone of ['+20 10 1234 5678', '0020-101-234-5678', '01012345678']) {
-      const dup = await post({ name: 'B', phone, categoryIds: [cat.id] }).expect(
-        409,
-      );
+    for (const phone of [
+      '+20 10 1234 5678',
+      '0020-101-234-5678',
+      '01012345678',
+    ]) {
+      const dup = await post({
+        name: 'B',
+        phone,
+        categoryIds: [cat.id],
+      }).expect(409);
       expect(dup.body.error).toBe(DomainErrorCode.DUPLICATE);
     }
 
@@ -178,7 +185,8 @@ describe('Workers (e2e)', () => {
     expect(off.body.data.active).toBe(false);
     expect(off.body.data.counts.assigned).toBe(1);
     expect(
-      (await t.db.issue.findUniqueOrThrow({ where: { id: issue.id } })).workerId,
+      (await t.db.issue.findUniqueOrThrow({ where: { id: issue.id } }))
+        .workerId,
     ).toBe(busy.id);
 
     const idle = await makeWorker(t.db, [cat.id]);
@@ -230,7 +238,9 @@ describe('Workers (e2e)', () => {
     expect(res.body.data.categories.map((c: { id: string }) => c.id)).toEqual([
       paint.id,
     ]);
-    const after = await t.db.issue.findUniqueOrThrow({ where: { id: issue.id } });
+    const after = await t.db.issue.findUniqueOrThrow({
+      where: { id: issue.id },
+    });
     expect(after).toMatchObject({
       status: 'sent',
       categoryId: elec.id,
@@ -273,7 +283,13 @@ describe('Workers (e2e)', () => {
     const other = await makeWorker(t.db, [cat.id]);
     const yesterday = cairoDate(t.clock.now(), -1);
     const give = (
-      status: 'assigned' | 'sent' | 'estimated' | 'in_progress' | 'solved' | 'cancelled',
+      status:
+        | 'assigned'
+        | 'sent'
+        | 'estimated'
+        | 'in_progress'
+        | 'solved'
+        | 'cancelled',
       estimatedDate: string | null = null,
       workerId = worker.id,
     ) =>
@@ -301,6 +317,7 @@ describe('Workers (e2e)', () => {
       estimated: 2,
       in_progress: 1,
       solved: 1,
+      cancelled: 1,
       open: 6,
       overdue: 2,
     });
@@ -327,22 +344,28 @@ describe('Workers (e2e)', () => {
       }).expect(201)
     ).body.data as Worker;
 
-    expect(ids(await get(`${WORKERS}?categoryId=${elec.id}`).expect(200))).toEqual(
-      [mona.id],
-    );
-    expect(ids(await get(`${WORKERS}?categoryId=${paint.id}`).expect(200))).toEqual(
-      [ahmed.id, mona.id],
-    );
+    expect(
+      ids(await get(`${WORKERS}?categoryId=${elec.id}`).expect(200)),
+    ).toEqual([mona.id]);
+    expect(
+      ids(await get(`${WORKERS}?categoryId=${paint.id}`).expect(200)),
+    ).toEqual([ahmed.id, mona.id]);
     expect(ids(await get(`${WORKERS}?search=saber`).expect(200))).toEqual([
       ahmed.id,
     ]);
     // Local format, international digits and Arabic-Indic digits all find the phone.
     for (const search of ['0119876', '2011987', '٠١١٩٨٧'])
       expect(
-        ids(await get(`${WORKERS}?search=${encodeURIComponent(search)}`).expect(200)),
+        ids(
+          await get(`${WORKERS}?search=${encodeURIComponent(search)}`).expect(
+            200,
+          ),
+        ),
       ).toEqual([mona.id]);
     expect(
-      ids(await get(`${WORKERS}?search=saber&categoryId=${elec.id}`).expect(200)),
+      ids(
+        await get(`${WORKERS}?search=saber&categoryId=${elec.id}`).expect(200),
+      ),
     ).toEqual([]);
     await get(`${WORKERS}?categoryId=nope`).expect(400);
 
@@ -388,7 +411,7 @@ describe('Workers (e2e)', () => {
     expect(arText.startsWith(CSV_BOM)).toBe(true);
     const arLines = arText.slice(1).trimEnd().split('\r\n');
     expect(arLines[0]).toBe(
-      'الاسم,الهاتف,التخصصات,نشط,ملاحظات,مُسند,أُرسل للعامل,تم تحديد موعد,جاري العمل,تم الحل,مفتوح,متأخر',
+      'الاسم,الهاتف,التخصصات,نشط,ملاحظات,مُسند,أُرسل للمقاول,تم تحديد موعد,جاري العمل,تم الحل,مفتوح,متأخر',
     );
     // Only Ahmed matches the filter; his notes are formula-guarded; counts per status.
     expect(arLines).toHaveLength(2);

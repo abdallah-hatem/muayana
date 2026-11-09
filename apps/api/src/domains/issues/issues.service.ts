@@ -11,6 +11,7 @@ import {
   ErrorCode,
   PHOTOS_PER_KIND_MAX,
   applyPatch,
+  planCapture,
   type BulkIssuesResponse,
   type Deleted,
   type Issue,
@@ -19,6 +20,7 @@ import {
   type IssueState,
   type PhotoKind,
   type Requirement,
+  type StatusMove,
 } from '@muayana/shared';
 import { randomUUID } from 'node:crypto';
 import { CLOCK, type Clock } from '../../common/clock/clock';
@@ -113,9 +115,11 @@ export class IssuesService {
   // ------------------------------------------------------------ create
 
   /**
-   * Creates an issue in `new` from its first photo, numbered from the site's counter in the same
-   * transaction. Idempotent on the client's id (§6.9): an existing id answers 200 with that
-   * issue and changes nothing.
+   * Creates an issue from its first photo, numbered from the site's counter in the same
+   * transaction. The optional trade, contractor and description go through applyPatch on a fresh
+   * `new` state, so the issue lands in `new`, `unassigned` or `assigned` by the §4 rules; history
+   * is `none → new` plus one row for that landing move. A refusal creates nothing. Idempotent on
+   * the client's id (§6.9): an existing id answers 200 with that issue and changes nothing.
    */
   async create(
     dto: CreateIssueDto,
@@ -128,6 +132,8 @@ export class IssuesService {
     const site = await this.refs.findSite(dto.siteId);
     if (!site) throw new NotFoundException('Site not found');
     if (site.archived) throw ruleConflict(DomainErrorCode.ARCHIVED_SITE);
+    // Refuse before anything is stored; re-checked under the transaction below.
+    await this.planCreate(dto);
 
     const photoId = randomUUID();
     const stored = await this.storePhoto(dto.id, photoId, photo);
@@ -136,13 +142,20 @@ export class IssuesService {
         const taken = await this.issues.takeNextNumber(tx, dto.siteId);
         if (!taken) throw new NotFoundException('Site not found');
         if (taken.archived) throw ruleConflict(DomainErrorCode.ARCHIVED_SITE);
+        const plan = await this.planCreate(dto, tx);
         await this.issues.createIssue(tx, {
           id: dto.id,
           siteId: dto.siteId,
           number: taken.number,
-          description: dto.description || null,
           location: dto.location || null,
           capturedAt: new Date(dto.capturedAt),
+          ...(dto.priority && { priority: dto.priority }),
+          ...stateData(plan.state),
+          ...firstReachedStamp(
+            NOTHING_REACHED,
+            plan.state.status,
+            this.clock.now(),
+          ),
         });
         await this.issues.createPhoto(tx, {
           id: photoId,
@@ -159,6 +172,12 @@ export class IssuesService {
           from: null,
           to: 'new',
         });
+        if (plan.statusChange) {
+          await this.issues.addStatusChange(tx, {
+            issueId: dto.id,
+            ...plan.statusChange,
+          });
+        }
       });
     } catch (error) {
       await this.discard([stored.file.key]);
@@ -440,16 +459,35 @@ export class IssuesService {
   }
 
   /** A category may be newly chosen only while active (§6.11). */
-  private async assertCategoryChoosable(id: string, tx: Tx): Promise<void> {
+  private async assertCategoryChoosable(id: string, tx?: Tx): Promise<void> {
     const category = await this.refs.findCategory(id, tx);
     if (!category) throw new NotFoundException('Category not found');
     if (!category.active) throw ruleConflict(DomainErrorCode.INACTIVE_CATEGORY);
   }
 
-  private async workerFacts(id: string, tx: Tx): Promise<WorkerFacts> {
+  private async workerFacts(id: string, tx?: Tx): Promise<WorkerFacts> {
     const worker = await this.refs.findWorker(id, tx);
     if (!worker) throw new NotFoundException('Worker not found');
     return worker;
+  }
+
+  /**
+   * Where a new capture lands (shared planCapture: the same rules as sorting it later), after
+   * checking the chosen trade may be chosen and fetching the contractor's facts. Throws the refusal.
+   */
+  private async planCreate(
+    dto: CreateIssueDto,
+    tx?: Tx,
+  ): Promise<{ state: IssueState; statusChange: StatusMove | null }> {
+    if (dto.categoryId) await this.assertCategoryChoosable(dto.categoryId, tx);
+    const worker = dto.workerId
+      ? await this.workerFacts(dto.workerId, tx)
+      : null;
+    const result = planCapture(dto, { worker });
+    if (!result.ok) {
+      throw ruleConflict(result.code, { missing: result.missing });
+    }
+    return { state: result.state, statusChange: result.statusChange };
   }
 
   /** Validates the bytes, normalises to the stored JPEG and writes it to storage. */
@@ -501,6 +539,9 @@ const notAnImage = () =>
     message: 'The photo must be a JPEG, PNG or WebP image',
     error: ErrorCode.UNSUPPORTED_MEDIA_TYPE,
   });
+
+/** A new issue has reached no status yet, so every first-reached stamp is still empty. */
+const NOTHING_REACHED = { assignedAt: null, sentAt: null, solvedAt: null };
 
 /** The rule-bearing fields of a PATCH body, present keys only (absent = leave alone). */
 function rulePatch(dto: UpdateIssueDto): IssuePatch {

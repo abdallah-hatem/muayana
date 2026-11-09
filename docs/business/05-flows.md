@@ -2,9 +2,15 @@
 
 ## 5.1 Capture (on site)
 1. Choose a site (the last one used is preselected).
-2. Open the camera and take a photo. It is compressed on the phone and becomes a new issue in `new`
-   at once, with no typing required. Optional: a quick note and location.
-3. Keep shooting. "Add to the previous issue" attaches the next photo to the last issue instead.
+2. Open the camera and take the photo(s). They are compressed on the phone.
+3. One sheet then holds everything for the issue: place, description, **trade**, **contractor** (only
+   active contractors of the chosen trade), priority — all optional, and all saved with the issue. Saving creates the issue in one go:
+   photo only → `new`; trade + description → `unassigned`; + contractor → `assigned`. More photos can be
+   added to the same issue before saving. **DECIDED** (owner, 2026-11-09: trade first, then contractor)
+4. Keep shooting. "Add to the previous issue" attaches the next photo to the last issue instead.
+   Closing the sheet keeps the photos as a photo-only issue (`new`); the photos are saved on the phone the
+   moment they are taken, so an unsaved sheet left when the app closes still uploads as photo only. The
+   place carries over to the next capture. **GUESS**
 
 **Failure:** no signal → the issue and its photos are kept on the phone and shown as "waiting to
 upload"; nothing is lost if the app is closed. **DECIDED**
@@ -16,6 +22,9 @@ upload"; nothing is lost if the app is closed. **DECIDED**
   marked failed, never silently dropped.
 - A refusal that retrying can't fix (archived site, unknown site, invalid or too-large photo) marks the
   item failed at once, with the reason shown. **DECIDED**
+- Offline, the capture sheet uses the trades and contractors the phone last saw. The server checks every
+  rule again at upload; a refusal (inactive or wrong-trade contractor, archived site…) fails the item with
+  its reason and the engineer can retry it without the contractor — the photos are never lost. **DECIDED**
 - Only capture works offline. Sorting, assigning and exporting need a connection. **GUESS**
 
 ## 5.3 Sort (after the walk)
@@ -33,20 +42,35 @@ issues they hold.
 
 ## 5.5 Send
 "Send on WhatsApp" builds an Arabic message: site, issue number, location, category, description,
-priority, and the photos. On a phone that can share files, the photos and text go through the share
-sheet to WhatsApp; otherwise a WhatsApp link opens with the text and links to the photos. Re-sending an issue
+priority, and the photos. On a phone that can share files, the **photo files themselves** go through the
+share sheet with the text as their caption (no photo links in the text); the engineer picks the chat in
+WhatsApp. Where file sharing isn't available (most desktops), a WhatsApp link to the contractor's chat
+opens with the text and links to the photos. **DECIDED** The photos are downloaded only when the engineer starts a send ("Prepare photos", with an n-of-m count he can cancel) — never when a page opens — and the next tap shares them. **DECIDED** (2026-11-09, mobile data) (owner, 2026-11-09) If a photo can't be fetched
+for sharing, the others are shared and the caption says which one is missing. **GUESS** Re-sending an issue
 that is already `sent` or further along never asks and never moves it back. **GUESS** When the
 engineer comes back, the app asks "Mark as sent?"; only his yes changes the status. **DECIDED**
 Batch: from a worker's page, send all of the worker's `assigned` issues (every one of them, up to 200 per
 batch — more are sent in further batches) in one message, then mark them
-sent together. The batch message carries photo links, not photo files. **GUESS**
+sent together. The batch shares the photo files the same way (split into several shares if the phone
+refuses that many files), with links only in the fallback. **DECIDED** When it takes several shares, each one needs
+its own tap ("Share part 2 of 3") and "Mark as sent?" comes after the last; cancelling any part starts
+over. **GUESS**
+**Send as Excel:** from a contractor's page, one action builds an Excel file of his issues (by default
+the `assigned` ones) with the columns chosen the same way as the issues CSV export (§7), headers in the
+current language, and each issue's photos embedded in its row as small pictures. It is shared to
+WhatsApp through the share sheet (or downloaded where sharing files isn't possible), then the app asks
+"Mark as sent?" for the `assigned` issues it contained (other statuses in the file never change). The
+statuses to include are chosen in the Excel sheet (default `assigned`). Above 200 issues the marking goes in
+batches of 200, each all-or-nothing on its own; a refused batch says how many were already marked. **GUESS** Photos
+are embedded as small pictures (long side 320px) and replace the photo-link columns; if the file would pass
+about 15 MB the app warns and offers fewer issues. **DECIDED** (owner, 2026-11-09) / sizes **GUESS**
 
 ## 5.6 Track
 From the issue page, in one tap each: set the estimate date (→ `estimated`), mark `in_progress`, mark
 `solved` (optionally with after photos and a note), cancel with a reason, reopen.
 
 ## 5.7 Workers
-List: name, categories, phone, open issues by status, overdue count. Search and filter by category.
+List: name, categories, phone, issues by status (open ones, plus solved and cancelled counts), overdue count. Search and filter by category.
 Detail: call and WhatsApp buttons, categories, notes, and the worker's issues grouped by status.
 
 ## 5.8 Issues list

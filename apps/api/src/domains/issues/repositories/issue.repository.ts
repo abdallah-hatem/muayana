@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, type IssueStatus, type PhotoKind } from '@prisma/client';
+import {
+  Prisma,
+  type IssueStatus,
+  type PhotoKind,
+  type Priority,
+} from '@prisma/client';
 import type { Tx } from '../../../common/interfaces/transaction.interface';
 import { DatabaseService } from '../../../database/database.service';
 
@@ -260,12 +265,18 @@ export class IssueRepository {
       id: string;
       siteId: string;
       number: number;
+      status: IssueStatus;
       description: string | null;
       location: string | null;
       capturedAt: Date;
+      categoryId: string | null;
+      workerId: string | null;
+      estimatedDate: Date | null;
+      priority?: Priority;
+      assignedAt?: Date;
     },
   ): Promise<void> {
-    await tx.issue.create({ data: { ...data, status: 'new' } });
+    await tx.issue.create({ data });
   }
 
   async update(

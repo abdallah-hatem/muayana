@@ -16,22 +16,26 @@ export function fileNameFrom(
   return plain ? plain[1].trim() : fallback;
 }
 
-/** Hands a downloaded response to the browser as a file to save. */
-export async function saveResponse(
-  res: Response,
-  fallbackName: string,
-): Promise<void> {
-  const blob = await res.blob();
+/** Hands a file to the browser to save under `name`. */
+export function saveBlob(blob: Blob, name: string): void {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = fileNameFrom(
-    res.headers.get('content-disposition'),
-    fallbackName,
-  );
+  link.download = name;
   document.body.appendChild(link);
   link.click();
   link.remove();
   // Let the click start the download before the URL goes away.
   setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+/** Hands a downloaded response to the browser as a file to save. */
+export async function saveResponse(
+  res: Response,
+  fallbackName: string,
+): Promise<void> {
+  saveBlob(
+    await res.blob(),
+    fileNameFrom(res.headers.get('content-disposition'), fallbackName),
+  );
 }

@@ -1,6 +1,9 @@
 import { render, type RenderOptions } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
+import capture from '../../messages/en/capture.json';
 import common from '../../messages/en/common.json';
+import excel from '../../messages/en/excel.json';
+import exportMessages from '../../messages/en/export.json';
 import inbox from '../../messages/en/inbox.json';
 import issue from '../../messages/en/issue.json';
 import send from '../../messages/en/send.json';
@@ -11,6 +14,7 @@ import categories from '../../messages/en/categories.json';
 import workers from '../../messages/en/workers.json';
 
 const messages = {
+  capture,
   common,
   inbox,
   issue,
@@ -20,6 +24,8 @@ const messages = {
   sites,
   categories,
   workers,
+  excel,
+  export: exportMessages,
 };
 
 /** Renders under next-intl with the English messages. */

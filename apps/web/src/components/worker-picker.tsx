@@ -15,11 +15,18 @@ import { listWorkersForCategory } from '@/lib/issue-endpoints';
 
 const NONE = '__none__';
 
+/** What the picker shows of a worker: his name and how many open issues he holds. */
+export type PickableWorker = Pick<Worker, 'id' | 'name'> & {
+  counts: Pick<Worker['counts'], 'open'>;
+};
+
 /** Only the workers who may take an issue of this category: active and covering it (§5.4, §6.11). */
-export const eligibleWorkers = (
-  workers: readonly Worker[],
+export const eligibleWorkers = <
+  W extends Pick<Worker, 'active'> & { categories: readonly { id: string }[] },
+>(
+  workers: readonly W[],
   categoryId: string,
-): Worker[] =>
+): W[] =>
   workers.filter(
     (w) => w.active && w.categories.some((c) => c.id === categoryId),
   );
@@ -72,20 +79,50 @@ export function WorkerPicker({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- see above
   }, [categoryId]);
 
-  if (!categoryId)
-    return (
-      <p
-        id={id}
-        className="flex h-12 items-center rounded-md border-2 border-dashed border-border px-4 type-small text-muted-foreground"
-      >
-        {t('needsCategory')}
-      </p>
-    );
+  if (!categoryId) return <WorkerNeedsCategory id={id} />;
 
   const current = loaded?.categoryId === categoryId ? loaded : null;
   if (!current) return <Skeleton className="h-12 w-full rounded-md" />;
 
-  const workers = current.workers;
+  return (
+    <WorkerSelect
+      id={id}
+      workers={current.workers}
+      value={value}
+      onChange={onChange}
+      currentWorker={currentWorker}
+      disabled={disabled}
+      invalid={invalid}
+      emptyText={current.failed ? t('loadFailed') : t('emptyForCategory')}
+    />
+  );
+}
+
+/**
+ * The worker select itself, over a list the caller already has (the capture sheet's cached
+ * contractors work offline): "no worker" first, then each worker with his open count.
+ */
+export function WorkerSelect<W extends PickableWorker>({
+  id,
+  workers,
+  value,
+  onChange,
+  currentWorker = null,
+  disabled = false,
+  invalid = false,
+  emptyText,
+}: {
+  id: string;
+  workers: readonly W[];
+  value: string | null;
+  onChange: (worker: W | null) => void;
+  currentWorker?: WorkerRef | null;
+  disabled?: boolean;
+  invalid?: boolean;
+  /** Shown under the select when nobody can be chosen. */
+  emptyText: string;
+}) {
+  const t = useTranslations('issue.workerPicker');
   const listed = value !== null && workers.some((w) => w.id === value);
   const keepCurrent =
     !listed && currentWorker !== null && currentWorker.id === value;
@@ -126,10 +163,21 @@ export function WorkerPicker({
         </SelectContent>
       </Select>
       {workers.length === 0 && (
-        <p className="type-small text-muted-foreground">
-          {current.failed ? t('loadFailed') : t('emptyForCategory')}
-        </p>
+        <p className="type-small text-muted-foreground">{emptyText}</p>
       )}
     </div>
+  );
+}
+
+/** Stands where the worker select goes until a category is chosen. */
+export function WorkerNeedsCategory({ id }: { id: string }) {
+  const t = useTranslations('issue.workerPicker');
+  return (
+    <p
+      id={id}
+      className="flex h-12 items-center rounded-md border-2 border-dashed border-border px-4 type-small text-muted-foreground"
+    >
+      {t('needsCategory')}
+    </p>
   );
 }

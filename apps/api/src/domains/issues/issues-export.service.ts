@@ -1,5 +1,9 @@
 import { Inject, Injectable, type StreamableFile } from '@nestjs/common';
-import type { CsvValue } from '@muayana/shared';
+import {
+  exportColumns,
+  issueExportHeaders,
+  type CsvValue,
+} from '@muayana/shared';
 import { CLOCK, type Clock } from '../../common/clock/clock';
 import { csvStream } from '../../common/utils/csv.util';
 import {
@@ -12,8 +16,6 @@ import type {
 } from './dto/issue-export.dto';
 import {
   HISTORY_HEADERS,
-  ISSUE_COLUMN_HEADERS,
-  exportColumns,
   historyCells,
   historyFacts,
   issueCells,
@@ -68,10 +70,7 @@ export class IssuesExportService {
       }
     }
 
-    return csvStream(
-      columns.map((c) => ISSUE_COLUMN_HEADERS[lang][c]),
-      batches(),
-    );
+    return csvStream(issueExportHeaders(columns, lang), batches());
   }
 
   historyCsv(query: IssueHistoryExportQueryDto): StreamableFile {
