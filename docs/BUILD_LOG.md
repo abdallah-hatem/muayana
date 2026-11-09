@@ -9,7 +9,7 @@ Current stage: **released 2026-11-09** — PR #2 (one-sheet capture, «مقاو�
 - Decisions worth reviewing first: [foundation decisions](build-log/decisions/foundation.md) (statuses incl. `new`/`cancelled`, WhatsApp via share sheet + "Mark as sent?", public unguessable photo URLs, design direction) and the GUESS rules in `docs/business/*.md`.
 
 ## Waiting on the user
-- **Release permanent delete** (on dev, verified): it adds migration `20261109140131_issue_former_worker_name`. Before merging dev → production, run `npx prisma migrate deploy` from apps/api against the production **unpooled** Neon URL (docs/DEPLOY.md), then merge the release PR.
+- **Release permanent delete** (on dev, verified): it adds migration `20261109140131_issue_former_worker_name`. Before merging dev → production, run `npx prisma migrate deploy` from apps/api against the production **unpooled** Neon URL (docs/DEPLOY.md), then merge the release PR. Owner runs the migration on the other PC (2026-11-09); release PR #3 is open — merge only after he confirms.
 - `feat/capture-sheet` on the other PC is superseded by N1 (owner: "do all here") — don't merge it.
 ## Next up
 - (none queued) — the 2026-11-09 batch is built: N1 one-sheet capture (trade → contractor), N2 «مقاول», N3 WhatsApp photo files, N4 contractor Excel with embedded photos, plus on-demand photo loading for sends and the UI-audit fixes. Spec `docs/specs/2026-11-09-capture-sheet-contractor-whatsapp-excel.md`, waves `build-log/waves/next-up/`.
