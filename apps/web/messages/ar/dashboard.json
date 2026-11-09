@@ -11,7 +11,7 @@
     "solved": "تم الحل"
   },
   "bars": {
-    "byCategory": "حسب الصنعة",
+    "byCategory": "حسب البند",
     "byWorker": "حسب المقاول",
     "bySite": "حسب الموقع",
     "open": "{name}: {count} مفتوحة",
