@@ -56,7 +56,9 @@ over. **GUESS**
 the `assigned` ones) with the columns chosen the same way as the issues CSV export (§7), headers in the
 current language, and each issue's photos embedded in its row as small pictures. It is shared to
 WhatsApp through the share sheet (or downloaded where sharing files isn't possible), then the app asks
-"Mark as sent?" for the `assigned` issues it contained (other statuses in the file never change). Photos
+"Mark as sent?" for the `assigned` issues it contained (other statuses in the file never change). The
+statuses to include are chosen in the Excel sheet (default `assigned`). Above 200 issues the marking goes in
+batches of 200, each all-or-nothing on its own; a refused batch says how many were already marked. **GUESS** Photos
 are embedded as small pictures (long side 320px) and replace the photo-link columns; if the file would pass
 about 15 MB the app warns and offers fewer issues. **DECIDED** (owner, 2026-11-09) / sizes **GUESS**
 
