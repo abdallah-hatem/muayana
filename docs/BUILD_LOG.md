@@ -1,7 +1,7 @@
 # Build log
 Run mode: fully autonomous — chosen by the user on 2026-11-05 (re-confirmed after the mockup: "go ahead, continue fully autonomous")
 Goal (current): mobile-first web app for an audit engineer — capture defect photos on site, sort them into trade categories, assign to workers (no accounts), track statuses, worker views, CSV export of any filter · spec `docs/specs/2026-11-05-muayana.md` · plan `docs/superpowers/plans/2026-11-05-muayana-v1.md`
-Current stage: **next-up batch built and verified on dev** (lint, typecheck, shared 61, api 147 + 138 e2e, web 274, smoke 24/24 on a production build, UI audit fixed). Shipping: release PR dev → production (owner: "finish then ship", 2026-11-09).
+Current stage: **released 2026-11-09** — PR #2 (one-sheet capture, «مقاول», WhatsApp photo files, contractor Excel) merged to `production` (238df45); Vercel builds for muayana-api and muayana-web succeeded; read-only production checks pass (API health 200, login 200, signed-out redirects/401). No migration in this release.
 
 ## Final state (2026-11-05)
 - All plan tasks T1–T12 merged into `dev`, plus fixes: smoke (abort hung reads on unmount, ×2), UI audit wave (kit + screens), re-audit polish, deploy readiness, DB-backed login lockout, seed photos through storage.
