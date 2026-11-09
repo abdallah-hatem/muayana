@@ -9,9 +9,9 @@ Current stage: **v1 live** — release PR #1 merged and deployed 2026-11-06 (mua
 - Decisions worth reviewing first: [foundation decisions](build-log/decisions/foundation.md) (statuses incl. `new`/`cancelled`, WhatsApp via share sheet + "Mark as sent?", public unguessable photo URLs, design direction) and the GUESS rules in `docs/business/*.md`.
 
 ## Waiting on the user
-- Phone check of `feat/capture-sheet` (new capture flow, sheets open with the keyboard down, install card), then merge and ship it.
+- (`feat/capture-sheet` on the other PC is superseded by N1 — owner: "do all here".)
 ## Next up
-Queued by the owner on 2026-11-09. Not started.
+Queued by the owner on 2026-11-09. **In progress** — spec `docs/specs/2026-11-09-capture-sheet-contractor-whatsapp-excel.md`, plan `docs/superpowers/plans/2026-11-09-next-up.md`, waves `build-log/waves/next-up/`. Owner 2026-11-09: build all here (unpushed `feat/capture-sheet` not used); trade first, then contractor.
 
 1. **One sheet for the whole capture.** After taking the picture(s), the same sheet takes the
    place, the description **and the worker** it is assigned to, so an issue is captured and
