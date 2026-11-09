@@ -42,7 +42,8 @@ issues they hold.
 priority, and the photos. On a phone that can share files, the **photo files themselves** go through the
 share sheet with the text as their caption (no photo links in the text); the engineer picks the chat in
 WhatsApp. Where file sharing isn't available (most desktops), a WhatsApp link to the contractor's chat
-opens with the text and links to the photos. **DECIDED** (owner, 2026-11-09) Re-sending an issue
+opens with the text and links to the photos. **DECIDED** (owner, 2026-11-09) If a photo can't be fetched
+for sharing, the others are shared and the caption says which one is missing. **GUESS** Re-sending an issue
 that is already `sent` or further along never asks and never moves it back. **GUESS** When the
 engineer comes back, the app asks "Mark as sent?"; only his yes changes the status. **DECIDED**
 Batch: from a worker's page, send all of the worker's `assigned` issues (every one of them, up to 200 per
@@ -53,7 +54,9 @@ refuses that many files), with links only in the fallback. **DECIDED**
 the `assigned` ones) with the columns chosen the same way as the issues CSV export (§7), headers in the
 current language, and each issue's photos embedded in its row as small pictures. It is shared to
 WhatsApp through the share sheet (or downloaded where sharing files isn't possible), then the app asks
-"Mark as sent?" for the `assigned` issues it contained. **DECIDED** (owner, 2026-11-09)
+"Mark as sent?" for the `assigned` issues it contained (other statuses in the file never change). Photos
+are embedded as small pictures (long side 320px) and replace the photo-link columns; if the file would pass
+about 15 MB the app warns and offers fewer issues. **DECIDED** (owner, 2026-11-09) / sizes **GUESS**
 
 ## 5.6 Track
 From the issue page, in one tap each: set the estimate date (→ `estimated`), mark `in_progress`, mark
