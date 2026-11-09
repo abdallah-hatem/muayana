@@ -124,4 +124,30 @@ describe('shared issue export columns (§7)', () => {
     expect(escapeCsvCell('=SUM(A1)')).toBe("'=SUM(A1)");
     expect(escapeCsvCell(-3)).toBe('-3');
   });
+
+  it("keep: the export shows the deleted contractor's former name marked deleted (§3)", () => {
+    const kept = issue({
+      status: 'solved',
+      worker: null,
+      formerWorkerName: 'Sayed',
+    });
+    const ctx = (lang: 'ar' | 'en') => ({ lang, now: NOW });
+    expect(
+      issueExportCells(kept, ['worker', 'workerPhone'], ctx('en')),
+    ).toEqual(['Sayed (deleted)', undefined]);
+    expect(issueExportCells(kept, ['worker'], ctx('ar'))).toEqual([
+      'Sayed (محذوف)',
+    ]);
+    // A current worker wins; no worker and no former name → empty.
+    expect(
+      issueExportCells(
+        issue({ formerWorkerName: 'Old' }),
+        ['worker'],
+        ctx('en'),
+      ),
+    ).toEqual(['Sayed']);
+    expect(
+      issueExportCells(issue({ worker: null }), ['worker'], ctx('en')),
+    ).toEqual([null]);
+  });
 });

@@ -187,28 +187,118 @@ describe('WorkerView', () => {
     expect(await screen.findByText('No issues yet.')).toBeInTheDocument();
   });
 
-  it('delete a worker with issues offers "Deactivate instead" and deletes nothing', async () => {
+  it('Web: sheet shows counts, both choices; destructive choice needs a second confirm; cancel → nothing (§6.8)', async () => {
     routeApi(clientFetch, {
       'GET /issues': byStatus(() => issues),
-      'PATCH /workers/': () => ok({ ...worker, active: false }),
+      'DELETE /workers/': () => ok({ id: worker.id }),
+    });
+    const user = renderView();
+    await screen.findByRole('region', { name: 'Assigned' });
+
+    // Cancel at the first step sends nothing.
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    let dialog = screen.getByRole('dialog');
+    expect(within(dialog).getByText('Sayed has issues')).toBeInTheDocument();
+    expect(
+      within(dialog).getByText(
+        '4 issues: 3 open, 1 solved, 0 cancelled. What happens to them?',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole('button', { name: /Keep the issues/ }),
+    ).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+
+    // The destructive choice asks once more; Back and closing send nothing.
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    dialog = screen.getByRole('dialog');
+    await user.click(
+      within(dialog).getByRole('button', {
+        name: /Delete his 4 issues and 4 photos too/,
+      }),
+    );
+    dialog = screen.getByRole('dialog');
+    expect(within(dialog).getByText('Delete everything?')).toBeInTheDocument();
+    expect(
+      within(dialog).getByText(
+        "Sayed, his 4 issues and 4 photos will be deleted permanently. This can't be undone.",
+      ),
+    ).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'Back' }));
+    expect(
+      within(screen.getByRole('dialog')).getByText('Sayed has issues'),
+    ).toBeInTheDocument();
+    expect(calls(clientFetch, 'DELETE')).toHaveLength(0);
+
+    // Confirmed: one request with issues=delete, then back to the list.
+    await user.click(
+      screen.getByRole('button', { name: /Delete his 4 issues/ }),
+    );
+    await user.click(
+      screen.getByRole('button', { name: 'Delete permanently' }),
+    );
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/workers'));
+    expect(calls(clientFetch, 'DELETE').map((c) => c.path)).toEqual([
+      `/workers/${worker.id}?issues=delete`,
+    ]);
+  });
+
+  it('keep the issues: one tap sends one request with issues=keep, double tap included (§6.8)', async () => {
+    let answer: (value: unknown) => void = () => undefined;
+    routeApi(clientFetch, {
+      'GET /issues': byStatus(() => issues),
+      'DELETE /workers/': () =>
+        new Promise((resolve) => {
+          answer = () => resolve(ok({ id: worker.id }));
+        }) as never,
     });
     const user = renderView();
     await screen.findByRole('region', { name: 'Assigned' });
 
     await user.click(screen.getByRole('button', { name: 'Delete' }));
-    const dialog = screen.getByRole('dialog');
-    expect(
-      within(dialog).getByText('This worker has issues'),
-    ).toBeInTheDocument();
-    await user.click(
-      within(dialog).getByRole('button', { name: 'Deactivate instead' }),
-    );
+    const keep = within(screen.getByRole('dialog')).getByRole('button', {
+      name: /Keep the issues/,
+    });
+    await user.dblClick(keep);
+    await user.click(keep);
+    expect(calls(clientFetch, 'DELETE').map((c) => c.path)).toEqual([
+      `/workers/${worker.id}?issues=keep`,
+    ]);
+    answer(undefined);
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/workers'));
+  });
 
-    await waitFor(() =>
-      expect(calls(clientFetch, 'PATCH')[0]?.body).toEqual({ active: false }),
+  it('plain confirm meeting issues the page did not know (409 WORKER_HAS_ISSUES) turns into the choice with the API counts', async () => {
+    const fresh = makeWorker({ name: 'Omar' });
+    routeApi(clientFetch, {
+      'GET /issues': () => ok([] as Issue[]),
+      'DELETE /workers/': () => ({
+        ...fail(409, 'WORKER_HAS_ISSUES'),
+        data: { open: 1, solved: 0, cancelled: 1, total: 2, photos: 5 },
+      }),
+    });
+    const user = renderView(fresh);
+    await screen.findByText('No issues yet.');
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Delete',
+      }),
     );
-    expect(calls(clientFetch, 'DELETE')).toHaveLength(0);
-    expect(await screen.findByText('Deactivated')).toBeInTheDocument();
+    const dialog = await screen.findByTestId('delete-worker-choose');
+    expect(
+      within(dialog).getByText(
+        '2 issues: 1 open, 0 solved, 1 cancelled. What happens to them?',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole('button', {
+        name: /Delete his 2 issues and 5 photos too/,
+      }),
+    ).toBeInTheDocument();
+    expect(push).not.toHaveBeenCalled();
   });
 
   it('delete a worker without issues removes him and goes back to the list', async () => {
@@ -239,9 +329,9 @@ describe('WorkerView', () => {
     );
 
     await waitFor(() => expect(push).toHaveBeenCalledWith('/workers'));
-    expect(calls(clientFetch, 'DELETE', `/workers/${fresh.id}`)).toHaveLength(
-      1,
-    );
+    expect(calls(clientFetch, 'DELETE').map((c) => c.path)).toEqual([
+      `/workers/${fresh.id}`,
+    ]);
   });
 
   it('edit: saving the sheet shows the new name', async () => {

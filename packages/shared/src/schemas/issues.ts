@@ -62,6 +62,8 @@ export const IssueSchema = z.object({
   location: z.string().nullable(),
   category: CategoryRefSchema.nullable(),
   worker: WorkerRefSchema.nullable(),
+  /** A deleted contractor's name, kept on a solved/cancelled issue (business §3); else null. */
+  formerWorkerName: z.string().nullable(),
   /** `YYYY-MM-DD` */
   estimatedDate: z.string().nullable(),
   capturedAt: z.string(),

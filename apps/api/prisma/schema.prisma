@@ -152,25 +152,28 @@ model WorkerCategory {
 /// One defect on one site.
 model Issue {
   /// Generated on the phone (UUID v4) so an offline create can be retried idempotently.
-  id            String      @id @db.Uuid
-  siteId        String      @map("site_id") @db.Uuid
+  id               String      @id @db.Uuid
+  siteId           String      @map("site_id") @db.Uuid
   /// Running number per site (#1, #2…), never reused.
-  number        Int
-  status        IssueStatus @default(new)
-  priority      Priority    @default(normal)
-  description   String?
-  location      String?
-  categoryId    String?     @map("category_id") @db.Uuid
-  workerId      String?     @map("worker_id") @db.Uuid
-  estimatedDate DateTime?   @map("estimated_date") @db.Date
+  number           Int
+  status           IssueStatus @default(new)
+  priority         Priority    @default(normal)
+  description      String?
+  location         String?
+  categoryId       String?     @map("category_id") @db.Uuid
+  workerId         String?     @map("worker_id") @db.Uuid
+  /// The deleted contractor's name, kept on a solved/cancelled issue when he was deleted with
+  /// "keep the issues" (business §3, invariant §6.2).
+  formerWorkerName String?     @map("former_worker_name")
+  estimatedDate    DateTime?   @map("estimated_date") @db.Date
   /// When the photo was taken on the phone, even if it uploaded later.
-  capturedAt    DateTime    @map("captured_at")
+  capturedAt       DateTime    @map("captured_at")
   /// First time the issue reached assigned / sent / solved (kept for reports).
-  assignedAt    DateTime?   @map("assigned_at")
-  sentAt        DateTime?   @map("sent_at")
-  solvedAt      DateTime?   @map("solved_at")
-  createdAt     DateTime    @default(now()) @map("created_at")
-  updatedAt     DateTime    @updatedAt @map("updated_at")
+  assignedAt       DateTime?   @map("assigned_at")
+  sentAt           DateTime?   @map("sent_at")
+  solvedAt         DateTime?   @map("solved_at")
+  createdAt        DateTime    @default(now()) @map("created_at")
+  updatedAt        DateTime    @updatedAt @map("updated_at")
 
   site     Site           @relation(fields: [siteId], references: [id], onDelete: Restrict)
   category Category?      @relation(fields: [categoryId], references: [id], onDelete: Restrict)

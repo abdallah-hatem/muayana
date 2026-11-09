@@ -32,6 +32,7 @@ import {
   type PhotoStorage,
   type StoredFile,
 } from '../../common/storage/photo-storage.interface';
+import { discardPhotos } from '../../common/storage/discard-photos';
 import { sniffImageType, toStoredImage } from '../../common/utils/image.util';
 import {
   buildIssueWhere,
@@ -415,11 +416,15 @@ export class IssuesService {
     return this.get(id);
   }
 
-  /** Deletes a `new` issue (a wrong shot) with its photos; any other is cancelled instead (§3). */
+  /**
+   * Deletes an issue permanently, in any status (§3): the issue, its photo rows and its status
+   * history go in one transaction (photos and history cascade); the photo files are removed from
+   * storage after commit, best-effort. The site's counter is untouched — numbers are never
+   * reused (§6.12).
+   */
   async remove(id: string): Promise<Deleted> {
     const keys = await this.issues.transaction(async (tx) => {
-      const row = await this.lock(tx, id);
-      if (row.status !== 'new') throw ruleConflict(DomainErrorCode.NOT_NEW);
+      await this.lock(tx, id);
       const photos = await this.issues.photoKeys(tx, id);
       await this.issues.deleteIssue(tx, id);
       return photos.map((p) => p.storageKey);
@@ -509,16 +514,8 @@ export class IssuesService {
   }
 
   /** Best-effort removal of stored files whose rows are gone (or never committed). */
-  private async discard(keys: string[]): Promise<void> {
-    for (const key of keys) {
-      try {
-        await this.storage.delete(key);
-      } catch (error) {
-        this.logger.warn(
-          `Could not delete stored photo ${key}: ${String(error)}`,
-        );
-      }
-    }
+  private discard(keys: string[]): Promise<void> {
+    return discardPhotos(this.storage, keys, this.logger);
   }
 }
 
@@ -560,6 +557,9 @@ function stateData(state: IssueState) {
     description: state.description,
     categoryId: state.categoryId,
     workerId: state.workerId,
+    // A deleted contractor's kept name gives way once a contractor is chosen again (§3).
+    formerWorkerName:
+      state.workerId === null ? (state.formerWorkerName ?? null) : null,
     estimatedDate:
       state.estimatedDate === null ? null : dateOnlyToDb(state.estimatedDate),
   };

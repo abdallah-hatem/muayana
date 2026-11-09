@@ -42,6 +42,7 @@ export function toIssue(row: IssueRow, now: Date): Issue {
     location: row.location,
     category: row.category,
     worker: row.worker,
+    formerWorkerName: row.formerWorkerName,
     estimatedDate,
     capturedAt: iso(row.capturedAt),
     createdAt: iso(row.createdAt),
@@ -65,6 +66,7 @@ export const toState = (row: IssueStateRow): IssueState => ({
   categoryId: row.categoryId,
   description: row.description,
   workerId: row.workerId,
+  formerWorkerName: row.formerWorkerName,
   estimatedDate: dbToDateOnly(row.estimatedDate),
 });
 
@@ -135,6 +137,8 @@ const RULE_MESSAGES: Record<DomainErrorCode, string> = {
   INACTIVE_CATEGORY: 'The category is deactivated',
   ARCHIVED_SITE: 'The site is archived',
   NOT_NEW: 'Only issues in new can do that',
+  WORKER_HAS_ISSUES:
+    'This worker has issues: choose to keep them or delete them too',
 };
 
 /** A 409 carrying a domain code (and, for a requirements refusal, what is missing). */
