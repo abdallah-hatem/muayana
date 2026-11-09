@@ -8,6 +8,9 @@
    photo only → `new`; trade + description → `unassigned`; + contractor → `assigned`. More photos can be
    added to the same issue before saving. **DECIDED** (owner, 2026-11-09: trade first, then contractor)
 4. Keep shooting. "Add to the previous issue" attaches the next photo to the last issue instead.
+   Closing the sheet keeps the photos as a photo-only issue (`new`); the photos are saved on the phone the
+   moment they are taken, so an unsaved sheet left when the app closes still uploads as photo only. The
+   place carries over to the next capture. **GUESS**
 
 **Failure:** no signal → the issue and its photos are kept on the phone and shown as "waiting to
 upload"; nothing is lost if the app is closed. **DECIDED**
