@@ -13,10 +13,16 @@ export type CsvValue = string | number | boolean | null | undefined;
  * apostrophe so it isn't run as a formula; quotes, commas and newlines are quoted (RFC 4180).
  * Numbers and booleans are data, never formulas, so they are written as they are.
  */
+/**
+ * A text value a spreadsheet could run as a formula (`=`, `+`, `-`, `@`, tab, CR first) gets a
+ * leading apostrophe (§7). CSV cells and the contractor Excel's text cells both pass through it.
+ */
+export const guardFormula = (text: string): string =>
+  FORMULA_START.test(text) ? `'${text}` : text;
+
 export const escapeCsvCell = (value: CsvValue): string => {
   if (value === null || value === undefined) return '';
-  let text = String(value);
-  if (typeof value === 'string' && FORMULA_START.test(text)) text = `'${text}`;
+  const text = typeof value === 'string' ? guardFormula(value) : String(value);
   return NEEDS_QUOTES.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 };
 

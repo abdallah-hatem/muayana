@@ -9,9 +9,12 @@ import {
 } from '@muayana/shared';
 import { Download, Loader2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useId, useState } from 'react';
+import { useState } from 'react';
+import {
+  ExportColumnChooser,
+  defaultExportColumns,
+} from '@/components/export-column-chooser';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -20,7 +23,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 import { clientFetchRaw } from '@/lib/api-client';
 import { saveResponse } from '@/lib/download';
 import { filterToSearchParams } from '@/lib/issue-filter-url';
@@ -64,20 +66,12 @@ export function ExportDialog({
   const t = useTranslations('export');
   const locale = useLocale() as Locale;
   const [kind, setKind] = useState<ExportKind>('issues');
-  const [columns, setColumns] = useState<IssueExportColumn[]>([
-    ...ISSUE_EXPORT_COLUMNS,
-  ]);
+  const [columns, setColumns] =
+    useState<IssueExportColumn[]>(defaultExportColumns);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const noColumns = kind === 'issues' && columns.length === 0;
-
-  const toggle = (column: IssueExportColumn, on: boolean) =>
-    setColumns((current) =>
-      ISSUE_EXPORT_COLUMNS.filter((c) =>
-        c === column ? on : current.includes(c),
-      ),
-    );
 
   async function download() {
     if (busy || noColumns) return;
@@ -118,46 +112,7 @@ export function ExportDialog({
           <KindPicker value={kind} onChange={setKind} />
 
           {kind === 'issues' ? (
-            <fieldset className="flex flex-col gap-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <legend className="type-small font-bold">
-                  {t('columns.title')}
-                </legend>
-                <div className="flex gap-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setColumns([...ISSUE_EXPORT_COLUMNS])}
-                  >
-                    {t('columns.selectAll')}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setColumns([])}
-                  >
-                    {t('columns.selectNone')}
-                  </Button>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
-                {ISSUE_EXPORT_COLUMNS.map((column) => (
-                  <ColumnCheckbox
-                    key={column}
-                    label={t(`columns.${column}`)}
-                    checked={columns.includes(column)}
-                    onChange={(on) => toggle(column, on)}
-                  />
-                ))}
-              </div>
-              {noColumns && (
-                <p role="alert" className="type-small text-destructive">
-                  {t('columns.none')}
-                </p>
-              )}
-            </fieldset>
+            <ExportColumnChooser value={columns} onChange={setColumns} />
           ) : (
             <p className="type-body text-muted-foreground">
               {t('historyHint')}
@@ -221,30 +176,5 @@ function KindPicker({
         ))}
       </div>
     </fieldset>
-  );
-}
-
-function ColumnCheckbox({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (on: boolean) => void;
-}) {
-  const id = useId();
-  return (
-    <div className="flex min-h-11 items-center gap-3 rounded-md px-2 hover:bg-accent/50">
-      <Checkbox
-        id={id}
-        checked={checked}
-        onCheckedChange={(state) => onChange(state === true)}
-        className="size-5 cursor-pointer"
-      />
-      <Label htmlFor={id} className="flex-1 cursor-pointer type-small">
-        {label}
-      </Label>
-    </div>
   );
 }

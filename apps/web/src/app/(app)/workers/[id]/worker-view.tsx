@@ -43,6 +43,7 @@ import { listActiveCategories } from '@/lib/issue-endpoints';
 import { ROUTES } from '@/lib/routes';
 import { telUrl, whatsappChatUrl } from '@/lib/whatsapp-share';
 import { WorkerForm } from '../worker-form';
+import { SendExcel } from './send-excel';
 import { InactiveBadge, WorkerAvatar, WorkerCountChips } from '../worker-bits';
 
 type IssuesLoad =
@@ -120,6 +121,12 @@ export function WorkerView({ initial }: { initial: Worker }) {
   async function refreshWorker() {
     const res = await getWorker(worker.id);
     if (res.success) setWorker(res.data);
+  }
+
+  /** After a send marked issues sent: his groups and counts change. */
+  function reloadAndRefresh() {
+    reloadIssues();
+    void refreshWorker();
   }
 
   async function setActive(active: boolean) {
@@ -247,6 +254,7 @@ export function WorkerView({ initial }: { initial: Worker }) {
       ) : (
         <Skeleton className="h-12 w-full rounded-md" />
       )}
+      <SendExcel worker={worker} onSent={reloadAndRefresh} />
 
       <div className="flex flex-col gap-3">
         <h3 className="type-heading">{t('detail.issues')}</h3>

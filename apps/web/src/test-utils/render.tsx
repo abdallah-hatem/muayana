@@ -1,6 +1,8 @@
 import { render, type RenderOptions } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import common from '../../messages/en/common.json';
+import excel from '../../messages/en/excel.json';
+import exportMessages from '../../messages/en/export.json';
 import inbox from '../../messages/en/inbox.json';
 import issue from '../../messages/en/issue.json';
 import send from '../../messages/en/send.json';
@@ -20,6 +22,8 @@ const messages = {
   sites,
   categories,
   workers,
+  excel,
+  export: exportMessages,
 };
 
 /** Renders under next-intl with the English messages. */
