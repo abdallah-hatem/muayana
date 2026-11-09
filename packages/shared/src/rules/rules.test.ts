@@ -419,9 +419,7 @@ describe('CSV (§7)', () => {
   });
 
   it('csvRow escapes each cell and ends in CRLF (streamed exports)', () => {
-    expect(csvRow(['=SUM(A1)', 'a,b', null, 3])).toBe(
-      `'=SUM(A1),"a,b",,3\r\n`,
-    );
+    expect(csvRow(['=SUM(A1)', 'a,b', null, 3])).toBe(`'=SUM(A1),"a,b",,3\r\n`);
   });
 
   it('cairoDaysBetween counts Cairo calendar days, never negative', () => {
@@ -511,6 +509,44 @@ describe('WhatsApp (§5.5)', () => {
     expect(
       buildIssueMessage(local, 'en', { baseUrl: 'http://localhost:3101/' }),
     ).toContain('http://localhost:3101/uploads/x.jpg');
+  });
+
+  it('withPhotoLinks: false → caption with every detail and no photo URL (§5.5)', () => {
+    const issueCaption = buildIssueMessage(issue, 'ar', {
+      withPhotoLinks: false,
+    });
+    const batchCaption = buildBatchMessage([issue], { name: 'Ali' }, 'ar', {
+      withPhotoLinks: false,
+    });
+    for (const caption of [issueCaption, batchCaption]) {
+      expect(caption).toContain('#14');
+      expect(caption).toContain('نقاشة');
+      expect(caption).not.toContain('https://');
+      expect(caption).not.toContain('الصور');
+    }
+  });
+
+  it('share part and missing photos: "(1/3)" first, a line naming the missing issue last (spec F3)', () => {
+    const text = buildBatchMessage(
+      [issue, { ...issue, number: 15 }],
+      { name: 'Ali' },
+      'ar',
+      {
+        withPhotoLinks: false,
+        part: { index: 1, count: 3 },
+        missingPhotos: [15, 15],
+        total: 40,
+      },
+    );
+    const lines = text.split('\n');
+    expect(lines[0]).toBe('(1/3)');
+    expect(lines[1]).toContain('40');
+    expect(lines.at(-1)).toContain('#15');
+    expect(lines.at(-1)).not.toContain('#14');
+    expect(lines.at(-1)?.match(/#15/g)).toHaveLength(1);
+    expect(
+      buildIssueMessage(issue, 'en', { part: { index: 1, count: 1 } }),
+    ).not.toContain('(1/1)');
   });
 
   it('English message falls back to the Arabic category name (discovered)', () => {
