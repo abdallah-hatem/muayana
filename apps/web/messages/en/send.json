@@ -13,5 +13,9 @@
     "none": "No assigned issues to send.",
     "confirmBody": "{count, plural, one {Mark the issue as sent?} other {Mark all # issues as sent?}}",
     "part": "Batch {part} of {parts}: {total} assigned issues in all, at most {size} per message."
+  },
+  "parts": {
+    "next": "Share part {part} of {parts}",
+    "hint": "Too many photos for one share: they go in {parts} parts. Pick the same chat each time."
   }
 }

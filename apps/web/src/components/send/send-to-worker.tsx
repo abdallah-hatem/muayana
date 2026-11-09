@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 import {
   BULK_IDS_MAX,
   buildBatchMessage,
@@ -18,19 +18,52 @@ import { bulkIssues, changeIssueStatus } from '@/lib/issue-endpoints';
 import { photosOf, toIssueState } from '@/lib/issue-state';
 import {
   canShareFiles,
-  loadPhotoFiles,
+  loadIssuePhotos,
+  packetContent,
   photoBaseUrl,
-  shareToWhatsApp,
+  planShares,
+  shareInParts,
+  type IssuePhotos,
 } from '@/lib/whatsapp-share';
 import { SendFlow } from './send-flow';
 
 /** Messages to workers are written in Arabic (business §5.5). */
 const MESSAGE_LANG: Locale = 'ar';
 
+const beforeUrls = (issue: Issue): string[] =>
+  photosOf(issue.photos, 'before').map((p) => p.url);
+
 /**
- * "Send on WhatsApp" for one issue. The before-photos go as files when the phone can share them
- * (fetched ahead, so the share keeps the tap's user activation), else wa.me opens with photo
- * links. "Mark as sent?" is asked only when `sent` is a forward move the rules allow.
+ * The issues' before-photos as files, fetched ahead while the browser can share files (so the
+ * share keeps the tap's user activation); `null` where it can't, and the link carries them.
+ * Refetched only when the issues or their photos change.
+ */
+function usePhotoFiles(
+  issues: readonly Issue[],
+): RefObject<Promise<IssuePhotos<Issue>[]> | null> {
+  const files = useRef<Promise<IssuePhotos<Issue>[]> | null>(null);
+  const current = useRef(issues);
+  useEffect(() => {
+    current.current = issues;
+  });
+  const key = issues.map((i) => `${i.id}:${beforeUrls(i).join(',')}`).join('|');
+
+  useEffect(() => {
+    files.current = canShareFiles()
+      ? Promise.all(
+          current.current.map((issue) =>
+            loadIssuePhotos(issue, beforeUrls(issue)),
+          ),
+        )
+      : null;
+  }, [key]);
+  return files;
+}
+
+/**
+ * "Send on WhatsApp" for one issue. Where the phone can share files, the before-photos go as files
+ * with the text as their caption (no links); else wa.me opens with the text and photo links.
+ * "Mark as sent?" is asked only when `sent` is a forward move the rules allow.
  */
 export function SendToWorker({
   issue,
@@ -40,18 +73,8 @@ export function SendToWorker({
   onSent: (issue: Issue) => void;
 }) {
   const t = useTranslations('send');
-  const files = useRef<Promise<File[]> | null>(null);
   const worker = issue.worker;
-
-  const photoUrls = photosOf(issue.photos, 'before')
-    .map((p) => p.url)
-    .join('\n');
-
-  useEffect(() => {
-    files.current = canShareFiles()
-      ? loadPhotoFiles(photoUrls ? photoUrls.split('\n') : [])
-      : null;
-  }, [photoUrls]);
+  const files = usePhotoFiles([issue]);
 
   const state = toIssueState(issue);
   const askToMarkSent =
@@ -63,12 +86,17 @@ export function SendToWorker({
       disabledReason={worker ? null : t('needsWorker')}
       askToMarkSent={askToMarkSent}
       share={async () =>
-        shareToWhatsApp({
-          text: buildIssueMessage(issue, MESSAGE_LANG, {
-            baseUrl: photoBaseUrl(),
-          }),
+        shareInParts({
+          packets: files.current ? planShares(await files.current) : [],
+          caption: (packet, part) =>
+            buildIssueMessage(issue, MESSAGE_LANG, {
+              withPhotoLinks: false,
+              part,
+              missingPhotos: packetContent(packet).missingPhotos,
+            }),
           phone: worker?.phone ?? '',
-          files: files.current ? await files.current : [],
+          fallbackText: () =>
+            buildIssueMessage(issue, MESSAGE_LANG, { baseUrl: photoBaseUrl() }),
         })
       }
       markSent={() => changeIssueStatus(issue.id, { status: 'sent' })}
@@ -80,9 +108,10 @@ export function SendToWorker({
 /**
  * Batch send from a worker's page (business §5.5): every one of the worker's `assigned` issues,
  * then — on yes — marked sent together in one bulk call. Issues in any other status are left out.
- * More than BULK_IDS_MAX go in consecutive batches: one message and one bulk call per batch.
- * After a yes the page reloads (the sent ones leave `assigned`, the next batch comes first); after
- * a "Not yet" the next tap moves on to the next batch.
+ * More than BULK_IDS_MAX go in consecutive batches: one message and one bulk call per batch. Where
+ * the phone can share files, all the batch's photos go as files — in several shares when the
+ * browser won't take them in one. After a yes the page reloads (the sent ones leave `assigned`,
+ * the next batch comes first); after a "Not yet" the next tap moves on to the next batch.
  */
 export function BatchSendToWorker({
   worker,
@@ -99,6 +128,7 @@ export function BatchSendToWorker({
   const [index, setIndex] = useState(0);
   const part = batches.length === 0 ? 0 : index % batches.length;
   const batch = batches[part] ?? [];
+  const files = usePhotoFiles(batch);
   // The batch handed to WhatsApp: "Mark as sent?" marks exactly those.
   const shared = useRef<Issue[]>([]);
 
@@ -124,15 +154,24 @@ export function BatchSendToWorker({
       disabledReason={disabledReason}
       askToMarkSent
       confirmBody={t('batch.confirmBody', { count: batch.length })}
-      share={() => {
+      share={async () => {
         shared.current = batch;
-        return shareToWhatsApp({
-          text: buildBatchMessage(batch, worker, MESSAGE_LANG, {
-            baseUrl: photoBaseUrl(),
-          }),
+        return shareInParts({
+          packets: files.current ? planShares(await files.current) : [],
+          caption: (packet, sharePart) => {
+            const content = packetContent(packet);
+            return buildBatchMessage(content.issues, worker, MESSAGE_LANG, {
+              withPhotoLinks: false,
+              part: sharePart,
+              missingPhotos: content.missingPhotos,
+              total: batch.length,
+            });
+          },
           phone: worker.phone,
-          // Many issues' photos are too many files: the message carries their links.
-          files: [],
+          fallbackText: () =>
+            buildBatchMessage(batch, worker, MESSAGE_LANG, {
+              baseUrl: photoBaseUrl(),
+            }),
         });
       }}
       markSent={() =>

@@ -6,13 +6,14 @@ import { useId, useRef, useState } from 'react';
 import { BottomSheet } from '@/components/bottom-sheet';
 import { Button } from '@/components/ui/button';
 import type { ApiResult } from '@/lib/api-result';
-import type { ShareOutcome } from '@/lib/whatsapp-share';
+import type { ShareMore, ShareStep } from '@/lib/whatsapp-share';
 import { useApiErrorText } from '@/components/use-api-error-text';
 
 /**
  * The send gesture shared by one issue and a worker's batch (business §5.5): hand the message to
- * WhatsApp, then — only if the engineer didn't back out — ask "Mark as sent?". Only his yes sends
- * the status request, exactly once however fast he taps.
+ * WhatsApp — in several shares when the photos don't fit in one, each on its own tap — then, only
+ * if the engineer didn't back out, ask "Mark as sent?". Only his yes sends the status request,
+ * exactly once however fast he taps.
  */
 export function SendFlow<T>({
   label,
@@ -32,7 +33,7 @@ export function SendFlow<T>({
   onDeclined?: () => void;
   /** Why sending isn't possible now; the button is disabled and this shows under it. */
   disabledReason?: string | null;
-  share: () => Promise<ShareOutcome>;
+  share: () => Promise<ShareStep>;
   /** False when the status shouldn't change after sending (already sent or further). */
   askToMarkSent: boolean;
   markSent: () => Promise<ApiResult<T>>;
@@ -42,6 +43,8 @@ export function SendFlow<T>({
   const t = useTranslations('send');
   const errorText = useApiErrorText();
   const [sharing, setSharing] = useState(false);
+  // The shares still to go when the photos didn't fit in one.
+  const [more, setMore] = useState<ShareMore | null>(null);
   const [asking, setAsking] = useState(false);
   const [marking, setMarking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,9 +54,14 @@ export function SendFlow<T>({
   async function start() {
     if (sharing) return;
     setSharing(true);
-    const outcome = await share();
+    const step = await (more ? more.next() : share());
     setSharing(false);
-    if (outcome === 'cancelled' || !askToMarkSent) return;
+    if (typeof step === 'object') {
+      setMore(step);
+      return;
+    }
+    setMore(null);
+    if (step === 'cancelled' || !askToMarkSent) return;
     setError(null);
     setAsking(true);
   }
@@ -92,11 +100,15 @@ export function SendFlow<T>({
         ) : (
           <MessageCircle aria-hidden />
         )}
-        {label}
+        {more ? t('parts.next', { part: more.part, parts: more.parts }) : label}
       </Button>
       {disabledReason ? (
         <p id={reasonId} className="type-small text-muted-foreground">
           {disabledReason}
+        </p>
+      ) : more ? (
+        <p role="status" className="type-small text-muted-foreground">
+          {t('parts.hint', { parts: more.parts })}
         </p>
       ) : (
         hint && <p className="type-small text-muted-foreground">{hint}</p>
