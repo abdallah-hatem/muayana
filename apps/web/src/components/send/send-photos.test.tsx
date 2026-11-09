@@ -66,6 +66,17 @@ const issueWith = (number: number, photoCount = 2, status?: IssueStatus) =>
 const sendButton = () =>
   screen.getByRole('button', { name: /Send on WhatsApp/ });
 
+/** The first tap only downloads the photos (§5.5); once ready, the same button shares. */
+async function prepare(
+  user: ReturnType<typeof userEvent.setup>,
+  ready: RegExp = /Send on WhatsApp/,
+) {
+  await user.click(
+    screen.getByRole('button', { name: /^Prepare \d+ photos? to send$/ }),
+  );
+  return screen.findByRole('button', { name: ready });
+}
+
 let open: ReturnType<typeof vi.fn>;
 let photoFetch: ReturnType<typeof vi.fn>;
 
@@ -92,7 +103,7 @@ describe('SendToWorker — photo files', () => {
     renderWithIntl(<SendToWorker issue={issueWith(14)} onSent={vi.fn()} />);
     const user = userEvent.setup();
 
-    await user.click(sendButton());
+    await user.click(await prepare(user));
 
     await waitFor(() => expect(web.share).toHaveBeenCalledTimes(1));
     const [only] = shared(web.share);
@@ -129,7 +140,7 @@ describe('SendToWorker — photo files', () => {
     renderWithIntl(<SendToWorker issue={issueWith(14)} onSent={onSent} />);
     const user = userEvent.setup();
 
-    await user.click(sendButton());
+    await user.click(await prepare(user));
 
     await waitFor(() => expect(web.share).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(sendButton()).toBeEnabled());
@@ -151,7 +162,7 @@ describe('SendToWorker — photo files', () => {
     renderWithIntl(<SendToWorker issue={issue} onSent={vi.fn()} />);
     const user = userEvent.setup();
 
-    await user.click(sendButton());
+    await user.click(await prepare(user));
 
     await waitFor(() => expect(web.share).toHaveBeenCalledTimes(1));
     const [only] = shared(web.share);
@@ -172,7 +183,7 @@ describe('SendToWorker — photo files', () => {
     renderWithIntl(<SendToWorker issue={issue} onSent={onSent} />);
     const user = userEvent.setup();
 
-    await user.click(sendButton());
+    await user.click(await prepare(user));
     const yes = await screen.findByRole('button', { name: 'Yes, mark sent' });
     fireEvent.click(yes);
     fireEvent.click(yes);
@@ -197,7 +208,7 @@ describe('SendToWorker — photo files', () => {
       const view = renderWithIntl(
         <SendToWorker issue={issueWith(20, 1, status)} onSent={vi.fn()} />,
       );
-      await user.click(sendButton());
+      await user.click(await prepare(user));
       await waitFor(() => expect(sendButton()).toBeEnabled());
       expect(screen.queryByText('Mark as sent?')).not.toBeInTheDocument();
       view.unmount();
@@ -249,9 +260,7 @@ describe('BatchSendToWorker — photo files', () => {
     renderWithIntl(<BatchPage initial={issues} />);
     const user = userEvent.setup();
 
-    await user.click(
-      screen.getByRole('button', { name: /Send 3 assigned issues/ }),
-    );
+    await user.click(await prepare(user, /Send 3 assigned issues/));
     // Part 1 went out; the next part waits for its own tap, and no question yet.
     const next = await screen.findByRole('button', {
       name: 'Share part 2 of 2',
@@ -296,9 +305,7 @@ describe('BatchSendToWorker — photo files', () => {
     renderWithIntl(<BatchPage initial={issues} />);
     const user = userEvent.setup();
 
-    await user.click(
-      screen.getByRole('button', { name: /Send 2 assigned issues/ }),
-    );
+    await user.click(await prepare(user, /Send 2 assigned issues/));
     await user.click(
       await screen.findByRole('button', { name: 'Share part 1 of 2' }),
     );
@@ -327,9 +334,7 @@ describe('BatchSendToWorker — photo files', () => {
     renderWithIntl(<BatchPage initial={[issueWith(1), issueWith(2)]} />);
     const user = userEvent.setup();
 
-    await user.click(
-      screen.getByRole('button', { name: /Send 2 assigned issues/ }),
-    );
+    await user.click(await prepare(user, /Send 2 assigned issues/));
     await user.click(
       await screen.findByRole('button', { name: 'Share part 2 of 2' }),
     );
@@ -352,9 +357,7 @@ describe('BatchSendToWorker — photo files', () => {
     /** Taps through every share of the current batch (10 files each), then says yes. */
     async function sendBatch(count: number, parts: number) {
       await user.click(
-        await screen.findByRole('button', {
-          name: new RegExp(`Send ${count} assigned issues`),
-        }),
+        await prepare(user, new RegExp(`Send ${count} assigned issues`)),
       );
       for (let part = 2; part <= parts; part += 1)
         await user.click(
@@ -408,5 +411,139 @@ describe('BatchSendToWorker — photo files', () => {
     expect(text).not.toContain('photos/2-1.jpg');
     expect(photoFetch).not.toHaveBeenCalled();
     expect(await screen.findByText('Mark as sent?')).toBeInTheDocument();
+  });
+});
+
+describe('Photos downloaded only when the engineer sends (mobile data, §5.5)', () => {
+  /** Photo fetches that answer only when told to, and record the abort signal each was given. */
+  function heldFetches() {
+    const held: { url: string; signal?: AbortSignal; answer: () => void }[] =
+      [];
+    const fetchMock = vi.fn(
+      (url: string, init?: RequestInit) =>
+        new Promise<Response>((resolve, reject) => {
+          const signal = init?.signal ?? undefined;
+          signal?.addEventListener('abort', () =>
+            reject(new DOMException('aborted', 'AbortError')),
+          );
+          held.push({
+            url,
+            signal,
+            answer: () =>
+              resolve(new Response(new Blob(['jpeg'], { type: 'image/jpeg' }))),
+          });
+        }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    return { held, fetchMock };
+  }
+
+  it('Contractor page open → no photo is fetched until the engineer taps (batch and single)', async () => {
+    webShare();
+    renderWithIntl(
+      <>
+        <BatchSendToWorker
+          worker={worker}
+          issues={[issueWith(1), issueWith(2)]}
+          onSent={vi.fn()}
+        />
+        <SendToWorker issue={issueWith(3)} onSent={vi.fn()} />
+      </>,
+    );
+
+    expect(
+      await screen.findByRole('button', { name: 'Prepare 4 photos to send' }),
+    ).toBeEnabled();
+    expect(
+      screen.getByRole('button', { name: 'Prepare 2 photos to send' }),
+    ).toBeEnabled();
+    await new Promise((r) => setTimeout(r, 20));
+    expect(photoFetch).not.toHaveBeenCalled();
+  });
+
+  it('Tap "Prepare photos" → the photos are fetched with an n-of-m progress, then the button shares', async () => {
+    const { held } = heldFetches();
+    webShare();
+    renderWithIntl(
+      <BatchSendToWorker
+        worker={worker}
+        issues={[issueWith(1), issueWith(2)]}
+        onSent={vi.fn()}
+      />,
+    );
+    const user = userEvent.setup();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Prepare 4 photos to send' }),
+    );
+    expect(held.map((h) => h.url)).toEqual([
+      'https://blob.test/photos/1-1.jpg',
+      'https://blob.test/photos/1-2.jpg',
+      'https://blob.test/photos/2-1.jpg',
+      'https://blob.test/photos/2-2.jpg',
+    ]);
+    expect(
+      screen.getByRole('button', { name: 'Preparing photos 0 of 4…' }),
+    ).toBeDisabled();
+    expect(screen.getByRole('progressbar')).toHaveAttribute(
+      'aria-valuenow',
+      '0',
+    );
+
+    held[0].answer();
+    expect(
+      await screen.findByRole('button', { name: 'Preparing photos 1 of 4…' }),
+    ).toBeDisabled();
+    expect(screen.getByRole('progressbar')).toHaveAttribute(
+      'aria-valuenow',
+      '1',
+    );
+
+    held.slice(1).forEach((h) => h.answer());
+    expect(
+      await screen.findByRole('button', { name: /Send 2 assigned issues/ }),
+    ).toBeEnabled();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
+
+  it('Share after the photos are ready → navigator.share is called inside the click handler (user activation)', async () => {
+    const web = webShare();
+    renderWithIntl(<SendToWorker issue={issueWith(14)} onSent={vi.fn()} />);
+    const user = userEvent.setup();
+    const ready = await prepare(user);
+
+    // Dispatching the click runs its handler synchronously: the share must already have started.
+    fireEvent.click(ready);
+    expect(web.share).toHaveBeenCalledTimes(1);
+    expect(shared(web.share)[0].names).toEqual(['#14-1.jpg', '#14-2.jpg']);
+  });
+
+  it('Cancel while preparing → every photo download is aborted and nothing more is fetched', async () => {
+    const { held, fetchMock } = heldFetches();
+    const web = webShare();
+    renderWithIntl(
+      <BatchSendToWorker
+        worker={worker}
+        issues={[issueWith(1), issueWith(2)]}
+        onSent={vi.fn()}
+      />,
+    );
+    const user = userEvent.setup();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Prepare 4 photos to send' }),
+    );
+    held[0].answer();
+    await screen.findByRole('button', { name: 'Preparing photos 1 of 4…' });
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(held.slice(1).every((h) => h.signal?.aborted)).toBe(true);
+    expect(
+      await screen.findByRole('button', { name: 'Prepare 4 photos to send' }),
+    ).toBeEnabled();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    await new Promise((r) => setTimeout(r, 20));
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(web.share).not.toHaveBeenCalled();
   });
 });

@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useRef, useState } from 'react';
 import {
   BULK_IDS_MAX,
   buildBatchMessage,
@@ -17,15 +17,13 @@ import { chunk } from '@/lib/all-pages';
 import { bulkIssues, changeIssueStatus } from '@/lib/issue-endpoints';
 import { photosOf, toIssueState } from '@/lib/issue-state';
 import {
-  canShareFiles,
-  loadIssuePhotos,
   packetContent,
   photoBaseUrl,
   planShares,
   shareInParts,
-  type IssuePhotos,
 } from '@/lib/whatsapp-share';
 import { SendFlow } from './send-flow';
+import { usePreparedPhotos } from './use-prepared-photos';
 
 /** Messages to workers are written in Arabic (business §5.5). */
 const MESSAGE_LANG: Locale = 'ar';
@@ -34,35 +32,9 @@ const beforeUrls = (issue: Issue): string[] =>
   photosOf(issue.photos, 'before').map((p) => p.url);
 
 /**
- * The issues' before-photos as files, fetched ahead while the browser can share files (so the
- * share keeps the tap's user activation); `null` where it can't, and the link carries them.
- * Refetched only when the issues or their photos change.
- */
-function usePhotoFiles(
-  issues: readonly Issue[],
-): RefObject<Promise<IssuePhotos<Issue>[]> | null> {
-  const files = useRef<Promise<IssuePhotos<Issue>[]> | null>(null);
-  const current = useRef(issues);
-  useEffect(() => {
-    current.current = issues;
-  });
-  const key = issues.map((i) => `${i.id}:${beforeUrls(i).join(',')}`).join('|');
-
-  useEffect(() => {
-    files.current = canShareFiles()
-      ? Promise.all(
-          current.current.map((issue) =>
-            loadIssuePhotos(issue, beforeUrls(issue)),
-          ),
-        )
-      : null;
-  }, [key]);
-  return files;
-}
-
-/**
  * "Send on WhatsApp" for one issue. Where the phone can share files, the before-photos go as files
- * with the text as their caption (no links); else wa.me opens with the text and photo links.
+ * with the text as their caption (no links) — downloaded on the first tap, shared on the next;
+ * else wa.me opens with the text and photo links.
  * "Mark as sent?" is asked only when `sent` is a forward move the rules allow.
  */
 export function SendToWorker({
@@ -74,7 +46,7 @@ export function SendToWorker({
 }) {
   const t = useTranslations('send');
   const worker = issue.worker;
-  const files = usePhotoFiles([issue]);
+  const { preparation, items } = usePreparedPhotos([issue], beforeUrls);
 
   const state = toIssueState(issue);
   const askToMarkSent =
@@ -85,9 +57,10 @@ export function SendToWorker({
       label={t('button')}
       disabledReason={worker ? null : t('needsWorker')}
       askToMarkSent={askToMarkSent}
-      share={async () =>
+      prepare={preparation}
+      share={() =>
         shareInParts({
-          packets: files.current ? planShares(await files.current) : [],
+          packets: items ? planShares(items) : [],
           caption: (packet, part) =>
             buildIssueMessage(issue, MESSAGE_LANG, {
               withPhotoLinks: false,
@@ -109,8 +82,8 @@ export function SendToWorker({
  * Batch send from a worker's page (business §5.5): every one of the worker's `assigned` issues,
  * then — on yes — marked sent together in one bulk call. Issues in any other status are left out.
  * More than BULK_IDS_MAX go in consecutive batches: one message and one bulk call per batch. Where
- * the phone can share files, all the batch's photos go as files — in several shares when the
- * browser won't take them in one. After a yes the page reloads (the sent ones leave `assigned`,
+ * the phone can share files, all the batch's photos go as files — downloaded only once he taps
+ * "Prepare photos", then in several shares when the browser won't take them in one. After a yes the page reloads (the sent ones leave `assigned`,
  * the next batch comes first); after a "Not yet" the next tap moves on to the next batch.
  */
 export function BatchSendToWorker({
@@ -128,7 +101,7 @@ export function BatchSendToWorker({
   const [index, setIndex] = useState(0);
   const part = batches.length === 0 ? 0 : index % batches.length;
   const batch = batches[part] ?? [];
-  const files = usePhotoFiles(batch);
+  const { preparation, items } = usePreparedPhotos(batch, beforeUrls);
   // The batch handed to WhatsApp: "Mark as sent?" marks exactly those.
   const shared = useRef<Issue[]>([]);
 
@@ -154,10 +127,11 @@ export function BatchSendToWorker({
       disabledReason={disabledReason}
       askToMarkSent
       confirmBody={t('batch.confirmBody', { count: batch.length })}
-      share={async () => {
+      prepare={preparation}
+      share={() => {
         shared.current = batch;
         return shareInParts({
-          packets: files.current ? planShares(await files.current) : [],
+          packets: items ? planShares(items) : [],
           caption: (packet, sharePart) => {
             const content = packetContent(packet);
             return buildBatchMessage(content.issues, worker, MESSAGE_LANG, {

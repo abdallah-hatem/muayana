@@ -42,7 +42,7 @@ issues they hold.
 priority, and the photos. On a phone that can share files, the **photo files themselves** go through the
 share sheet with the text as their caption (no photo links in the text); the engineer picks the chat in
 WhatsApp. Where file sharing isn't available (most desktops), a WhatsApp link to the contractor's chat
-opens with the text and links to the photos. **DECIDED** (owner, 2026-11-09) If a photo can't be fetched
+opens with the text and links to the photos. **DECIDED** The photos are downloaded only when the engineer starts a send ("Prepare photos", with an n-of-m count he can cancel) — never when a page opens — and the next tap shares them. **DECIDED** (2026-11-09, mobile data) (owner, 2026-11-09) If a photo can't be fetched
 for sharing, the others are shared and the caption says which one is missing. **GUESS** Re-sending an issue
 that is already `sent` or further along never asks and never moves it back. **GUESS** When the
 engineer comes back, the app asks "Mark as sent?"; only his yes changes the status. **DECIDED**
