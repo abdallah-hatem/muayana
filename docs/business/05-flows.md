@@ -4,7 +4,7 @@
 1. Choose a site (the last one used is preselected).
 2. Open the camera and take the photo(s). They are compressed on the phone.
 3. One sheet then holds everything for the issue: place, description, **trade**, **contractor** (only
-   active contractors of the chosen trade), priority — all optional. Saving creates the issue in one go:
+   active contractors of the chosen trade), priority — all optional, and all saved with the issue. Saving creates the issue in one go:
    photo only → `new`; trade + description → `unassigned`; + contractor → `assigned`. More photos can be
    added to the same issue before saving. **DECIDED** (owner, 2026-11-09: trade first, then contractor)
 4. Keep shooting. "Add to the previous issue" attaches the next photo to the last issue instead.
@@ -70,7 +70,7 @@ From the issue page, in one tap each: set the estimate date (→ `estimated`), m
 `solved` (optionally with after photos and a note), cancel with a reason, reopen.
 
 ## 5.7 Workers
-List: name, categories, phone, open issues by status, overdue count. Search and filter by category.
+List: name, categories, phone, issues by status (open ones, plus solved and cancelled counts), overdue count. Search and filter by category.
 Detail: call and WhatsApp buttons, categories, notes, and the worker's issues grouped by status.
 
 ## 5.8 Issues list
