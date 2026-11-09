@@ -21,7 +21,8 @@
     "NOT_NEW": "Only an unsorted issue can be changed this way.",
     "NOT_FOUND": "This issue no longer exists.",
     "VALIDATION_FAILED": "Some details aren't valid. Check them and try again.",
-    "UNSUPPORTED_MEDIA_TYPE": "Only JPEG, PNG or WebP photos."
+    "UNSUPPORTED_MEDIA_TYPE": "Only JPEG, PNG or WebP photos.",
+    "WORKER_HAS_ISSUES": "This worker has issues."
   },
   "reasons": {
     "current": "It is already in this status.",
@@ -104,7 +105,13 @@
   },
   "delete": {
     "button": "Delete issue",
-    "title": "Delete this issue?",
-    "body": "It hasn't been sorted yet. Its photos are deleted with it."
+    "title": "Delete issue #{number}?",
+    "body": "#{number} and its {count, plural, one {# photo} other {# photos}} will be deleted permanently, with its history. This can't be undone.",
+    "confirm": "Delete permanently",
+    "done": "Issue #{number} deleted."
+  },
+  "former": {
+    "name": "{name} (deleted)",
+    "hint": "This worker was deleted. His name is kept as a record."
   }
 }

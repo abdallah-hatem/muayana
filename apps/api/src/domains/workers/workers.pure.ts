@@ -6,10 +6,12 @@ import {
   type CategoryRef,
   type Locale,
   type Worker,
+  type WorkerIssuesSummary,
 } from '@muayana/shared';
 import {
   emptyTally,
   openCount,
+  totalCount,
   type StatusTally,
 } from '../../common/utils/issue-counts.util';
 import type { WorkerRow } from './repositories/workers.repository';
@@ -121,3 +123,24 @@ export function workersCsv(workers: readonly Worker[], lang: Locale): string {
     CSV_HEADERS[lang],
   );
 }
+
+/** The `data` of a 409 WORKER_HAS_ISSUES: what deleting him would touch (business §3, §6.8). */
+export function workerIssuesSummary(
+  tally: StatusTally,
+  photos: number,
+): WorkerIssuesSummary {
+  return {
+    open: openCount(tally),
+    solved: tally.solved,
+    cancelled: tally.cancelled,
+    total: totalCount(tally),
+    photos,
+  };
+}
+
+/**
+ * The history note on each open issue a deleted contractor leaves behind ("keep the issues",
+ * §3). Both languages: the note is shown as written, whatever the reader's language.
+ */
+export const deletedContractorNote = (name: string): string =>
+  `حُذف المقاول «${name}» · Contractor ${name} was deleted`;

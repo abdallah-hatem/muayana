@@ -52,3 +52,24 @@ export const UpdateWorkerRequestSchema =
   CreateWorkerRequestSchema.partial().extend({
     active: z.boolean().optional(),
   });
+
+/** What happens to a deleted contractor's issues (business §3): asked every time. */
+export const WORKER_ISSUES_CHOICES = ['keep', 'delete'] as const;
+export const WorkerIssuesChoiceSchema = z.enum(WORKER_ISSUES_CHOICES);
+
+/** `DELETE /workers/:id?issues=keep|delete` — `issues` only needed when he has issues. */
+export const DeleteWorkerQuerySchema = z.object({
+  issues: WorkerIssuesChoiceSchema.optional(),
+});
+
+/**
+ * The `data` of a 409 WORKER_HAS_ISSUES: his issues by kind and the photos they hold, so the UI
+ * can ask what to do with them. `open` = assigned, sent, estimated, in_progress.
+ */
+export const WorkerIssuesSummarySchema = z.object({
+  open: z.number().int(),
+  solved: z.number().int(),
+  cancelled: z.number().int(),
+  total: z.number().int(),
+  photos: z.number().int(),
+});

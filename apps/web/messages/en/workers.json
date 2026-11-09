@@ -87,15 +87,24 @@
     "title": "Delete this worker?",
     "body": "He has no issues. Deleting him can't be undone.",
     "confirm": "Delete",
-    "inUseTitle": "This worker has issues",
-    "inUseBody": "A worker with issues is deactivated, never deleted. He keeps his issues and can't get new ones.",
-    "deactivateInstead": "Deactivate instead"
+    "withIssuesTitle": "{name} has issues",
+    "withIssuesBody": "{issues, plural, one {# issue} other {# issues}}: {open} open, {solved} solved, {cancelled} cancelled. What happens to them?",
+    "keep": "Keep the issues",
+    "keepHint": "Open ones go back to Unassigned. Solved and cancelled ones keep his name.",
+    "destroy": "Delete his {issues, plural, one {# issue} other {# issues}} and {photos, plural, one {# photo} other {# photos}} too",
+    "destroyHint": "Permanently, with their history. Can't be undone.",
+    "destroyTitle": "Delete everything?",
+    "destroyBody": "{name}, his {issues, plural, one {# issue} other {# issues}} and {photos, plural, one {# photo} other {# photos}} will be deleted permanently. This can't be undone.",
+    "destroyConfirm": "Delete permanently",
+    "back": "Back"
   },
   "toast": {
     "created": "Worker added.",
     "saved": "Worker saved.",
     "deactivated": "Worker deactivated.",
     "activated": "Worker activated.",
-    "deleted": "Worker deleted."
+    "deleted": "Worker deleted.",
+    "deletedKept": "Worker deleted. His issues were kept.",
+    "deletedWithIssues": "Worker and his issues deleted."
   }
 }

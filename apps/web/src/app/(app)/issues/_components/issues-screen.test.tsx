@@ -40,6 +40,7 @@ function issue(n: number, patch: Partial<Issue> = {}): Issue {
       name: 'Sayed',
       phone: '01012345678',
     },
+    formerWorkerName: null,
     estimatedDate: null,
     capturedAt: '2026-11-01T08:00:00Z',
     createdAt: '2026-11-01T08:00:00Z',

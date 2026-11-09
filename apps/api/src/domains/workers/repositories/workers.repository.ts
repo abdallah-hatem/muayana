@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { Prisma } from '@prisma/client';
+import type { IssueStatus, Prisma } from '@prisma/client';
 import type { Paginated } from '../../../common/interfaces/api-response.interface';
 import type { Tx } from '../../../common/interfaces/transaction.interface';
 import type { StatusCountRow } from '../../../common/utils/issue-counts.util';
@@ -155,12 +155,93 @@ export class WorkersRepository {
     });
   }
 
-  async delete(id: string): Promise<void> {
-    await this.db.worker.delete({ where: { id } });
+  // ------------------------------------------------- permanent delete (§3)
+
+  /** Locks the worker's row until the transaction ends; his name, or null when he is gone. */
+  async lockForDelete(
+    tx: Tx,
+    id: string,
+  ): Promise<{ id: string; name: string } | null> {
+    const rows = await tx.$queryRaw<{ id: string; name: string }[]>`
+      SELECT id, name FROM workers WHERE id = ${id}::uuid FOR UPDATE`;
+    return rows[0] ?? null;
   }
 
-  countIssues(workerId: string): Promise<number> {
-    return this.db.issue.count({ where: { workerId } });
+  /** His issues per status, and the photos they hold. */
+  async issueFootprint(
+    tx: Tx,
+    workerId: string,
+  ): Promise<{ byStatus: StatusCountRow[]; photos: number }> {
+    // One after the other: a transaction holds a single connection.
+    const byStatus = await tx.issue.groupBy({
+      by: ['status'],
+      where: { workerId },
+      _count: { _all: true },
+    });
+    const photos = await tx.photo.count({ where: { issue: { workerId } } });
+    return {
+      byStatus: byStatus.map((row) => ({
+        key: workerId,
+        status: row.status,
+        count: row._count._all,
+      })),
+      photos,
+    };
+  }
+
+  /**
+   * "Keep the issues": his open ones (any status but `closed`) go back to `unassigned` with the
+   * estimate cleared and one history row each carrying `note`; the closed ones keep their status,
+   * lose him and keep `name` as a record (§3, §6.2, §6.7).
+   */
+  async releaseIssues(
+    tx: Tx,
+    workerId: string,
+    name: string,
+    closed: readonly IssueStatus[],
+    note: string,
+  ): Promise<void> {
+    const open = await tx.issue.findMany({
+      where: { workerId, status: { notIn: [...closed] } },
+      select: { id: true, status: true },
+    });
+    if (open.length > 0) {
+      await tx.issue.updateMany({
+        where: { id: { in: open.map((i) => i.id) } },
+        data: { status: 'unassigned', workerId: null, estimatedDate: null },
+      });
+      await tx.statusChange.createMany({
+        data: open.map((i) => ({
+          issueId: i.id,
+          from: i.status,
+          to: 'unassigned' as const,
+          note,
+        })),
+      });
+    }
+    await tx.issue.updateMany({
+      where: { workerId, status: { in: [...closed] } },
+      data: { workerId: null, formerWorkerName: name },
+    });
+  }
+
+  /** The storage keys of every photo on his issues (read before they are deleted). */
+  async photoKeysOfIssues(tx: Tx, workerId: string): Promise<string[]> {
+    const photos = await tx.photo.findMany({
+      where: { issue: { workerId } },
+      select: { storageKey: true },
+    });
+    return photos.map((p) => p.storageKey);
+  }
+
+  /** "Delete his issues too": every issue he has, with photos and history (they cascade). */
+  async deleteIssues(tx: Tx, workerId: string): Promise<void> {
+    await tx.issue.deleteMany({ where: { workerId } });
+  }
+
+  /** Removes the worker; his category links cascade. */
+  async delete(tx: Tx, id: string): Promise<void> {
+    await tx.worker.delete({ where: { id } });
   }
 
   /** Issue counts per worker and status, and overdue per worker, for `workerIds`. */

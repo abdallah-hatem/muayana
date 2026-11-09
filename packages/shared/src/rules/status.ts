@@ -14,6 +14,11 @@ export interface IssueState {
   workerId: string | null;
   /** `YYYY-MM-DD` */
   estimatedDate: string | null;
+  /**
+   * The deleted contractor's name kept on a closed issue ("keep the issues", §3). It stands in for
+   * the worker of a `solved` issue only (invariant §6.2 exception) — see keepsFormerWorker.
+   */
+  formerWorkerName?: string | null;
 }
 
 /**
@@ -78,14 +83,32 @@ export const requiresWorker = (status: IssueStatus): boolean =>
 const hasText = (value: string | null): boolean =>
   value !== null && value.trim() !== '';
 
-const holds = (state: IssueState, requirement: Requirement): boolean => {
+/**
+ * Invariant §6.2's one exception: a `solved` issue whose contractor was deleted keeps his name
+ * instead of a worker — and stays valid only while it stays `solved` (`to` is `solved` too).
+ * Any other move needs a real worker (reopening lands on `unassigned`, §4).
+ */
+export const keepsFormerWorker = (
+  state: Pick<IssueState, 'status' | 'workerId' | 'formerWorkerName'>,
+  to: IssueStatus,
+): boolean =>
+  state.workerId === null &&
+  state.status === 'solved' &&
+  to === 'solved' &&
+  hasText(state.formerWorkerName ?? null);
+
+const holds = (
+  state: IssueState,
+  requirement: Requirement,
+  status: IssueStatus,
+): boolean => {
   switch (requirement) {
     case 'category':
       return state.categoryId !== null;
     case 'description':
       return hasText(state.description);
     case 'worker':
-      return state.workerId !== null;
+      return state.workerId !== null || keepsFormerWorker(state, status);
     case 'estimatedDate':
       return state.estimatedDate !== null;
     case 'noWorker':
@@ -97,7 +120,8 @@ const holds = (state: IssueState, requirement: Requirement): boolean => {
 export const missingFor = (
   state: IssueState,
   status: IssueStatus,
-): Requirement[] => STATUS_REQUIREMENTS[status].filter((r) => !holds(state, r));
+): Requirement[] =>
+  STATUS_REQUIREMENTS[status].filter((r) => !holds(state, r, status));
 
 export type RuleResult =
   { ok: true } | { ok: false; code: DomainErrorCode; missing: Requirement[] };

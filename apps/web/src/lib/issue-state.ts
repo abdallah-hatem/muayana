@@ -5,12 +5,14 @@ export const toIssueState = (
   issue: Pick<
     Issue,
     'status' | 'category' | 'description' | 'worker' | 'estimatedDate'
-  >,
+  > &
+    Partial<Pick<Issue, 'formerWorkerName'>>,
 ): IssueState => ({
   status: issue.status,
   categoryId: issue.category?.id ?? null,
   description: issue.description,
   workerId: issue.worker?.id ?? null,
+  formerWorkerName: issue.formerWorkerName ?? null,
   estimatedDate: issue.estimatedDate,
 });
 

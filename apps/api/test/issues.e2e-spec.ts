@@ -928,16 +928,6 @@ describe('merge and delete', () => {
     expect(await t.db.issue.count({ where: { id: extra.id } })).toBe(1);
   });
 
-  it('delete non-new issue → 409 NOT_NEW', async () => {
-    const issue = await issueIn('assigned');
-    const res = await request(t.http)
-      .delete(`${ISSUES}/${issue.id}`)
-      .set(auth())
-      .expect(409);
-    expect((res.body as Body<null>).error).toBe(DomainErrorCode.NOT_NEW);
-    expect(await t.db.issue.count({ where: { id: issue.id } })).toBe(1);
-  });
-
   it('delete a new issue removes it with its photos', async () => {
     const issue = await createIssue();
     const res = await request(t.http)

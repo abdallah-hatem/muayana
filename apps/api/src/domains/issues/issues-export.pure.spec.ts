@@ -28,6 +28,7 @@ function row(over: Partial<IssueRow> = {}): IssueRow {
     priority: 'high',
     description: '=SUM(A1)',
     location: 'Kitchen',
+    formerWorkerName: null,
     estimatedDate: new Date('2026-11-08T00:00:00Z'),
     capturedAt: new Date('2026-11-01T08:00:00Z'),
     createdAt: new Date('2026-11-01T08:00:00Z'),

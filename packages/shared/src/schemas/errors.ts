@@ -31,6 +31,7 @@ export const DomainErrorCode = {
   INACTIVE_CATEGORY: 'INACTIVE_CATEGORY',
   ARCHIVED_SITE: 'ARCHIVED_SITE',
   NOT_NEW: 'NOT_NEW',
+  WORKER_HAS_ISSUES: 'WORKER_HAS_ISSUES',
 } as const;
 export type DomainErrorCode =
   (typeof DomainErrorCode)[keyof typeof DomainErrorCode];

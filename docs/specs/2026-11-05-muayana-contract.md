@@ -51,11 +51,11 @@ unguessable URLs (Blob) or `/uploads/*` locally.
 | GET | `/workers/:id` | — | Worker |
 | POST | `/workers` | `{ name (1–120), phone, categoryIds (≥1), notes? }` | Worker · 400 bad phone · 409 INACTIVE_CATEGORY · 409 duplicate phone |
 | PATCH | `/workers/:id` | partial + `active?` | Worker |
-| DELETE | `/workers/:id` | — | `{ id }` · 409 has issues |
+| DELETE | `/workers/:id` | `?issues=keep\|delete` (needed only when he has issues) | `{ id }` — permanent (business §3). No issues → deleted. Has issues and no `issues` → 409 WORKER_HAS_ISSUES, `data: { open, solved, cancelled, total, photos }`, nothing changes. `keep`: open issues (assigned/sent/estimated/in_progress) → `unassigned`, estimate cleared, one history row each with a note naming him; solved/cancelled keep their status, lose the worker and get `formerWorkerName`. `delete`: every issue he has, with photos and history. Then the worker and his category links. One transaction; photo files removed after commit, best-effort · 400 bad `issues` · 404 |
 | GET | `/workers/export.csv` | same filters as list | CSV |
 
 ## Issues
-`Issue = { id, siteId, site: { id, name }, number, status, priority, description, location, category: CategoryRef|null, worker: { id, name, phone }|null, estimatedDate, capturedAt, createdAt, updatedAt, assignedAt, sentAt, solvedAt, overdue, photos: Photo[] }`
+`Issue = { id, siteId, site: { id, name }, number, status, priority, description, location, category: CategoryRef|null, worker: { id, name, phone }|null, formerWorkerName: string|null (a deleted contractor's name kept on the issue — shown marked "deleted"), estimatedDate, capturedAt, createdAt, updatedAt, assignedAt, sentAt, solvedAt, overdue, photos: Photo[] }`
 `Photo = { id, kind, url, width, height, sortOrder, createdAt }`
 `StatusChange = { id, from, to, note, createdAt }`
 
@@ -70,7 +70,7 @@ unguessable URLs (Blob) or `/uploads/*` locally.
 | POST | `/issues/:id/status` | `{ status, note? (≤1000), estimatedDate? }` | Issue · 409 requirements not met / back to new |
 | POST | `/issues/bulk` | `{ ids (1–200), categoryId?, status?, workerId?, note? }` | `{ updated: number, issues: Issue[] }` — all-or-nothing; 409 lists the ids that fail |
 | POST | `/issues/:id/merge` | `{ sourceId }` (both `new`) | Issue (target) · 409 not both new / over 10 photos |
-| DELETE | `/issues/:id` | — | `{ id }` · 409 not `new` |
+| DELETE | `/issues/:id` | — | `{ id }` — permanent, any status (business §3): the issue, its photos and status history in one transaction; photo files removed from storage after commit, best-effort (a failure is logged). The site's number counter is untouched (never reused) |
 | GET | `/issues/export.csv` | `IssueFilter` + `columns` (comma list) + `lang` | CSV |
 | GET | `/issues/history.csv` | `IssueFilter` + `lang` | CSV |
 
@@ -82,5 +82,5 @@ unguessable URLs (Blob) or `/uploads/*` locally.
 ## Errors
 400 validation (field messages in `error`) · 401 not signed in · 404 unknown id · 409 rule refused with a
 coded message (`ISSUE_REQUIREMENTS`, `BACK_TO_NEW`, `LAST_PHOTO`, `PHOTO_LIMIT`, `IN_USE`, `DUPLICATE`,
-`WORKER_LACKS_CATEGORY`, `INACTIVE_WORKER`, `INACTIVE_CATEGORY`, `ARCHIVED_SITE`, `NOT_NEW`) · 413 file
+`WORKER_LACKS_CATEGORY`, `INACTIVE_WORKER`, `INACTIVE_CATEGORY`, `ARCHIVED_SITE`, `NOT_NEW`, `WORKER_HAS_ISSUES`) · 413 file
 too large · 429 rate-limited.

@@ -3,6 +3,7 @@ import type { IssueStatus } from '../schemas/enums';
 import {
   type IssueState,
   type Requirement,
+  keepsFormerWorker,
   missingFor,
   requiresWorker,
 } from './status';
@@ -134,7 +135,13 @@ export const applyPatch = (
   let to: IssueStatus = from;
   const sorted = next.categoryId !== null && next.description !== null;
   if (to === 'new' && sorted) to = 'unassigned';
-  if (next.workerId === null && requiresWorker(to)) to = 'unassigned';
+  if (
+    next.workerId === null &&
+    requiresWorker(to) &&
+    !keepsFormerWorker(next, to)
+  ) {
+    to = 'unassigned';
+  }
   if (to === 'unassigned' && next.workerId !== null) to = 'assigned';
   if (patch.estimatedDate != null && (to === 'assigned' || to === 'sent')) {
     to = 'estimated';

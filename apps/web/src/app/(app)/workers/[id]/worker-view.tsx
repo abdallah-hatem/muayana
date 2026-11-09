@@ -19,9 +19,9 @@ import {
   type Issue,
   type IssueStatus,
   type Worker,
+  type WorkerIssuesChoice,
 } from '@muayana/shared';
 import { BottomSheet } from '@/components/bottom-sheet';
-import { ConfirmSheet } from '@/components/confirm-sheet';
 import { IssueRow } from '@/components/issue-row';
 import { LoadError } from '@/components/load-error';
 import { PageHeader } from '@/components/page-header';
@@ -34,7 +34,6 @@ import { usePendingAction } from '@/components/use-pending-action';
 import type { ApiResult } from '@/lib/api-result';
 import { categoryName } from '@/lib/category-name';
 import {
-  deleteWorker,
   getWorker,
   listWorkerIssues,
   updateWorker,
@@ -43,6 +42,7 @@ import { listActiveCategories } from '@/lib/issue-endpoints';
 import { ROUTES } from '@/lib/routes';
 import { telUrl, whatsappChatUrl } from '@/lib/whatsapp-share';
 import { WorkerForm } from '../worker-form';
+import { DeleteWorkerSheet, issuesSummaryOf } from './delete-worker-sheet';
 import { SendExcel } from './send-excel';
 import { InactiveBadge, WorkerAvatar, WorkerCountChips } from '../worker-bits';
 
@@ -83,7 +83,7 @@ async function listAllWorkerIssues(
 /**
  * A worker's page (business §5.7): call and WhatsApp, categories, notes, counts, his issues by
  * status, and the batch send of his `assigned` issues (§5.5). Edit, deactivate / activate, and
- * delete only without issues — one with issues offers "Deactivate instead" (invariant §6.8).
+ * delete permanently — with issues, asking every time what happens to them (§3, invariant §6.8).
  */
 export function WorkerView({ initial }: { initial: Worker }) {
   const t = useTranslations('workers');
@@ -96,8 +96,6 @@ export function WorkerView({ initial }: { initial: Worker }) {
   const [version, setVersion] = useState(0);
   const [editing, setEditing] = useState<Category[] | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [deleteInUse, setDeleteInUse] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
   const action = usePendingAction();
   const openingEdit = usePendingAction();
 
@@ -134,7 +132,6 @@ export function WorkerView({ initial }: { initial: Worker }) {
       const res = await updateWorker(worker.id, { active });
       if (res.success) {
         setWorker(res.data);
-        setDeleting(false);
         toast.success(t(active ? 'toast.activated' : 'toast.deactivated'));
       } else if (res.status !== 401) toast.error(errorText(res));
     });
@@ -148,26 +145,17 @@ export function WorkerView({ initial }: { initial: Worker }) {
     });
   }
 
-  const issueCount =
-    issues.state === 'ready'
-      ? issues.issues.length
-      : worker.counts.open + worker.counts.solved + worker.counts.cancelled;
-
-  function askDelete() {
-    setDeleteError(null);
-    setDeleteInUse(issueCount > 0);
-    setDeleting(true);
-  }
-
-  async function confirmDelete() {
-    await action.run(async () => {
-      const res = await deleteWorker(worker.id);
-      if (res.success) {
-        toast.success(t('toast.deleted'));
-        router.push(ROUTES.workers);
-      } else if (res.status === 409) setDeleteInUse(true);
-      else if (res.status !== 401) setDeleteError(errorText(res));
-    });
+  function deleted(choice: WorkerIssuesChoice | null) {
+    toast.success(
+      t(
+        choice === 'keep'
+          ? 'toast.deletedKept'
+          : choice === 'delete'
+            ? 'toast.deletedWithIssues'
+            : 'toast.deleted',
+      ),
+    );
+    router.push(ROUTES.workers);
   }
 
   return (
@@ -322,7 +310,7 @@ export function WorkerView({ initial }: { initial: Worker }) {
           disabled={action.pending}
           onClick={() => void setActive(!worker.active)}
         >
-          {action.pending && !deleting ? (
+          {action.pending ? (
             <Loader2 className="animate-spin" aria-hidden />
           ) : worker.active ? (
             <CircleOff aria-hidden />
@@ -335,7 +323,8 @@ export function WorkerView({ initial }: { initial: Worker }) {
           type="button"
           variant="ghost"
           className="text-destructive"
-          onClick={askDelete}
+          disabled={issues.state !== 'ready'}
+          onClick={() => setDeleting(true)}
         >
           <Trash2 aria-hidden />
           {t('actions.delete')}
@@ -355,33 +344,15 @@ export function WorkerView({ initial }: { initial: Worker }) {
         />
       )}
 
-      <ConfirmSheet
-        open={deleting}
-        onOpenChange={setDeleting}
-        title={t(deleteInUse ? 'delete.inUseTitle' : 'delete.title')}
-        body={t(deleteInUse ? 'delete.inUseBody' : 'delete.body')}
-        confirmLabel={t('delete.confirm')}
-        destructive
-        busy={action.pending}
-        error={deleteError}
-        onConfirm={() => void confirmDelete()}
-        alternative={
-          !deleteInUse ? undefined : worker.active ? (
-            <Button
-              type="button"
-              disabled={action.pending}
-              onClick={() => void setActive(false)}
-            >
-              {action.pending ? (
-                <Loader2 className="animate-spin" aria-hidden />
-              ) : (
-                <CircleOff aria-hidden />
-              )}
-              {t('delete.deactivateInstead')}
-            </Button>
-          ) : null
-        }
-      />
+      {issues.state === 'ready' && (
+        <DeleteWorkerSheet
+          worker={worker}
+          summary={issuesSummaryOf(issues.issues)}
+          open={deleting}
+          onOpenChange={setDeleting}
+          onDeleted={deleted}
+        />
+      )}
     </section>
   );
 }

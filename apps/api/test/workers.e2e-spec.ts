@@ -167,7 +167,7 @@ describe('Workers (e2e)', () => {
       await post({ name: 'A', phone, categoryIds: [cat.id] }).expect(400);
   });
 
-  it('Delete worker with issues → 409; deactivate instead → ok, keeps issues (§6.8)', async () => {
+  it('Delete worker with issues and no choice → 409 WORKER_HAS_ISSUES; deactivate instead → ok, keeps issues (§6.8)', async () => {
     const site = await makeSite(t.db);
     const cat = await makeCategory(t.db);
     const busy = await makeWorker(t.db, [cat.id]);
@@ -179,7 +179,7 @@ describe('Workers (e2e)', () => {
     });
 
     const res = await del(busy.id).expect(409);
-    expect(res.body.error).toBe(DomainErrorCode.IN_USE);
+    expect(res.body.error).toBe(DomainErrorCode.WORKER_HAS_ISSUES);
 
     const off = await patch(busy.id, { active: false }).expect(200);
     expect(off.body.data.active).toBe(false);
