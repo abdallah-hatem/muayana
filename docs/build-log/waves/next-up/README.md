@@ -2,3 +2,4 @@
 - Wave 1: N2 alone (touches every ar locale file).
 - Wave 2 after N2: N1 ‖ N3 ‖ N4.
 - N2 merged (0c3d40f) · 65 replacements · web 213, api 144, shared 49. Wave 2: N1 ‖ N3 ‖ N4.
+- N3 merged (cfb4921) · web 226, shared 51 · smoke sort-issue-send + workers 10/10. Follow-up: batch photo prefetch on page open → move to when the send action opens (after N4).

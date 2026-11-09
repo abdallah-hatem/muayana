@@ -49,7 +49,9 @@ engineer comes back, the app asks "Mark as sent?"; only his yes changes the stat
 Batch: from a worker's page, send all of the worker's `assigned` issues (every one of them, up to 200 per
 batch — more are sent in further batches) in one message, then mark them
 sent together. The batch shares the photo files the same way (split into several shares if the phone
-refuses that many files), with links only in the fallback. **DECIDED**
+refuses that many files), with links only in the fallback. **DECIDED** When it takes several shares, each one needs
+its own tap ("Share part 2 of 3") and "Mark as sent?" comes after the last; cancelling any part starts
+over. **GUESS**
 **Send as Excel:** from a contractor's page, one action builds an Excel file of his issues (by default
 the `assigned` ones) with the columns chosen the same way as the issues CSV export (§7), headers in the
 current language, and each issue's photos embedded in its row as small pictures. It is shared to
