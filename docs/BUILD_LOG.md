@@ -9,7 +9,7 @@ Current stage: **released 2026-11-09** — PR #3 (permanent delete of issues and
 - Decisions worth reviewing first: [foundation decisions](build-log/decisions/foundation.md) (statuses incl. `new`/`cancelled`, WhatsApp via share sheet + "Mark as sent?", public unguessable photo URLs, design direction) and the GUESS rules in `docs/business/*.md`.
 
 ## Waiting on the user
-- `feat/capture-sheet` on the other PC is superseded by N1 (owner: "do all here") — don't merge it.
+- **Ship** the install card + sheets-open-with-the-keyboard-down fix: restored on `dev` 2026-11-09 from the deleted `feat/capture-sheet` branch (6538c39, 8b74750); web 286 tests, typecheck, lint pass. No migration. Not yet on `production`.
 ## Next up
 - (none queued) — the 2026-11-09 batch is built: N1 one-sheet capture (trade → contractor), N2 «مقاول», N3 WhatsApp photo files, N4 contractor Excel with embedded photos, plus on-demand photo loading for sends and the UI-audit fixes. Spec `docs/specs/2026-11-09-capture-sheet-contractor-whatsapp-excel.md`, waves `build-log/waves/next-up/`.
 
