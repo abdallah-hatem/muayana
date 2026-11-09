@@ -1,7 +1,7 @@
 # Build log
 Run mode: fully autonomous — chosen by the user on 2026-11-05 (re-confirmed after the mockup: "go ahead, continue fully autonomous")
 Goal (current): mobile-first web app for an audit engineer — capture defect photos on site, sort them into trade categories, assign to workers (no accounts), track statuses, worker views, CSV export of any filter · spec `docs/specs/2026-11-05-muayana.md` · plan `docs/superpowers/plans/2026-11-05-muayana-v1.md`
-Current stage: **v1 live** — release PR #1 merged and deployed 2026-11-06 (muayana-web.vercel.app / muayana-api.vercel.app, Neon + Blob in Frankfurt). Post-v1 fixes shipped the same day (unused category colours, site switcher, 10-row pages). Capture redesign waiting on `feat/capture-sheet`.
+Current stage: **next-up batch built and verified on dev** (lint, typecheck, shared 61, api 147 + 138 e2e, web 274, smoke 24/24 on a production build, UI audit fixed). Shipping: release PR dev → production (owner: "finish then ship", 2026-11-09).
 
 ## Final state (2026-11-05)
 - All plan tasks T1–T12 merged into `dev`, plus fixes: smoke (abort hung reads on unmount, ×2), UI audit wave (kit + screens), re-audit polish, deploy readiness, DB-backed login lockout, seed photos through storage.
@@ -9,32 +9,9 @@ Current stage: **v1 live** — release PR #1 merged and deployed 2026-11-06 (mua
 - Decisions worth reviewing first: [foundation decisions](build-log/decisions/foundation.md) (statuses incl. `new`/`cancelled`, WhatsApp via share sheet + "Mark as sent?", public unguessable photo URLs, design direction) and the GUESS rules in `docs/business/*.md`.
 
 ## Waiting on the user
-- (`feat/capture-sheet` on the other PC is superseded by N1 — owner: "do all here".)
+- `feat/capture-sheet` on the other PC is superseded by N1 (owner: "do all here") — don't merge it.
 ## Next up
-Queued by the owner on 2026-11-09. **In progress** — spec `docs/specs/2026-11-09-capture-sheet-contractor-whatsapp-excel.md`, plan `docs/superpowers/plans/2026-11-09-next-up.md`, waves `build-log/waves/next-up/`. Owner 2026-11-09: build all here (unpushed `feat/capture-sheet` not used); trade first, then contractor.
-
-1. **One sheet for the whole capture.** After taking the picture(s), the same sheet takes the
-   place, the description **and the worker** it is assigned to, so an issue is captured and
-   assigned in one go. Builds on the capture sheet on `feat/capture-sheet` (not merged yet).
-   - Open point: does the sheet also pick the category (trade), or is it taken from the worker?
-
-2. **"Worker" becomes «مقاول» in Arabic** everywhere in the app (nav, screens, sheets, messages,
-   CSV headers). English stays "Worker" unless he says otherwise.
-
-3. **WhatsApp: send the photos themselves, not a link.** The photo(s) go with the place and the
-   description as text under them.
-   - How: the phone's share sheet (Web Share API with files) sends the image files plus a caption to
-     WhatsApp. He then picks the chat in WhatsApp: a share with files cannot open a given phone
-     number's chat directly (only a text link can). iPhone Safari and Android Chrome support it;
-     desktop browsers mostly don't, so keep the link message as the fallback there.
-   - Today's message sends public photo links (business §6.10); update §5.5/§6.10 when this lands.
-
-4. **Send a worker's issues as an Excel file on WhatsApp.** When a worker has several issues
-   assigned, one action builds an .xlsx of them (number, place, description, status, due date…)
-   and shares it to WhatsApp through the same share sheet.
-   - Columns are picked the same way as the Issues page's CSV export (its column chooser), with
-     the header language as there. The photos are embedded in the sheet (images in the rows, not
-     links). Decided by the owner 2026-11-09.
+- (none queued) — the 2026-11-09 batch is built: N1 one-sheet capture (trade → contractor), N2 «مقاول», N3 WhatsApp photo files, N4 contractor Excel with embedded photos, plus on-demand photo loading for sends and the UI-audit fixes. Spec `docs/specs/2026-11-09-capture-sheet-contractor-whatsapp-excel.md`, waves `build-log/waves/next-up/`.
 
 ## Blocked
 - (none)
