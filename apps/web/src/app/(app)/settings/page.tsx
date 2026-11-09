@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { InstallCard } from '@/components/install/install-card';
 import { getMe } from '@/lib/session';
 import {
   LanguageSection,
@@ -16,6 +17,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+      <InstallCard />
       {me ? (
         <ProfileSection name={me.name} email={me.email} />
       ) : (

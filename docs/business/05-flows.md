@@ -90,5 +90,8 @@ dashboard (their issues stay in the issues list and exports when the archived fi
   (current password required, at least 8 characters). He signs out from here.
 - **Language and theme** can also be switched from the top bar; the choice is remembered on the device.
 - **Installable:** the app can be added to the phone's home screen and opens to capture even with no signal.
+  A dismissible "Install the app" card on the dashboard and in Settings offers it: an Install button
+  where the browser supports it (Android Chrome, Edge), the Share → Add to Home Screen steps on
+  iPhone Safari. It is hidden once installed, when opened from the home screen, or once dismissed.
 - **Sample data** exists only when the operator turns it on (local and preview environments), never by default.
 

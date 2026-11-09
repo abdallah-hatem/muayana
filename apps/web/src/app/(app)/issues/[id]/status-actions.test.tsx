@@ -89,6 +89,18 @@ describe('StatusActions', () => {
     ]);
   });
 
+  it('Cancel opens its sheet with no field focused, so the phone keyboard stays down until the reason is tapped', async () => {
+    const issue = assignedIssue(worker, { status: 'in_progress' });
+    const { user } = renderActions(issue);
+    await user.click(screen.getByRole('button', { name: 'Cancel issue' }));
+    const sheet = await screen.findByRole('dialog');
+    const reason = within(sheet).getByLabelText(/Reason/);
+    await waitFor(() => expect(sheet).toHaveFocus());
+    expect(reason).not.toHaveFocus();
+    await user.click(reason);
+    expect(reason).toHaveFocus();
+  });
+
   it('Solve with after-photos uploads them as `after`; cancel reason / solve note sent as the status note (§5.6)', async () => {
     const issue = assignedIssue(worker, { status: 'in_progress' });
     routeApi(clientFetch, {

@@ -1,3 +1,4 @@
+import { InstallPromptListener } from '@/components/install/install-prompt-listener';
 import { QueueSheetProvider } from '@/components/offline-queue/queue-sheet';
 import { QueueSync } from '@/components/offline-queue/queue-sync';
 import { SiteProvider } from '@/components/site/site-context';
@@ -15,6 +16,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <ShellTitleProvider>
         <QueueSheetProvider>
           <QueueSync />
+          <InstallPromptListener />
         <div className="flex min-h-dvh flex-col md:ps-24">
           <TopBar />
           <main className="flex flex-1 flex-col px-4 pt-4 pb-36 md:px-6 md:pb-8">

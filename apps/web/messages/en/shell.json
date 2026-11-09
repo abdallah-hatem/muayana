@@ -13,5 +13,16 @@
   "errors": {
     "NETWORK_ERROR": "Can't reach the server. Check your connection and try again.",
     "generic": "Something went wrong. Try again."
+  },
+  "install": {
+    "title": "Install Muayana",
+    "body": "Open it from your home screen like an app: full screen, one tap away, and it works with no signal.",
+    "action": "Install",
+    "installing": "Installing…",
+    "dismiss": "Not now",
+    "iosTitle": "Add Muayana to your home screen",
+    "iosStep1": "Tap Share in Safari’s toolbar.",
+    "iosStep2": "Choose Add to Home Screen, then Add.",
+    "gotIt": "Got it"
   }
 }
