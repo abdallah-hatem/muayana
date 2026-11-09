@@ -1,4 +1,5 @@
 # Recent changes
+- 2026-11-09 — Owner's next-up: one-sheet capture with trade then contractor (§5.1, §5.2); «مقاول» in Arabic (§2); WhatsApp shares photo files, links only as fallback (§5.5, §6.10); contractor Excel with embedded photos (§5.5, §7). Spec `docs/specs/2026-11-09-capture-sheet-contractor-whatsapp-excel.md`.
 - 2026-11-06 — New category defaults to an unused colour; palette grown to 24, generated colour after that (§3).
 - 2026-11-05 — Sign-in limit (§2): counted in the database (holds across server instances); new 20-per-email ceiling across all IPs. Was a vague GUESS, now the exact rule.
 - 2026-11-05 — Release review: §5.10 directory + settings flows (T2, T8, T9), §5.2 non-retryable refusals (T10), §5.5 batch covers every assigned issue (≤200 per batch), §6.13 send never changes status alone, §6.14 export = list filter.
