@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CSV_BOM,
+  DomainErrorCode,
   type IssueState,
   type WhatsAppIssue,
   applyPatch,
@@ -12,6 +13,7 @@ import {
   escapeCsvCell,
   formatCairoDateTime,
   isOverdue,
+  planCapture,
   normalizeEgyptPhone,
   priorityLabelKey,
   priorityRank,
@@ -329,6 +331,68 @@ describe('applyPatch (§4 automatic moves)', () => {
       state: { workerId: ALI, description: 'Bigger crack' },
       statusChange: null,
     });
+  });
+});
+
+describe('planCapture (§5.1)', () => {
+  const painter = { categoryIds: ['paint'], active: true };
+
+  it('photo only stays new with no move', () => {
+    const r = planCapture({}, { worker: null });
+    expect(r).toMatchObject({ ok: true, statusChange: null });
+    if (r.ok) expect(r.state.status).toBe('new');
+  });
+
+  it('trade + description → unassigned; + contractor → assigned', () => {
+    expect(
+      planCapture({ categoryId: 'paint', description: 'x' }, { worker: null }),
+    ).toMatchObject({
+      ok: true,
+      statusChange: { from: 'new', to: 'unassigned' },
+    });
+    expect(
+      planCapture(
+        { categoryId: 'paint', description: 'x', workerId: 'w' },
+        { worker: painter },
+      ),
+    ).toMatchObject({
+      ok: true,
+      statusChange: { from: 'new', to: 'assigned' },
+    });
+  });
+
+  it('trade without description stays new keeping the trade', () => {
+    const r = planCapture({ categoryId: 'paint' }, { worker: null });
+    expect(r).toMatchObject({
+      ok: true,
+      statusChange: null,
+      state: { status: 'new', categoryId: 'paint' },
+    });
+  });
+
+  it('contractor without trade, without description, lacking the trade, inactive → refused', () => {
+    expect(
+      planCapture({ workerId: 'w', description: 'x' }, { worker: painter }),
+    ).toMatchObject({ ok: false, code: DomainErrorCode.ISSUE_REQUIREMENTS });
+    expect(
+      planCapture({ categoryId: 'paint', workerId: 'w' }, { worker: painter }),
+    ).toMatchObject({
+      ok: false,
+      code: DomainErrorCode.ISSUE_REQUIREMENTS,
+      missing: ['description'],
+    });
+    expect(
+      planCapture(
+        { categoryId: 'elec', description: 'x', workerId: 'w' },
+        { worker: painter },
+      ),
+    ).toMatchObject({ ok: false, code: DomainErrorCode.WORKER_LACKS_CATEGORY });
+    expect(
+      planCapture(
+        { categoryId: 'paint', description: 'x', workerId: 'w' },
+        { worker: { ...painter, active: false } },
+      ),
+    ).toMatchObject({ ok: false, code: DomainErrorCode.INACTIVE_WORKER });
   });
 });
 

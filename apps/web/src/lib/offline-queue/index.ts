@@ -6,17 +6,20 @@ export {
   type QueueStatus,
 } from './db';
 export {
+  commitDraft,
   discardItem,
   enqueue,
   getItem,
   listItems,
   onQueueChange,
+  type CaptureDetails,
   type EnqueueInput,
 } from './queue';
 export {
   MAX_ATTEMPTS,
   backoffMs,
   retryItem,
+  retryWithoutContractor,
   startQueueSync,
   syncQueue,
 } from './sync';

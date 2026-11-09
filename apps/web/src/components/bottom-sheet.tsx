@@ -22,6 +22,8 @@ export function BottomSheet({
   children,
   footer,
   className,
+  keepKeyboardDown = false,
+  testId,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -30,11 +32,26 @@ export function BottomSheet({
   children?: React.ReactNode;
   footer: React.ReactNode;
   className?: string;
+  /**
+   * Opens with focus on the sheet itself, not its first field, so a phone's keyboard stays down
+   * until a field is tapped (the capture sheet).
+   */
+  keepKeyboardDown?: boolean;
+  testId?: string;
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
+        data-testid={testId}
+        onOpenAutoFocus={
+          keepKeyboardDown
+            ? (event) => {
+                event.preventDefault();
+                (event.currentTarget as HTMLElement | null)?.focus();
+              }
+            : undefined
+        }
         className={cn(
           'mx-auto max-h-[calc(100dvh-2rem)] w-full gap-0 rounded-t-xl border-t-4 border-primary pb-safe md:max-w-lg',
           className,

@@ -4,18 +4,11 @@
   "addToPreviousLabel": "Add the next photo to the previous issue",
   "addToPreviousUnavailable": "Take a first photo on this site to add more to it",
   "lastShot": "Last photo",
-  "hint": "One photo = one new issue · add the details later",
+  "hint": "Take the photo, then fill in what you know.",
   "empty": "Tap the shutter to photograph a defect.",
   "saving": "Saving the photo on the phone…",
   "saved": "Saved. It uploads by itself.",
   "attached": "Added to the previous issue.",
-  "location": "Location",
-  "locationPlaceholder": "Floor 3 – Flat 7",
-  "note": "Quick note",
-  "notePlaceholder": "Cracked tile by the bathroom door",
-  "addNote": "Add a note",
-  "hideNote": "Hide the note",
-  "optional": "(optional)",
   "needsConnection": "Needs a connection. Only capture works offline.",
   "offline": "Offline — photos are kept on the phone.",
   "site": {
@@ -46,7 +39,8 @@
     "discardConfirm": "Discard this photo? It hasn't uploaded and can't be brought back.",
     "discardYes": "Yes, discard",
     "keep": "Keep",
-    "thumbnail": "Photo taken {time}"
+    "thumbnail": "Photo taken {time}",
+    "retryWithoutWorker": "Retry without the worker"
   },
   "errors": {
     "ARCHIVED_SITE": "The site is archived, so it can't take new issues.",
@@ -58,6 +52,26 @@
     "NETWORK_ERROR": "No connection on the last try.",
     "PHOTO_UNREADABLE": "This photo couldn't be read. Take it again.",
     "SITES_FAILED": "Couldn't load the sites. Try again later.",
-    "generic": "The upload failed."
+    "generic": "The upload failed.",
+    "WORKER_LACKS_CATEGORY": "The worker doesn't have this category.",
+    "INACTIVE_WORKER": "The worker is deactivated.",
+    "INACTIVE_CATEGORY": "The category is deactivated.",
+    "ISSUE_REQUIREMENTS": "The details don't allow assigning the worker."
+  },
+  "sheet": {
+    "title": "New issue",
+    "description": "Fill in what you know — everything is optional.",
+    "photoAlt": "Photo {number} of this issue",
+    "addPhoto": "Add another photo",
+    "photosFull": "10 photos — the most",
+    "mayBeOutOfDate": "Offline — categories and workers may be out of date.",
+    "locationPlaceholder": "Floor 3 – Flat 7",
+    "descriptionPlaceholder": "Cracked tile by the bathroom door",
+    "sortHint": "Add a description to sort it now.",
+    "needsDescription": "Write a description to assign a worker.",
+    "loading": "Loading categories…",
+    "noCategories": "No categories yet — the issue stays unsorted.",
+    "photoOnly": "Photo only",
+    "save": "Save"
   }
 }

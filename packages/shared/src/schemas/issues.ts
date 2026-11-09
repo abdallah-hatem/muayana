@@ -105,6 +105,10 @@ export const CreateIssueRequestSchema = z.strictObject({
   capturedAt: InstantSchema,
   description: z.string().trim().max(ISSUE_DESCRIPTION_MAX).optional(),
   location: z.string().trim().max(ISSUE_LOCATION_MAX).optional(),
+  /** Trade, contractor and priority from the capture sheet (§5.1): the §4 rules decide the status. */
+  categoryId: z.uuid().optional(),
+  workerId: z.uuid().optional(),
+  priority: PrioritySchema.optional(),
 });
 
 /** Multipart fields of `POST /issues/:id/photos`. */

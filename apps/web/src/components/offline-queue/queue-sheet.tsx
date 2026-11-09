@@ -1,6 +1,6 @@
 'use client';
 
-import { CloudOff, Loader2, RotateCw, Trash2 } from 'lucide-react';
+import { CloudOff, Loader2, RotateCw, Trash2, UserX } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { createContext, useCallback, useContext, useState } from 'react';
 import { LocalPhoto } from '@/components/photo';
@@ -15,6 +15,7 @@ import {
 import {
   discardItem,
   retryItem,
+  retryWithoutContractor,
   useQueueItems,
   type QueueItem,
 } from '@/lib/offline-queue';
@@ -112,6 +113,22 @@ function QueueThumb({ item, label }: { item: QueueItem; label: string }) {
   );
 }
 
+/** Refusals that "retry without the worker" can get past: the contractor or his trade (§5.2). */
+const CONTRACTOR_REFUSALS = new Set([
+  'WORKER_LACKS_CATEGORY',
+  'INACTIVE_WORKER',
+  'INACTIVE_CATEGORY',
+  'ISSUE_REQUIREMENTS',
+]);
+
+/** A new issue refused because of its contractor: offer to upload it without him. */
+export const canRetryWithoutContractor = (item: QueueItem): boolean =>
+  item.kind === 'create' &&
+  item.status === 'failed' &&
+  !!item.workerId &&
+  item.lastError !== null &&
+  CONTRACTOR_REFUSALS.has(item.lastError);
+
 /** The translated reason of a failed upload. */
 export function useUploadErrorText(): (code: string | null) => string {
   const t = useTranslations('capture.errors');
@@ -132,10 +149,10 @@ function QueueRow({ item }: { item: QueueItem }) {
   });
   const failed = item.status === 'failed';
 
-  const retry = async () => {
+  const run = async (action: (id: string) => Promise<void>) => {
     setBusy(true);
     try {
-      await retryItem(item.id);
+      await action(item.id);
     } finally {
       setBusy(false);
     }
@@ -194,10 +211,21 @@ function QueueRow({ item }: { item: QueueItem }) {
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-2">
+          {canRetryWithoutContractor(item) && (
+            <Button
+              className="col-span-2"
+              disabled={busy}
+              onClick={() => void run(retryWithoutContractor)}
+              data-testid="retry-without-worker"
+            >
+              <UserX aria-hidden />
+              {t('retryWithoutWorker')}
+            </Button>
+          )}
           <Button
             variant="outline"
             disabled={busy}
-            onClick={() => void retry()}
+            onClick={() => void run(retryItem)}
           >
             {busy ? (
               <Loader2 className="animate-spin" aria-hidden />

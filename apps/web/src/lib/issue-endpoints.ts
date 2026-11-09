@@ -70,13 +70,20 @@ export function addIssuePhoto(
 }
 
 /** Active categories (the ones that can be chosen, invariant §6.11). */
-export const listActiveCategories = () =>
-  clientFetch<Category[]>('/categories?active=true');
+export const listActiveCategories = (signal?: AbortSignal) =>
+  clientFetch<Category[]>('/categories?active=true', { signal });
 
 /** Active workers having the category, with their open counts (business §5.4). */
 export const listWorkersForCategory = (categoryId: string) =>
   clientFetch<Worker[]>(
     `/workers${toQuery({ categoryId, active: 'true', limit: PAGE_LIMIT_MAX })}`,
+  );
+
+/** Every active worker with his categories and open count (the capture sheet's cached list, §5.2). */
+export const listActiveWorkers = (signal?: AbortSignal) =>
+  clientFetch<Worker[]>(
+    `/workers${toQuery({ active: 'true', limit: PAGE_LIMIT_MAX })}`,
+    { signal },
   );
 
 /** Sites that can receive captures (not archived). Pass `signal` to abort on unmount. */
