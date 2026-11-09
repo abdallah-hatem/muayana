@@ -39,7 +39,7 @@ describe('toWorker', () => {
   it('orders categories by sort order and derives open from the status counts', () => {
     const worker = toWorker(
       row,
-      { ...emptyTally(), assigned: 1, estimated: 2, solved: 5 },
+      { ...emptyTally(), assigned: 1, estimated: 2, solved: 5, cancelled: 2 },
       1,
     );
     expect(worker.categories.map((c) => c.id)).toEqual(['c1', 'c2']);
@@ -55,6 +55,7 @@ describe('toWorker', () => {
       estimated: 2,
       in_progress: 0,
       solved: 5,
+      cancelled: 2,
       open: 3,
       overdue: 1,
     });

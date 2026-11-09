@@ -13,6 +13,7 @@ export const WorkerCountsSchema = z.object({
   estimated: z.number().int(),
   in_progress: z.number().int(),
   solved: z.number().int(),
+  cancelled: z.number().int(),
   open: z.number().int(),
   overdue: z.number().int(),
 });

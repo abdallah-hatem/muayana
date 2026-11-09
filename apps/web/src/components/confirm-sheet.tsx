@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
  * "Are you sure?" from the bottom edge: a title, what will happen, and the confirming action, busy
  * while its request runs. `error` shows a refusal in place; `alternative` offers another way out
  * in place of the confirming action (e.g. "Archive instead" when a delete is refused; `null` offers
- * nothing but Cancel).
+ * nothing but Cancel). `cancelLabel` renames the way out when the question isn't a yes/cancel one.
  */
 export function ConfirmSheet({
   open,
@@ -17,6 +17,7 @@ export function ConfirmSheet({
   title,
   body,
   confirmLabel,
+  cancelLabel,
   destructive = false,
   busy,
   error,
@@ -28,6 +29,7 @@ export function ConfirmSheet({
   title: string;
   body: string;
   confirmLabel: string;
+  cancelLabel?: string;
   destructive?: boolean;
   busy: boolean;
   error?: string | null;
@@ -49,7 +51,7 @@ export function ConfirmSheet({
             disabled={busy}
             onClick={() => onOpenChange(false)}
           >
-            {t('cancel')}
+            {cancelLabel ?? t('cancel')}
           </Button>
           {alternative !== undefined ? (
             alternative

@@ -275,6 +275,19 @@ const DEFS_BY_KEY = new Map(ISSUE_EXPORT_COLUMN_DEFS.map((d) => [d.key, d]));
 export const exportColumnDef = (key: IssueExportColumn): IssueExportColumnDef =>
   DEFS_BY_KEY.get(key)!;
 
+/** Which file a column is named for: the issues CSV keeps photo links; the contractor Excel embeds pictures. */
+export type ExportTarget = 'csv' | 'excel';
+
+/** A column's name in `lang` for `target` — a photo-link column reads as pictures in the Excel. */
+export const exportColumnLabel = (
+  key: IssueExportColumn,
+  lang: Locale,
+  target: ExportTarget = 'csv',
+): string => {
+  const def = exportColumnDef(key);
+  return (target === 'excel' && def.pictureLabel?.[lang]) || def.label[lang];
+};
+
 /** The columns to write: as requested and in that order, or all of §7 in its order. */
 export const exportColumns = (
   requested: readonly IssueExportColumn[] | undefined,

@@ -1,7 +1,7 @@
 import {
   exportColumnDef,
+  exportColumnLabel,
   guardFormula,
-  issueExportHeaders,
   type CsvValue,
   type ExportIssue,
   type HistoryFacts,
@@ -71,10 +71,10 @@ export function excelSlots(
   columns: readonly IssueExportColumn[],
   lang: Locale,
 ): Slot[] {
-  const headers = issueExportHeaders(columns, lang);
-  return columns.map((column, i) => {
+  return columns.map((column) => {
     const def = exportColumnDef(column);
-    if (!def.photoKind) return { column, kind: 'value', header: headers[i] };
+    const header = exportColumnLabel(column, lang, 'excel');
+    if (!def.photoKind) return { column, kind: 'value', header };
     const kind = def.photoKind;
     const span = Math.max(
       1,
@@ -83,7 +83,7 @@ export function excelSlots(
     return {
       column,
       kind: 'pictures',
-      header: def.pictureLabel?.[lang] ?? headers[i],
+      header,
       photoKind: kind,
       span,
     };

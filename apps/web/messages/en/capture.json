@@ -12,11 +12,8 @@
   "needsConnection": "Needs a connection. Only capture works offline.",
   "offline": "Offline — photos are kept on the phone.",
   "site": {
-    "label": "Site",
-    "choose": "Choose a site",
     "title": "Which site are you on?",
     "description": "New photos go to this site. It stays chosen next time.",
-    "loading": "Loading sites…",
     "none": "No active sites yet. Add one in Settings, then come back.",
     "offlineList": "Offline — showing the sites from your last visit."
   },

@@ -4,6 +4,7 @@ import {
   ISSUE_EXPORT_COLUMN_DEFS,
   daysOpen,
   escapeCsvCell,
+  exportColumnLabel,
   guardFormula,
   issueExportCells,
   issueExportHeaders,
@@ -50,6 +51,15 @@ describe('shared issue export columns (§7)', () => {
       ['photoLinks', 'before'],
       ['afterPhotoLinks', 'after'],
     ]);
+  });
+
+  it('Photo-link columns are named as pictures in the Excel and as links in the CSV', () => {
+    expect(exportColumnLabel('photoLinks', 'ar', 'excel')).toBe('الصور');
+    expect(exportColumnLabel('afterPhotoLinks', 'en', 'excel')).toBe(
+      'After photos',
+    );
+    expect(exportColumnLabel('photoLinks', 'en')).toBe('Photo links');
+    expect(exportColumnLabel('status', 'ar', 'excel')).toBe('الحالة');
   });
 
   it('Chosen columns only, in order; header language ar/en', () => {

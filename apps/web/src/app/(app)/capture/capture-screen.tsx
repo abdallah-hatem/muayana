@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Building2,
-  Camera,
-  ChevronDown,
-  ImagePlus,
-  Loader2,
-} from 'lucide-react';
+import { Camera, ImagePlus, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { LocalPhoto } from '@/components/photo';
@@ -32,8 +26,8 @@ type Status = { tone: 'info' | 'error'; key: string } | null;
 type CameraMode = 'new' | 'sheet' | 'previous';
 
 /**
- * Capture on site (business §5.1, mockup screen 2): a dark camera view, the site chip and queue
- * badge on top, the last shot full-bleed, and a bottom panel with the last shot's thumbnail, the
+ * Capture on site (business §5.1, mockup screen 2): a dark camera view, the queue badge on top
+ * (the site is the top bar's switcher), the last shot full-bleed, and a bottom panel with the last shot's thumbnail, the
  * big shutter and "add to previous". After a new issue's photo(s), one sheet holds its details
  * (CaptureSheet). Every photo is compressed and kept on the phone first, so it works with no
  * signal; the sheet's photos wait as drafts until it is saved.
@@ -177,35 +171,9 @@ export function CaptureScreen() {
         data-testid="camera-input"
       />
 
-      {/* Top: site chip and queue badge over the camera view. */}
-      <div className="flex items-center justify-between gap-2 p-4">
-        <button
-          type="button"
-          onClick={() => setPickerOpen(true)}
-          disabled={sitesState.phase === 'loading'}
-          data-testid="site-chip"
-          aria-label={`${t('site.label')}: ${site?.name ?? t('site.choose')}`}
-          className={cn(
-            'flex h-11 min-w-0 press cursor-pointer items-center gap-1.5 rounded-full px-3 type-small font-bold',
-            'disabled:cursor-not-allowed disabled:opacity-60',
-            site
-              ? 'bg-secondary text-secondary-foreground'
-              : 'bg-primary text-primary-foreground',
-          )}
-        >
-          {sitesState.phase === 'loading' ? (
-            <Loader2 className="size-4 shrink-0 animate-spin" aria-hidden />
-          ) : (
-            <Building2 className="size-4 shrink-0" aria-hidden />
-          )}
-          {/* dir="auto": an Arabic name in the English layout keeps its start and loses its end. */}
-          <span dir="auto" className="min-w-0 truncate text-start">
-            {sitesState.phase === 'loading'
-              ? t('site.loading')
-              : (site?.name ?? t('site.choose'))}
-          </span>
-          <ChevronDown className="size-4 shrink-0" aria-hidden />
-        </button>
+      {/* Top: the queue badge over the camera view. The site is the top bar's switcher (one
+          picker per screen); the shutter asks for one when none is chosen. */}
+      <div className="flex items-center justify-end gap-2 p-4">
         <QueueChip />
       </div>
 
