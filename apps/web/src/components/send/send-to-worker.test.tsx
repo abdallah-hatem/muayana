@@ -46,6 +46,17 @@ function renderSend(issue: Issue, onSent = vi.fn()) {
 const sendButton = () =>
   screen.getByRole('button', { name: /Send on WhatsApp/ });
 
+/** The first tap only downloads the photos (§5.5); once ready, the same button shares. */
+async function prepare(
+  user: ReturnType<typeof userEvent.setup>,
+  ready: RegExp = /Send on WhatsApp/,
+) {
+  await user.click(
+    screen.getByRole('button', { name: /^Prepare \d+ photos? to send$/ }),
+  );
+  return screen.findByRole('button', { name: ready });
+}
+
 describe('SendToWorker', () => {
   let open: ReturnType<typeof vi.fn>;
 
@@ -71,7 +82,7 @@ describe('SendToWorker', () => {
       Promise.reject(new DOMException('Share canceled', 'AbortError')),
     );
     const first = renderSend(issue);
-    await first.user.click(sendButton());
+    await first.user.click(await prepare(first.user));
     await waitFor(() => expect(sendButton()).toBeEnabled());
     expect(screen.queryByText('Mark as sent?')).not.toBeInTheDocument();
 
@@ -133,7 +144,7 @@ describe('SendToWorker', () => {
     const nav = webShare(() => Promise.resolve());
     const { user } = renderSend(issue);
 
-    await user.click(sendButton());
+    await user.click(await prepare(user));
 
     await waitFor(() => expect(nav.share).toHaveBeenCalledTimes(1));
     const data = vi.mocked(nav.share!).mock.calls[0][0];

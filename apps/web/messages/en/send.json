@@ -17,5 +17,12 @@
   "parts": {
     "next": "Share part {part} of {parts}",
     "hint": "Too many photos for one share: they go in {parts} parts. Pick the same chat each time."
+  },
+  "prepare": {
+    "button": "Prepare {count, plural, one {# photo} other {# photos}} to send",
+    "progress": "Preparing photos {done} of {total}…",
+    "label": "Preparing photos",
+    "cancel": "Cancel",
+    "hint": "The photos download only now, then one more tap shares them."
   }
 }

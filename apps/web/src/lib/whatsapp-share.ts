@@ -1,4 +1,5 @@
 import { waMeUrl } from '@muayana/shared';
+import { isShareCancel } from './share-cancel';
 
 /**
  * Sending to a contractor on WhatsApp (business §5.5, spec F3): on a phone that can share files,
@@ -52,19 +53,25 @@ export interface IssuePhotos<I extends { number: number }> {
 /**
  * The issue's photos as JPEG files named `#14-1.jpg`, `#14-2.jpg`… Photo URLs are public
  * (invariant §6.10). A photo that fails to fetch is left out and marks the issue `missing`.
+ * `signal` stops the downloads; `onPhoto` is called as each photo settles (for a progress count).
  */
 export async function loadIssuePhotos<I extends { number: number }>(
   issue: I,
   urls: readonly string[],
+  { signal, onPhoto }: { signal?: AbortSignal; onPhoto?: () => void } = {},
 ): Promise<IssuePhotos<I>> {
   const results = await Promise.allSettled(
     urls.map(async (url, index) => {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`photo ${res.status}`);
-      const blob = await res.blob();
-      return new File([blob], `#${issue.number}-${index + 1}.jpg`, {
-        type: 'image/jpeg',
-      });
+      try {
+        const res = await fetch(url, { signal });
+        if (!res.ok) throw new Error(`photo ${res.status}`);
+        const blob = await res.blob();
+        return new File([blob], `#${issue.number}-${index + 1}.jpg`, {
+          type: 'image/jpeg',
+        });
+      } finally {
+        onPhoto?.();
+      }
     }),
   );
   const files = results.flatMap((r) =>
@@ -145,12 +152,6 @@ export function packetContent<I extends { number: number }>(
   };
 }
 
-/** The engineer closed the share sheet (a DOMException, not always an Error subclass). */
-const isAbort = (error: unknown): boolean =>
-  typeof error === 'object' &&
-  error !== null &&
-  (error as { name?: unknown }).name === 'AbortError';
-
 /**
  * Hands the issues to WhatsApp. With photo files the browser can share, the first share opens
  * now and each further one on its own tap (`ShareMore`); a share the browser refuses (too many /
@@ -197,7 +198,7 @@ export async function shareInParts<I extends { number: number }>({
         text: caption(packet, { index: index + 1, count: queue.length }),
       });
     } catch (error) {
-      if (isAbort(error)) return 'cancelled';
+      if (isShareCancel(error)) return 'cancelled';
       // Refused — too many / too large, or the tap's activation ran out: split, retry on a tap.
       if (files.length > 1) {
         const split = [

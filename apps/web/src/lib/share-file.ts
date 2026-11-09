@@ -1,13 +1,8 @@
 import { saveBlob } from './download';
+import { isShareCancel } from './share-cancel';
 
 /** How handing a file over ended. Only `cancelled` means nothing left the phone. */
 export type FileShareOutcome = 'shared' | 'downloaded' | 'cancelled';
-
-/** The engineer closed the share sheet (a DOMException, not always an Error subclass). */
-const isAbort = (error: unknown): boolean =>
-  typeof error === 'object' &&
-  error !== null &&
-  (error as { name?: unknown }).name === 'AbortError';
 
 /** Can this browser share exactly this file (Web Share level 2)? */
 function canShareFile(file: File): boolean {
@@ -32,7 +27,7 @@ export async function shareOrDownload(file: File): Promise<FileShareOutcome> {
       await navigator.share({ files: [file] });
       return 'shared';
     } catch (error) {
-      if (isAbort(error)) return 'cancelled';
+      if (isShareCancel(error)) return 'cancelled';
       // Lost user activation or a refused file type: fall back to saving it.
     }
   }
