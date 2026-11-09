@@ -388,7 +388,7 @@ describe('Workers (e2e)', () => {
     expect(arText.startsWith(CSV_BOM)).toBe(true);
     const arLines = arText.slice(1).trimEnd().split('\r\n');
     expect(arLines[0]).toBe(
-      'الاسم,الهاتف,التخصصات,نشط,ملاحظات,مُسند,أُرسل للعامل,تم تحديد موعد,جاري العمل,تم الحل,مفتوح,متأخر',
+      'الاسم,الهاتف,التخصصات,نشط,ملاحظات,مُسند,أُرسل للمقاول,تم تحديد موعد,جاري العمل,تم الحل,مفتوح,متأخر',
     );
     // Only Ahmed matches the filter; his notes are formula-guarded; counts per status.
     expect(arLines).toHaveLength(2);

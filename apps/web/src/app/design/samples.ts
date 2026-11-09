@@ -146,5 +146,5 @@ export const MOCK_INBOX = {
     en: 'e.g. Plaster crack beside the window',
   },
   locationValue: { ar: 'الدور ٣ — الممر', en: 'Floor 3 — Corridor' },
-  workerValue: { ar: 'اختر عاملاً (سباكة)', en: 'Choose a worker (plumbing)' },
+  workerValue: { ar: 'اختر مقاولاً (سباكة)', en: 'Choose a worker (plumbing)' },
 };
