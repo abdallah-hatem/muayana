@@ -49,7 +49,7 @@
   },
   "card": {
     "noDescription": "بلا وصف بعد",
-    "noWorker": "بلا عامل",
+    "noWorker": "بلا مقاول",
     "due": "الموعد",
     "open": "فتح الملاحظة #{number}"
   },
@@ -60,7 +60,7 @@
     "description": "الوصف",
     "status": "الحالة",
     "category": "التصنيف",
-    "worker": "العامل",
+    "worker": "المقاول",
     "location": "الموقع · المكان",
     "estimate": "الموعد"
   },

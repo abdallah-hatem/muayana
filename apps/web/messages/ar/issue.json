@@ -1,10 +1,10 @@
 {
   "workerPicker": {
     "needsCategory": "اختر الصنعة أولاً.",
-    "none": "بدون عامل",
+    "none": "بدون مقاول",
     "openCount": "{count} مفتوحة",
-    "loadFailed": "تعذّر تحميل العمال.",
-    "emptyForCategory": "لا يوجد عامل مفعّل لهذه الصنعة بعد."
+    "loadFailed": "تعذّر تحميل المقاولين.",
+    "emptyForCategory": "لا يوجد مقاول مفعّل لهذه الصنعة بعد."
   },
   "errors": {
     "generic": "حدث خطأ. حاول مرة أخرى.",
@@ -14,8 +14,8 @@
     "BACK_TO_NEW": "لا يمكن إرجاع الملاحظة إلى جديد.",
     "LAST_PHOTO": "يجب أن تبقى صورة واحدة على الأقل.",
     "PHOTO_LIMIT": "تم الوصول إلى الحد الأقصى ١٠ صور.",
-    "WORKER_LACKS_CATEGORY": "هذا العامل لا يعمل في هذه الصنعة.",
-    "INACTIVE_WORKER": "هذا العامل موقوف.",
+    "WORKER_LACKS_CATEGORY": "هذا المقاول لا يعمل في هذه الصنعة.",
+    "INACTIVE_WORKER": "هذا المقاول موقوف.",
     "INACTIVE_CATEGORY": "هذه الصنعة موقوفة.",
     "ARCHIVED_SITE": "هذا الموقع مؤرشف.",
     "NOT_NEW": "هذا الإجراء للملاحظات غير المصنّفة فقط.",
@@ -26,24 +26,24 @@
   "reasons": {
     "current": "الملاحظة في هذه الحالة بالفعل.",
     "backToNew": "لا يمكن إرجاع الملاحظة إلى جديد.",
-    "noWorker": "أزل العامل أولاً.",
+    "noWorker": "أزل المقاول أولاً.",
     "needs": "تحتاج {list}."
   },
   "requirements": {
     "category": "صنعة",
     "description": "وصفاً",
-    "worker": "عاملاً",
+    "worker": "مقاولاً",
     "estimatedDate": "موعد تنفيذ",
-    "noWorker": "بدون عامل"
+    "noWorker": "بدون مقاول"
   },
   "actions": {
     "title": "الحالة",
     "reopen": "إعادة فتح ({status})",
     "estimate": "موعد التنفيذ",
-    "estimatePlaceholder": "حدّد الموعد الذي قاله العامل",
+    "estimatePlaceholder": "حدّد الموعد الذي قاله المقاول",
     "to": {
       "assigned": "مُسند",
-      "sent": "أُرسل للعامل",
+      "sent": "أُرسل للمقاول",
       "in_progress": "جاري العمل",
       "solved": "تم الحل",
       "cancelled": "إلغاء الملاحظة"
@@ -75,13 +75,13 @@
     "errors": {
       "category": "اختر الصنعة.",
       "description": "الملاحظة المصنّفة تحتاج وصفاً.",
-      "worker": "اختر العامل."
+      "worker": "اختر المقاول."
     },
     "placeholders": {
       "description": "شرخ في الحائط بجوار الشباك، طوله تقريباً ٤٠ سم",
       "location": "الدور ٣ – شقة ٧"
     },
-    "workerDropped": "تمت إزالة العامل: لا يعمل في هذه الصنعة.",
+    "workerDropped": "تمت إزالة المقاول: لا يعمل في هذه الصنعة.",
     "noDescription": "لا يوجد وصف بعد",
     "edit": "تعديل"
   },
@@ -100,7 +100,7 @@
   },
   "worker": {
     "call": "اتصال بـ {name}",
-    "none": "لا يوجد عامل بعد."
+    "none": "لا يوجد مقاول بعد."
   },
   "delete": {
     "button": "حذف الملاحظة",

@@ -29,7 +29,7 @@ export const STATUS_LABELS: Record<Locale, Record<IssueStatus, string>> = {
     new: 'جديد',
     unassigned: 'غير مُسند',
     assigned: 'مُسند',
-    sent: 'أُرسل للعامل',
+    sent: 'أُرسل للمقاول',
     estimated: 'تم تحديد موعد',
     in_progress: 'جاري العمل',
     solved: 'تم الحل',
