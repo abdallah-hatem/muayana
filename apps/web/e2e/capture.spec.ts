@@ -76,9 +76,13 @@ test('@smoke Capture: photos then one sheet (place, description, trade, contract
   });
   await page.reload();
 
-  await page.getByTestId('site-chip').click();
-  await page.getByRole('button', { name: siteName }).click();
-  await expect(page.getByTestId('site-chip')).toContainText(siteName);
+  // The site is the top bar's switcher — the capture page has no second picker.
+  const switcher = page.locator(
+    '[data-slot="site-switcher"] [role="combobox"]',
+  );
+  await switcher.click();
+  await page.getByRole('option', { name: siteName }).click();
+  await expect(switcher).toContainText(siteName);
 
   // The photo opens the sheet with the keyboard down: nothing is uploaded yet.
   await page

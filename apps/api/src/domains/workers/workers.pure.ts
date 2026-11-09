@@ -37,6 +37,7 @@ export function toWorker(
       estimated: tally.estimated,
       in_progress: tally.in_progress,
       solved: tally.solved,
+      cancelled: tally.cancelled,
       open: openCount(tally),
       overdue,
     },

@@ -219,6 +219,7 @@ describe('WorkerView', () => {
         estimated: 0,
         in_progress: 0,
         solved: 0,
+        cancelled: 0,
         open: 0,
         overdue: 0,
       },

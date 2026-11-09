@@ -29,6 +29,7 @@ const sayed = makeWorker({
     estimated: 0,
     in_progress: 2,
     solved: 9,
+    cancelled: 0,
     open: 5,
     overdue: 1,
   },

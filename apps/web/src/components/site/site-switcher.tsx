@@ -25,9 +25,7 @@ const ALL = '__all__';
 export function SiteSwitcher() {
   const t = useTranslations('shell.siteSwitcher');
   const { siteId, setSiteId, ready, sitesVersion } = useSiteSelection();
-  const [sites, setSites] = useState<Pick<Site, 'id' | 'name'>[] | null>(
-    null,
-  );
+  const [sites, setSites] = useState<Pick<Site, 'id' | 'name'>[] | null>(null);
   // Only a list the API gave can prove the remembered site is gone; the phone's copy (offline)
   // can be out of date.
   const [confirmed, setConfirmed] = useState(false);
@@ -55,8 +53,9 @@ export function SiteSwitcher() {
   const value = current ? current.id : ALL;
 
   return (
-    // Takes the top bar's leftover room; the label ends in an ellipsis and, when even that is too
-    // narrow (a phone with the queue chip), only the pin shows — the trigger keeps its name.
+    // Takes the top bar's leftover room; the label ends in an ellipsis. When narrow (a phone with a
+    // long title and the queue chip) the chevron goes first so the name keeps the room; only when
+    // even that is too tight does the pin show alone — the trigger keeps its name.
     <div data-slot="site-switcher" className="min-w-0 flex-1 sm:flex-none">
       <Select
         value={value}
@@ -65,10 +64,10 @@ export function SiteSwitcher() {
       >
         <SelectTrigger
           aria-label={t('label')}
-          className="@container h-11 w-full min-w-0 gap-1.5 rounded-full border-0 bg-secondary px-3 type-small font-bold text-secondary-foreground data-[size=default]:h-11 sm:w-60"
+          className="@container h-11 w-full min-w-0 gap-1.5 rounded-full border-0 bg-secondary px-3 type-small font-bold text-secondary-foreground data-[size=default]:h-11 sm:w-60 @max-[8rem]:[&>svg:last-child]:hidden"
         >
           <MapPin className="size-4 shrink-0" aria-hidden />
-          {/* Below 7.5rem the label would be a letter or two, so only the pin shows. The query
+          {/* Below 4.5rem the label would be a letter or two, so only the pin shows. The query
               hides the inner span: the kit's `*:data-[slot=select-value]:flex` outranks a
               `hidden` on the value itself. */}
           <SelectValue
@@ -77,7 +76,7 @@ export function SiteSwitcher() {
           >
             <span
               dir="auto"
-              className="min-w-0 truncate text-start @max-[7.5rem]:hidden"
+              className="min-w-0 truncate text-start @max-[4.5rem]:hidden"
             >
               {current ? current.name : t('placeholder')}
             </span>

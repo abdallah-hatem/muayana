@@ -181,7 +181,7 @@ describe('SendExcel (business §5.5, §7)', () => {
     expect(files).toHaveLength(1);
     expect(files[0].name).toMatch(/\.xlsx$/);
     expect(click).not.toHaveBeenCalled();
-    await user.click(await screen.findByRole('button', { name: 'Cancel' }));
+    await user.click(await screen.findByRole('button', { name: 'Not yet' }));
 
     // No file sharing (a desktop): the file is downloaded instead.
     setShare(undefined);
@@ -204,11 +204,11 @@ describe('SendExcel (business §5.5, §7)', () => {
     });
     const { user, onSent } = renderSendExcel();
 
-    // "Cancel" (not yet): nothing changes.
+    // "Not yet": nothing changes.
     await prepare(user);
     await user.click(await screen.findByRole('button', { name: 'Share file' }));
     await screen.findByText('Mark as sent?');
-    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    await user.click(screen.getByRole('button', { name: 'Not yet' }));
     expect(calls(clientFetch, 'POST')).toHaveLength(0);
     expect(onSent).not.toHaveBeenCalled();
 
@@ -339,6 +339,20 @@ describe('SendExcel (business §5.5, §7)', () => {
         c.path.includes('page=1'),
       ),
     ).toHaveLength(1);
+  });
+
+  it('Every status chip shows its count, Cancelled included', async () => {
+    const user = userEvent.setup();
+    renderWithIntl(
+      <SendExcel
+        worker={{ ...worker, counts: { ...worker.counts, cancelled: 4 } }}
+        onSent={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: 'Send as Excel' }));
+    expect(
+      await screen.findByRole('button', { name: /Cancelled\s*4/ }),
+    ).toBeInTheDocument();
   });
 
   it('No issues in the chosen statuses → says so, no file', async () => {

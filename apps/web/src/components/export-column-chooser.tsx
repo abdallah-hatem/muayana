@@ -2,7 +2,8 @@
 
 import {
   ISSUE_EXPORT_COLUMNS,
-  exportColumnDef,
+  exportColumnLabel,
+  type ExportTarget,
   type IssueExportColumn,
   type Locale,
 } from '@muayana/shared';
@@ -28,14 +29,17 @@ export const toggleExportColumn = (
 /**
  * The issue export column picker (business §7) shared by the issues CSV and the contractor Excel:
  * every column of the one shared list, labelled in the app's language — the same language the
- * file's headers are written in. Picking none shows why the export can't run.
+ * file's headers are written in, and named for the file it builds (`target`: the Excel's photo
+ * columns are pictures, the CSV's are links). Picking none shows why the export can't run.
  */
 export function ExportColumnChooser({
   value,
   onChange,
+  target = 'csv',
 }: {
   value: readonly IssueExportColumn[];
   onChange: (columns: IssueExportColumn[]) => void;
+  target?: ExportTarget;
 }) {
   const t = useTranslations('export.columns');
   const locale = useLocale() as Locale;
@@ -66,7 +70,7 @@ export function ExportColumnChooser({
         {ISSUE_EXPORT_COLUMNS.map((column) => (
           <ColumnCheckbox
             key={column}
-            label={exportColumnDef(column).label[locale]}
+            label={exportColumnLabel(column, locale, target)}
             checked={value.includes(column)}
             onChange={(on) => onChange(toggleExportColumn(value, column, on))}
           />
@@ -91,17 +95,20 @@ function ColumnCheckbox({
   onChange: (on: boolean) => void;
 }) {
   const id = useId();
+  // The whole 44px row is the label, so a tap anywhere on it toggles the box; the label also
+  // names the checkbox for screen readers.
   return (
-    <div className="flex min-h-11 items-center gap-3 rounded-md px-2 hover:bg-accent/50">
+    <Label
+      htmlFor={id}
+      className="min-h-11 cursor-pointer gap-3 rounded-md px-2 type-small hover:bg-accent/50"
+    >
       <Checkbox
         id={id}
         checked={checked}
         onCheckedChange={(state) => onChange(state === true)}
-        className="size-5 cursor-pointer"
+        className="size-5"
       />
-      <Label htmlFor={id} className="flex-1 cursor-pointer type-small">
-        {label}
-      </Label>
-    </div>
+      <span className="flex-1 py-2 leading-snug">{label}</span>
+    </Label>
   );
 }

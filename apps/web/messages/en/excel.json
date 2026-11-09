@@ -20,6 +20,7 @@
     "title": "Mark as sent?",
     "body": "{count, plural, one {Mark the assigned issue in the file as sent?} other {Mark the # assigned issues in the file as sent?}} Other statuses don't change.",
     "yes": "Yes, mark sent",
+    "no": "Not yet",
     "refused": "Nothing was changed: issue {numbers} can't be marked sent.",
     "partly": "{count, plural, one {# issue was already marked sent before the refusal.} other {# issues were already marked sent before the refusal.}}"
   },

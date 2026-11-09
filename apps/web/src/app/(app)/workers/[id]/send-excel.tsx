@@ -295,7 +295,11 @@ export function SendExcel({
             {t('statuses.none')}
           </p>
         )}
-        <ExportColumnChooser value={columns} onChange={changed(setColumns)} />
+        <ExportColumnChooser
+          value={columns}
+          onChange={changed(setColumns)}
+          target="excel"
+        />
       </BottomSheet>
 
       <ConfirmSheet
@@ -306,6 +310,7 @@ export function SendExcel({
         title={t('confirm.title')}
         body={t('confirm.body', { count: asking?.length ?? 0 })}
         confirmLabel={t('confirm.yes')}
+        cancelLabel={t('confirm.no')}
         busy={marking}
         error={markError}
         onConfirm={() => asking && void markSent(asking)}

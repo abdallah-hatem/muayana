@@ -151,7 +151,7 @@ export function WorkerView({ initial }: { initial: Worker }) {
   const issueCount =
     issues.state === 'ready'
       ? issues.issues.length
-      : worker.counts.open + worker.counts.solved;
+      : worker.counts.open + worker.counts.solved + worker.counts.cancelled;
 
   function askDelete() {
     setDeleteError(null);
