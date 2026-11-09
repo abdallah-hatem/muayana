@@ -28,7 +28,8 @@ like 010…, landlines, spaces/dashes and Arabic-Indic digits are accepted and c
   permanently**. Deleting one with issues asks every time what happens to them: **(a) keep the issues** —
   open ones (`assigned`, `sent`, `estimated`, `in_progress`) go back to `unassigned` (estimated date
   cleared) with a history record naming the deleted contractor; `solved` and `cancelled` ones keep his
-  name as a record; or **(b) delete his issues too** — every issue ever assigned to him, with photos and
+  name as a record (it stays if the issue is reopened, and is replaced once a new contractor is chosen);
+  or **(b) delete his issues too** — every issue ever assigned to him, with photos and
   history, permanently. A worker with no issues is deleted with a simple confirm. **DECIDED** (owner,
   2026-11-09: "delete a worker completely"; "ask each time")
 - Removing a category from a worker does not touch the issues already assigned to him. **GUESS**
