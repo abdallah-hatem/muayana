@@ -24,6 +24,7 @@ export const NAMESPACES = [
   'workers',
   'issues',
   'export',
+  'excel',
   'dashboard',
   'errors',
 ] as const;
