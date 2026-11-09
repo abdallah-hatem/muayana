@@ -12,7 +12,8 @@ let unwatch: (() => void) | null = null;
 function refresh(): void {
   listItems()
     .then((items) => {
-      snapshot = items;
+      // Drafts belong to the open capture sheet, not to the upload queue yet.
+      snapshot = items.filter((i) => i.status !== 'draft');
       for (const notify of subscribers) notify();
     })
     // No IndexedDB (private mode on old Safari): show an empty queue rather than nothing.

@@ -1,6 +1,12 @@
 import { compressPhoto } from '@/lib/compress-photo';
 import type { LastIssue } from '@/lib/capture-prefs';
-import { enqueue, syncQueue, type QueueItem } from '@/lib/offline-queue';
+import {
+  commitDraft,
+  enqueue,
+  syncQueue,
+  type CaptureDetails,
+  type QueueItem,
+} from '@/lib/offline-queue';
 
 export type ShotMode = 'new' | 'attach';
 
@@ -13,6 +19,11 @@ export interface ShotInput {
   note?: string;
   location?: string;
   capturedAt?: Date;
+  /**
+   * Kept on the phone but not uploaded yet: the capture sheet is open for this issue
+   * (saveCapture releases it).
+   */
+  draft?: boolean;
 }
 
 export interface ShotResult {
@@ -42,6 +53,7 @@ export async function takeShot(input: ShotInput): Promise<ShotResult> {
         siteId: input.siteId,
         capturedAt,
         photo: blob,
+        draft: input.draft,
       })
     : await enqueue({
         kind: 'create',
@@ -50,12 +62,25 @@ export async function takeShot(input: ShotInput): Promise<ShotResult> {
         note: input.note,
         location: input.location,
         photo: blob,
+        draft: input.draft,
       });
 
-  void syncQueue();
+  if (!input.draft) void syncQueue();
   return {
     item,
     lastIssue: { issueId: item.issueId, siteId: input.siteId },
     photo: blob,
   };
+}
+
+/**
+ * The capture sheet is saved (business §5.1): the drafted issue takes the sheet's fields (none
+ * for "photo only") and it and its photos go up in one go, through the queue as always.
+ */
+export async function saveCapture(
+  issueId: string,
+  details: CaptureDetails = {},
+): Promise<void> {
+  await commitDraft(issueId, details);
+  void syncQueue();
 }

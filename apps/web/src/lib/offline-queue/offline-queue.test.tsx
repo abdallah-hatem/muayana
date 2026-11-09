@@ -4,9 +4,10 @@ import { IDBFactory } from 'fake-indexeddb';
 import { NextIntlClientProvider } from 'next-intl';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import capture from '../../../messages/en/capture.json';
-import { takeShot } from '@/app/(app)/capture/capture-shot';
+import { saveCapture, takeShot } from '@/app/(app)/capture/capture-shot';
 import {
   QueueChip,
+  QueueSheet,
   QueueSheetProvider,
 } from '@/components/offline-queue/queue-sheet';
 import {
@@ -273,6 +274,156 @@ describe('offline queue (T10 edge cases)', () => {
     await discardItem(discarded.item.id);
     expect(await listItems()).toEqual([]);
     expect(sent().filter((r) => r.id === discarded.item.id)).toHaveLength(1);
+  });
+});
+
+describe('capture sheet fields in the queue (N1)', () => {
+  const CAT = '0b6f6c1e-8a2d-4d5e-9f00-1a2b3c4d5e6f';
+  const WORKER = '5c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f';
+
+  /** The multipart fields of the n-th request. */
+  const fields = (n: number) => {
+    const body = fetchMock.mock.calls[n][1]?.body as FormData;
+    return Object.fromEntries(
+      [...body.entries()].filter(([, v]) => typeof v === 'string'),
+    );
+  };
+
+  /** A new issue drafted while its sheet is open, with a second photo. */
+  async function draftWithTwoPhotos() {
+    const first = await takeShot({
+      file: photo(),
+      siteId: SITE,
+      mode: 'new',
+      previous: null,
+      draft: true,
+    });
+    await takeShot({
+      file: photo(),
+      siteId: SITE,
+      mode: 'attach',
+      previous: first.lastIssue,
+      draft: true,
+    });
+    return first.item.id;
+  }
+
+  it('Offline: sheet uses cached trades/contractors, item queued with fields', async () => {
+    online = false;
+    const issueId = await draftWithTwoPhotos();
+    // Drafts wait for the sheet: nothing is uploaded or counted yet.
+    await syncQueue();
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    await saveCapture(issueId, {
+      location: ' Lobby ',
+      note: 'Crack over the door',
+      categoryId: CAT,
+      workerId: WORKER,
+      priority: 'high',
+    });
+    expect(await listItems()).toMatchObject([
+      {
+        id: issueId,
+        kind: 'create',
+        status: 'pending',
+        location: 'Lobby',
+        note: 'Crack over the door',
+        categoryId: CAT,
+        workerId: WORKER,
+        priority: 'high',
+      },
+      { kind: 'addPhoto', issueId, status: 'pending' },
+    ]);
+
+    online = true;
+    fetchMock.mockImplementation(async () => ok());
+    await syncQueue();
+    expect(fields(0)).toMatchObject({
+      id: issueId,
+      siteId: SITE,
+      description: 'Crack over the door',
+      location: 'Lobby',
+      categoryId: CAT,
+      workerId: WORKER,
+      priority: 'high',
+    });
+    expect(sent()[1].path).toBe(`/issues/${issueId}/photos`);
+  });
+
+  it('Photo only sends no sheet fields', async () => {
+    const issueId = await draftWithTwoPhotos();
+    fetchMock.mockImplementation(async () => ok());
+    await saveCapture(issueId);
+    await syncQueue();
+    expect(Object.keys(fields(0)).sort()).toEqual(
+      ['capturedAt', 'id', 'siteId'].sort(),
+    );
+  });
+
+  it('A draft left by a closed app uploads as photo only on the next start', async () => {
+    const issueId = await draftWithTwoPhotos();
+    await closeQueueDb(); // the app is closed with the sheet open
+    fetchMock.mockImplementation(async () => ok());
+    stopSync = startQueueSync();
+    await waitFor(async () => expect(await listItems()).toEqual([]));
+    expect(sent().map((r) => r.path)).toEqual([
+      '/issues',
+      `/issues/${issueId}/photos`,
+    ]);
+  });
+
+  it('Upload refused (409) → item failed with reason; "retry without contractor" uploads it as unassigned/new', async () => {
+    const issueId = await draftWithTwoPhotos();
+    fetchMock
+      .mockResolvedValueOnce(refused(409, 'WORKER_LACKS_CATEGORY'))
+      .mockImplementation(async () => ok());
+    await saveCapture(issueId, {
+      note: 'Crack',
+      categoryId: CAT,
+      workerId: WORKER,
+    });
+    await syncQueue();
+    expect((await listItems())[0]).toMatchObject({
+      id: issueId,
+      status: 'failed',
+      lastError: 'WORKER_LACKS_CATEGORY',
+    });
+
+    render(
+      <NextIntlClientProvider
+        locale="en"
+        messages={{ capture }}
+        timeZone="Africa/Cairo"
+      >
+        <QueueSheet open onOpenChange={() => undefined} />
+      </NextIntlClientProvider>,
+    );
+    const failed = await waitFor(() => {
+      const row = screen
+        .getAllByTestId('queue-item')
+        .find((r) => r.dataset.status === 'failed');
+      expect(row).toBeDefined();
+      return row!;
+    });
+    expect(failed).toHaveTextContent("The worker doesn't have this category.");
+    await act(async () => {
+      (
+        await screen.findByRole('button', { name: 'Retry without the worker' })
+      ).click();
+    });
+
+    await waitFor(async () => expect(await listItems()).toEqual([]));
+    const retried = fetchMock.mock.calls.findLastIndex(([url]) =>
+      String(url).endsWith('/issues'),
+    );
+    // Same phone-made id (the server never created it), no contractor, the rest kept.
+    expect(fields(retried)).toMatchObject({
+      id: issueId,
+      categoryId: CAT,
+      description: 'Crack',
+    });
+    expect(fields(retried)).not.toHaveProperty('workerId');
   });
 });
 

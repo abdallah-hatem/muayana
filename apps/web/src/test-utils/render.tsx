@@ -1,5 +1,6 @@
 import { render, type RenderOptions } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
+import capture from '../../messages/en/capture.json';
 import common from '../../messages/en/common.json';
 import inbox from '../../messages/en/inbox.json';
 import issue from '../../messages/en/issue.json';
@@ -11,6 +12,7 @@ import categories from '../../messages/en/categories.json';
 import workers from '../../messages/en/workers.json';
 
 const messages = {
+  capture,
   common,
   inbox,
   issue,

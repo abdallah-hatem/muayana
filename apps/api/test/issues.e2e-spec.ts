@@ -328,6 +328,201 @@ describe('POST /issues', () => {
   });
 });
 
+// ======================================================= create with fields (N1)
+
+describe('POST /issues with the capture sheet fields (N1)', () => {
+  /** Uploads a capture with the sheet's fields; answers the response. */
+  const capture = (fields: Record<string, string> = {}, siteId = f.site) => {
+    const id = randomUUID();
+    return {
+      id,
+      req: upload({
+        id,
+        siteId,
+        capturedAt: new Date().toISOString(),
+        ...fields,
+      }),
+    };
+  };
+
+  /** A refused capture left nothing behind: no issue, no photo, no history. */
+  async function expectNothingCreated(id: string): Promise<void> {
+    expect(await t.db.issue.count({ where: { id } })).toBe(0);
+    expect(await t.db.photo.count({ where: { issueId: id } })).toBe(0);
+    expect(await historyCount(id)).toBe(0);
+  }
+
+  const moves = async (id: string) =>
+    (await getIssue(id)).history.map((h) => `${h.from ?? 'none'}→${h.to}`);
+
+  it('Photo only → new, one history row (none→new)', async () => {
+    const { id, req } = capture();
+    const issue = ((await req.expect(201)).body as Body<Issue>).data;
+    expect(issue.status).toBe('new');
+    expect(await moves(id)).toEqual(['none→new']);
+  });
+
+  it('Photo + trade + description → unassigned, rows none→new, new→unassigned', async () => {
+    const { id, req } = capture({
+      categoryId: f.paint,
+      description: 'Crack over the door',
+      location: 'Lobby',
+      priority: 'high',
+    });
+    const issue = ((await req.expect(201)).body as Body<Issue>).data;
+    expect(issue).toMatchObject({
+      status: 'unassigned',
+      category: { id: f.paint },
+      worker: null,
+      description: 'Crack over the door',
+      location: 'Lobby',
+      priority: 'high',
+      assignedAt: null,
+    });
+    expect(await moves(id)).toEqual(['none→new', 'new→unassigned']);
+  });
+
+  it('+ contractor of that trade → assigned, assignedAt set', async () => {
+    const { req } = capture({
+      categoryId: f.paint,
+      description: 'Peeling paint',
+      workerId: f.wPaint,
+    });
+    const issue = ((await req.expect(201)).body as Body<Issue>).data;
+    expect(issue.status).toBe('assigned');
+    expect(issue.worker?.id).toBe(f.wPaint);
+    expect(issue.assignedAt).not.toBeNull();
+  });
+
+  it('Contractor lacking the trade → 409 WORKER_LACKS_CATEGORY, nothing created', async () => {
+    const { id, req } = capture({
+      categoryId: f.paint,
+      description: 'Peeling paint',
+      workerId: f.wElec,
+    });
+    const res = await req.expect(409);
+    expect((res.body as Body<null>).error).toBe(
+      DomainErrorCode.WORKER_LACKS_CATEGORY,
+    );
+    await expectNothingCreated(id);
+  });
+
+  it('Inactive contractor / inactive trade → 409, nothing created', async () => {
+    const worker = capture({
+      categoryId: f.paint,
+      description: 'Peeling paint',
+      workerId: f.wInactive,
+    });
+    const w = await worker.req.expect(409);
+    expect((w.body as Body<null>).error).toBe(DomainErrorCode.INACTIVE_WORKER);
+    await expectNothingCreated(worker.id);
+
+    const trade = capture({ categoryId: f.inactiveCat, description: 'Old' });
+    const c = await trade.req.expect(409);
+    expect((c.body as Body<null>).error).toBe(
+      DomainErrorCode.INACTIVE_CATEGORY,
+    );
+    await expectNothingCreated(trade.id);
+  });
+
+  it('Contractor without trade → 409 ISSUE_REQUIREMENTS, nothing created', async () => {
+    const { id, req } = capture({
+      description: 'Peeling paint',
+      workerId: f.wPaint,
+    });
+    const res = await req.expect(409);
+    expect((res.body as Body<null>).error).toBe(
+      DomainErrorCode.ISSUE_REQUIREMENTS,
+    );
+    await expectNothingCreated(id);
+  });
+
+  it('Trade without description → stays new (no error)', async () => {
+    const { id, req } = capture({ categoryId: f.paint });
+    const issue = ((await req.expect(201)).body as Body<Issue>).data;
+    expect(issue.status).toBe('new');
+    expect(issue.category?.id).toBe(f.paint);
+    expect(await moves(id)).toEqual(['none→new']);
+  });
+
+  it('Contractor + trade without description → 409 ISSUE_REQUIREMENTS, nothing created', async () => {
+    const { id, req } = capture({ categoryId: f.paint, workerId: f.wPaint });
+    const res = await req.expect(409);
+    expect(res.body as Body<{ missing: string[] }>).toMatchObject({
+      error: DomainErrorCode.ISSUE_REQUIREMENTS,
+      data: { missing: ['description'] },
+    });
+    await expectNothingCreated(id);
+  });
+
+  it('Archived site with fields → 409 ARCHIVED_SITE, nothing created', async () => {
+    const { id, req } = capture(
+      { categoryId: f.paint, description: 'Crack', workerId: f.wPaint },
+      f.archivedSite,
+    );
+    const res = await req.expect(409);
+    expect((res.body as Body<null>).error).toBe(DomainErrorCode.ARCHIVED_SITE);
+    await expectNothingCreated(id);
+  });
+
+  it('Unauthenticated POST /issues with the new fields → 401', async () => {
+    const id = randomUUID();
+    await request(t.http)
+      .post(ISSUES)
+      .field('id', id)
+      .field('siteId', f.site)
+      .field('capturedAt', new Date().toISOString())
+      .field('categoryId', f.paint)
+      .field('description', 'Crack')
+      .field('workerId', f.wPaint)
+      .attach('photo', jpeg, { filename: 'p.jpg', contentType: 'image/jpeg' })
+      .expect(401);
+    await expectNothingCreated(id);
+  });
+
+  it('assigned on create writes exactly none→new and new→assigned', async () => {
+    const { id, req } = capture({
+      categoryId: f.elec,
+      description: 'Dead socket',
+      workerId: f.wBoth,
+    });
+    await req.expect(201);
+    expect(await moves(id)).toEqual(['none→new', 'new→assigned']);
+    expect(await historyCount(id)).toBe(2);
+  });
+
+  it('Same client id twice with fields → one issue, same status', async () => {
+    const id = randomUUID();
+    const fields = {
+      id,
+      siteId: f.site,
+      capturedAt: new Date().toISOString(),
+      categoryId: f.paint,
+      description: 'Crack',
+      workerId: f.wPaint,
+    };
+    const first = ((await upload(fields).expect(201)).body as Body<Issue>).data;
+    const second = ((await upload(fields).expect(200)).body as Body<Issue>)
+      .data;
+    expect(second).toMatchObject({
+      id,
+      number: first.number,
+      status: 'assigned',
+    });
+    expect(await t.db.issue.count({ where: { id } })).toBe(1);
+    expect(await historyCount(id)).toBe(2);
+  });
+
+  it('create with a bad priority or a non-uuid trade → 400, nothing created', async () => {
+    const bad = capture({ priority: 'asap' });
+    await bad.req.expect(400);
+    await expectNothingCreated(bad.id);
+    const notId = capture({ categoryId: 'paint' });
+    await notId.req.expect(400);
+    await expectNothingCreated(notId.id);
+  });
+});
+
 // ================================================================= photos
 
 describe('photos', () => {

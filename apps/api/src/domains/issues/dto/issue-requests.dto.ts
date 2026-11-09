@@ -55,6 +55,20 @@ export class CreateIssueDto {
   @IsString()
   @MaxLength(ISSUE_LOCATION_MAX)
   location?: string;
+
+  /** The trade chosen in the capture sheet; with a description it sorts the issue (§5.1). */
+  @IsOptional()
+  @IsUUID()
+  categoryId?: string;
+
+  /** The contractor chosen in the capture sheet; needs the trade and a description (§5.1). */
+  @IsOptional()
+  @IsUUID()
+  workerId?: string;
+
+  @IsOptional()
+  @IsIn(PRIORITIES)
+  priority?: Priority;
 }
 
 /** Multipart fields of `POST /issues/:id/photos` (AddPhotoRequestSchema). */

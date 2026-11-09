@@ -160,3 +160,37 @@ export const applyPatch = (
     workerRemoved,
   };
 };
+
+/** A capture before anything is chosen: `new` with nothing set (§4, §5.1). */
+export const CAPTURED_STATE: Readonly<IssueState> = {
+  status: 'new',
+  categoryId: null,
+  description: null,
+  workerId: null,
+  estimatedDate: null,
+};
+
+/** What the capture sheet may send with the first photo (§5.1). */
+export interface CaptureFields {
+  description?: string | null;
+  categoryId?: string | null;
+  workerId?: string | null;
+}
+
+/**
+ * Where a new capture lands (§5.1): the sheet's trade, description and contractor applied to a
+ * fresh `new` issue by applyPatch — the same rules as sorting it later. Photo only or a trade
+ * without a description stays `new`; trade + description → `unassigned`; + contractor →
+ * `assigned`. A contractor without the trade or the description is refused. `ctx.worker` holds
+ * the chosen contractor's facts (null when none is chosen).
+ */
+export const planCapture = (
+  fields: CaptureFields,
+  ctx: PatchContext,
+): PatchResult => {
+  const patch: IssuePatch = {};
+  if (fields.description) patch.description = fields.description;
+  if (fields.categoryId) patch.categoryId = fields.categoryId;
+  if (fields.workerId) patch.workerId = fields.workerId;
+  return applyPatch(CAPTURED_STATE, patch, ctx);
+};

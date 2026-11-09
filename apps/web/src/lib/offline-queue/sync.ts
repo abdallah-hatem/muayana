@@ -2,7 +2,15 @@ import type { Issue } from '@muayana/shared';
 import { clientFetch } from '@/lib/api-client';
 import type { ApiResult } from '@/lib/api-result';
 import type { QueueItem } from './db';
-import { getItem, listItems, patchItem, removeItem, resetItem } from './queue';
+import {
+  dropContractor,
+  getItem,
+  listItems,
+  patchItem,
+  promoteDrafts,
+  removeItem,
+  resetItem,
+} from './queue';
 
 /** Tries before an item is marked failed and kept (business §5.2). */
 export const MAX_ATTEMPTS = 5;
@@ -30,6 +38,9 @@ function upload(item: QueueItem): Promise<ApiResult<Issue>> {
     body.append('capturedAt', item.capturedAt);
     if (item.note) body.append('description', item.note);
     if (item.location) body.append('location', item.location);
+    if (item.categoryId) body.append('categoryId', item.categoryId);
+    if (item.workerId) body.append('workerId', item.workerId);
+    if (item.priority) body.append('priority', item.priority);
     body.append('photo', photoFile(item));
     return clientFetch<Issue>('/issues', { method: 'POST', body });
   }
@@ -158,6 +169,12 @@ export async function retryItem(id: string): Promise<void> {
   await syncQueue();
 }
 
+/** "Retry without contractor" from the queue sheet: same id, no contractor, uploads now (§5.2). */
+export async function retryWithoutContractor(id: string): Promise<void> {
+  await dropContractor(id);
+  await retryItem(id);
+}
+
 /**
  * The sync worker: runs now (app open), whenever the connection returns, and when a backoff
  * ends. Captures call `syncQueue()` themselves. Returns the stop function.
@@ -166,7 +183,7 @@ export function startQueueSync(): () => void {
   autoRetry = true;
   const onOnline = () => void syncQueue();
   window.addEventListener('online', onOnline);
-  void syncQueue();
+  void promoteDrafts().then(() => syncQueue());
   return () => {
     autoRetry = false;
     window.removeEventListener('online', onOnline);

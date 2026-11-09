@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CSV_BOM,
+  DomainErrorCode,
   type IssueState,
   type WhatsAppIssue,
   applyPatch,
@@ -12,6 +13,7 @@ import {
   escapeCsvCell,
   formatCairoDateTime,
   isOverdue,
+  planCapture,
   normalizeEgyptPhone,
   priorityLabelKey,
   priorityRank,
@@ -332,6 +334,68 @@ describe('applyPatch (§4 automatic moves)', () => {
   });
 });
 
+describe('planCapture (§5.1)', () => {
+  const painter = { categoryIds: ['paint'], active: true };
+
+  it('photo only stays new with no move', () => {
+    const r = planCapture({}, { worker: null });
+    expect(r).toMatchObject({ ok: true, statusChange: null });
+    if (r.ok) expect(r.state.status).toBe('new');
+  });
+
+  it('trade + description → unassigned; + contractor → assigned', () => {
+    expect(
+      planCapture({ categoryId: 'paint', description: 'x' }, { worker: null }),
+    ).toMatchObject({
+      ok: true,
+      statusChange: { from: 'new', to: 'unassigned' },
+    });
+    expect(
+      planCapture(
+        { categoryId: 'paint', description: 'x', workerId: 'w' },
+        { worker: painter },
+      ),
+    ).toMatchObject({
+      ok: true,
+      statusChange: { from: 'new', to: 'assigned' },
+    });
+  });
+
+  it('trade without description stays new keeping the trade', () => {
+    const r = planCapture({ categoryId: 'paint' }, { worker: null });
+    expect(r).toMatchObject({
+      ok: true,
+      statusChange: null,
+      state: { status: 'new', categoryId: 'paint' },
+    });
+  });
+
+  it('contractor without trade, without description, lacking the trade, inactive → refused', () => {
+    expect(
+      planCapture({ workerId: 'w', description: 'x' }, { worker: painter }),
+    ).toMatchObject({ ok: false, code: DomainErrorCode.ISSUE_REQUIREMENTS });
+    expect(
+      planCapture({ categoryId: 'paint', workerId: 'w' }, { worker: painter }),
+    ).toMatchObject({
+      ok: false,
+      code: DomainErrorCode.ISSUE_REQUIREMENTS,
+      missing: ['description'],
+    });
+    expect(
+      planCapture(
+        { categoryId: 'elec', description: 'x', workerId: 'w' },
+        { worker: painter },
+      ),
+    ).toMatchObject({ ok: false, code: DomainErrorCode.WORKER_LACKS_CATEGORY });
+    expect(
+      planCapture(
+        { categoryId: 'paint', description: 'x', workerId: 'w' },
+        { worker: { ...painter, active: false } },
+      ),
+    ).toMatchObject({ ok: false, code: DomainErrorCode.INACTIVE_WORKER });
+  });
+});
+
 describe('isOverdue (§4)', () => {
   const now = new Date('2026-11-05T10:00:00Z');
 
@@ -419,9 +483,7 @@ describe('CSV (§7)', () => {
   });
 
   it('csvRow escapes each cell and ends in CRLF (streamed exports)', () => {
-    expect(csvRow(['=SUM(A1)', 'a,b', null, 3])).toBe(
-      `'=SUM(A1),"a,b",,3\r\n`,
-    );
+    expect(csvRow(['=SUM(A1)', 'a,b', null, 3])).toBe(`'=SUM(A1),"a,b",,3\r\n`);
   });
 
   it('cairoDaysBetween counts Cairo calendar days, never negative', () => {

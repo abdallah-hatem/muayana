@@ -61,7 +61,7 @@ unguessable URLs (Blob) or `/uploads/*` locally.
 
 | Method | Path | Body / query | Data |
 |---|---|---|---|
-| POST | `/issues` | multipart: `id` (uuid, client), `siteId`, `capturedAt`, `description?`, `location?`, `photo` (jpeg/png/webp ≤ 4 MB) | Issue (201 created, **200 with the existing issue if `id` already exists** — idempotent) · 409 ARCHIVED_SITE · 404 site |
+| POST | `/issues` | multipart: `id` (uuid, client), `siteId`, `capturedAt`, `description?`, `location?`, `categoryId?`, `workerId?`, `priority?`, `photo` (jpeg/png/webp ≤ 4 MB) | Issue (201 created, **200 with the existing issue if `id` already exists** — idempotent). Status from the §4 rules (shared `applyPatch` on a fresh `new`): photo only / trade without description → `new`; trade + description → `unassigned`; + worker → `assigned` (`assignedAt` set). History: `none → new` plus one row for the landing move. Refusals create nothing: 409 ARCHIVED_SITE · INACTIVE_CATEGORY · INACTIVE_WORKER · WORKER_LACKS_CATEGORY · ISSUE_REQUIREMENTS (worker without trade or description) · 404 site/category/worker · 400 bad field |
 | POST | `/issues/:id/photos` | multipart `photo`, `kind` | Issue · 409 limit 10 reached |
 | DELETE | `/issues/:id/photos/:photoId` | — | Issue · 409 last before-photo |
 | GET | `/issues` | `IssueFilter`: `siteId, categoryId, workerId, status (comma list), priority (comma list), overdue (bool), capturedFrom, capturedTo, solvedFrom, solvedTo, q, sort (newest\|oldest\|priority\|estimate), page, limit` | `Issue[]` + meta |

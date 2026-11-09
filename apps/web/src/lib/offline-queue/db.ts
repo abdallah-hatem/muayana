@@ -1,7 +1,13 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
+import type { Priority } from '@muayana/shared';
 
 export type QueueKind = 'create' | 'addPhoto';
-export type QueueStatus = 'pending' | 'failed';
+/**
+ * `draft`: a photo stored while the capture sheet is still open — kept on the phone (nothing is
+ * lost if the app closes) but not uploaded until the sheet is saved; a draft left behind by a
+ * closed app is promoted to a photo-only upload on the next start.
+ */
+export type QueueStatus = 'draft' | 'pending' | 'failed';
 
 /** A compressed photo as bytes: Safari has refused Blobs in IndexedDB, ArrayBuffers always store. */
 export interface QueuedPhoto {
@@ -21,6 +27,13 @@ export interface QueueItem {
   capturedAt: string;
   note: string | null;
   location: string | null;
+  /**
+   * The capture sheet's trade, contractor and priority (`create` only, §5.1). Absent on items
+   * queued before the sheet existed: read with `?? null`.
+   */
+  categoryId?: string | null;
+  workerId?: string | null;
+  priority?: Priority | null;
   photo: QueuedPhoto;
   attempts: number;
   status: QueueStatus;

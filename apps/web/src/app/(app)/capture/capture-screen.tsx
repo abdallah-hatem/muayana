@@ -6,41 +6,47 @@ import {
   ChevronDown,
   ImagePlus,
   Loader2,
-  NotebookPen,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
-import { FormField } from '@/components/form-field';
 import { LocalPhoto } from '@/components/photo';
 import { QueueChip } from '@/components/offline-queue/queue-sheet';
 import { CameraInput } from '@/components/ui/camera-input';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { PhotoUnreadableError } from '@/lib/compress-photo';
+import type { CaptureDetails } from '@/lib/offline-queue';
 import { useOnline } from '@/lib/use-online';
 import { cn } from '@/lib/utils';
-import { ISSUE_DESCRIPTION_MAX, ISSUE_LOCATION_MAX } from '@muayana/shared';
-import { takeShot, type ShotMode } from './capture-shot';
+import { CaptureSheet, type CaptureDraft } from './capture-sheet';
+import { saveCapture, takeShot } from './capture-shot';
 import { SitePicker } from './site-picker';
 import { currentLastIssue, setLastIssue, useLastIssue } from './use-last-issue';
+import { useCaptureLookups } from './use-capture-lookups';
 import { useCaptureSites } from './use-capture-sites';
 
 type Status = { tone: 'info' | 'error'; key: string } | null;
 
 /**
+ * What the camera was opened for: a new issue (its sheet opens after the photo), another photo
+ * for the issue whose sheet is open, or a photo added to the previous issue.
+ */
+type CameraMode = 'new' | 'sheet' | 'previous';
+
+/**
  * Capture on site (business §5.1, mockup screen 2): a dark camera view, the site chip and queue
- * badge on top, the last shot full-bleed, and a bottom panel with location, an optional note,
- * the last shot's thumbnail, the big shutter and "add to previous". Every photo is compressed
- * and queued on the phone first, so it works with no signal.
+ * badge on top, the last shot full-bleed, and a bottom panel with the last shot's thumbnail, the
+ * big shutter and "add to previous". After a new issue's photo(s), one sheet holds its details
+ * (CaptureSheet). Every photo is compressed and kept on the phone first, so it works with no
+ * signal; the sheet's photos wait as drafts until it is saved.
  */
 export function CaptureScreen() {
   const t = useTranslations('capture');
   const online = useOnline();
   const { state: sitesState, site, setSiteId } = useCaptureSites();
+  const lookups = useCaptureLookups();
   const [pickerOpen, setPickerOpen] = useState(false);
+  // The place carries over to the next capture: a walk shoots several defects in one room.
   const [location, setLocation] = useState('');
-  const [note, setNote] = useState('');
-  const [noteOpen, setNoteOpen] = useState(false);
+  const [draft, setDraft] = useState<CaptureDraft | null>(null);
   const lastIssue = useLastIssue();
   const [lastShotUrl, setLastShotUrl] = useState<string | null>(null);
   const [shots, setShots] = useState(0);
@@ -48,8 +54,10 @@ export function CaptureScreen() {
   const [status, setStatus] = useState<Status>(null);
 
   const cameraRef = useRef<HTMLInputElement>(null);
-  const modeRef = useRef<ShotMode>('new');
-  // Shots are stored one after another, so "add to previous" always sees the issue before it.
+  const modeRef = useRef<CameraMode>('new');
+  // The issue whose sheet is open (or opening), read by the shot chain and on unmount.
+  const draftRef = useRef<CaptureDraft | null>(null);
+  // Shots are stored one after another, so a joining photo always sees the issue before it.
   const chain = useRef<Promise<unknown>>(Promise.resolve());
 
   useEffect(
@@ -59,9 +67,26 @@ export function CaptureScreen() {
     [lastShotUrl],
   );
 
+  // Leaving the screen with the sheet open keeps the photos: they go up as "photo only".
+  useEffect(
+    () => () => {
+      const open = draftRef.current;
+      if (!open) return;
+      draftRef.current = null;
+      chain.current = chain.current.then(() => saveCapture(open.issueId));
+      open.photos.forEach((url) => URL.revokeObjectURL(url));
+    },
+    [],
+  );
+
+  const showDraft = (next: CaptureDraft | null) => {
+    draftRef.current = next;
+    setDraft(next);
+  };
+
   const canAttach = !!site && lastIssue?.siteId === site.id;
 
-  const openCamera = (mode: ShotMode) => {
+  const openCamera = (mode: CameraMode) => {
     if (!site) {
       setPickerOpen(true);
       return;
@@ -70,36 +95,48 @@ export function CaptureScreen() {
     cameraRef.current?.click();
   };
 
+  /** One stored photo: where it goes, and what the screen shows after. */
+  const storeShot = async (file: File, siteId: string, mode: CameraMode) => {
+    const open = draftRef.current;
+    const joinsDraft = mode === 'sheet' && open !== null;
+    const shot = await takeShot({
+      file,
+      siteId,
+      mode: mode === 'previous' || joinsDraft ? 'attach' : 'new',
+      previous: joinsDraft
+        ? { issueId: open.issueId, siteId }
+        : currentLastIssue(),
+      draft: mode !== 'previous',
+    });
+    setLastShotUrl(URL.createObjectURL(shot.photo));
+    setShots((n) => n + 1);
+    if (mode === 'previous') {
+      setLastIssue(shot.lastIssue);
+      setStatus({
+        tone: 'info',
+        key: shot.item.kind === 'addPhoto' ? 'attached' : 'saved',
+      });
+      return;
+    }
+    const url = URL.createObjectURL(shot.photo);
+    showDraft(
+      joinsDraft
+        ? { ...open, photos: [...open.photos, url] }
+        : { issueId: shot.lastIssue.issueId, photos: [url] },
+    );
+  };
+
   const onFiles = (files: File[]) => {
     if (!site) return;
     const mode = modeRef.current;
     modeRef.current = 'new';
-    // The note belongs to a new issue; it waits for the next one when adding to the previous.
-    const shotNote = mode === 'new' ? note : undefined;
-    if (mode === 'new') {
-      setNote('');
-      setNoteOpen(false);
-    }
     for (const [index, file] of files.entries()) {
+      // Several files in one pick: the first follows the mode, the rest join the same issue.
+      const fileMode = index === 0 || mode === 'previous' ? mode : 'sheet';
       setSaving((n) => n + 1);
       chain.current = chain.current.then(async () => {
         try {
-          const shot = await takeShot({
-            file,
-            siteId: site.id,
-            // Several files in one pick: the first follows the mode, the rest join it.
-            mode: index === 0 ? mode : 'attach',
-            previous: currentLastIssue(),
-            note: index === 0 ? shotNote : undefined,
-            location,
-          });
-          setLastIssue(shot.lastIssue);
-          setLastShotUrl(URL.createObjectURL(shot.photo));
-          setShots((n) => n + 1);
-          setStatus({
-            tone: 'info',
-            key: shot.item.kind === 'addPhoto' ? 'attached' : 'saved',
-          });
+          await storeShot(file, site.id, fileMode);
         } catch (error) {
           setStatus({
             tone: 'error',
@@ -113,6 +150,20 @@ export function CaptureScreen() {
         }
       });
     }
+  };
+
+  /** The sheet is saved (`null`: photo only): the drafted issue and its photos go up together. */
+  const onSave = (details: CaptureDetails | null) => {
+    const open = draftRef.current;
+    if (!open || !site) return;
+    showDraft(null);
+    if (details) setLocation(details.location ?? '');
+    setLastIssue({ issueId: open.issueId, siteId: site.id });
+    setStatus({ tone: 'info', key: 'saved' });
+    chain.current = chain.current.then(() =>
+      saveCapture(open.issueId, details ?? {}),
+    );
+    open.photos.forEach((url) => URL.revokeObjectURL(url));
   };
 
   return (
@@ -193,43 +244,8 @@ export function CaptureScreen() {
         )}
       </div>
 
-      {/* Bottom panel: details, then thumbnail · shutter · add to previous. */}
+      {/* Bottom panel: thumbnail · shutter · add to previous. */}
       <div className="flex flex-col gap-3 border-t-2 border-border bg-card p-4">
-        <FormField
-          id="capture-location"
-          label={`${t('location')} ${t('optional')}`}
-        >
-          <Input
-            id="capture-location"
-            value={location}
-            maxLength={ISSUE_LOCATION_MAX}
-            placeholder={t('locationPlaceholder')}
-            onChange={(e) => setLocation(e.target.value)}
-            autoComplete="off"
-          />
-        </FormField>
-        {noteOpen ? (
-          <FormField id="capture-note" label={`${t('note')} ${t('optional')}`}>
-            <Textarea
-              id="capture-note"
-              rows={3}
-              value={note}
-              maxLength={ISSUE_DESCRIPTION_MAX}
-              placeholder={t('notePlaceholder')}
-              onChange={(e) => setNote(e.target.value)}
-            />
-          </FormField>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setNoteOpen(true)}
-            className="flex h-11 cursor-pointer items-center gap-2 self-start rounded-md px-1 type-small font-bold text-muted-foreground hover:text-foreground"
-          >
-            <NotebookPen className="size-5" aria-hidden />
-            {t('addNote')}
-          </button>
-        )}
-
         <div className="grid grid-cols-3 items-center">
           <div className="justify-self-start">
             {lastShotUrl ? (
@@ -261,7 +277,7 @@ export function CaptureScreen() {
           </button>
           <button
             type="button"
-            onClick={() => openCamera('attach')}
+            onClick={() => openCamera('previous')}
             disabled={!canAttach}
             aria-label={t('addToPreviousLabel')}
             title={canAttach ? undefined : t('addToPreviousUnavailable')}
@@ -285,6 +301,15 @@ export function CaptureScreen() {
           {saving > 0 ? t('saving') : status ? t(status.key) : t('hint')}
         </p>
       </div>
+
+      <CaptureSheet
+        draft={draft}
+        lookups={lookups}
+        initialLocation={location}
+        addingPhoto={saving > 0}
+        onAddPhoto={() => openCamera('sheet')}
+        onSave={onSave}
+      />
 
       <SitePicker
         open={pickerOpen}
