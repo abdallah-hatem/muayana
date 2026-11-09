@@ -1,7 +1,7 @@
 # Build log
 Run mode: fully autonomous — chosen by the user on 2026-11-05 (re-confirmed after the mockup: "go ahead, continue fully autonomous")
 Goal (current): mobile-first web app for an audit engineer — capture defect photos on site, sort them into trade categories, assign to workers (no accounts), track statuses, worker views, CSV export of any filter · spec `docs/specs/2026-11-05-muayana.md` · plan `docs/superpowers/plans/2026-11-05-muayana-v1.md`
-Current stage: **released 2026-11-09** — PR #3 (permanent delete of issues and contractors) merged to `production` (8c2588e) after migration `20261109140131_issue_former_worker_name` was applied to the production database; muayana-api and muayana-web Ready on 8c2588e, health OK, live sign-in + issues + contractors lists checked. Earlier: PR #2 (one-sheet capture, «مقاول», WhatsApp photo files, contractor Excel, 238df45).
+Current stage: **released 2026-11-09** — PR #4 (install card; every sheet opens with the keyboard down) merged to `production` (7dc3194), muayana-api and muayana-web Ready, health OK, live sign-in checked and the install code confirmed in the served JS. Earlier the same day: PR #3 permanent delete (8c2588e, migration applied first), PR #2 one-sheet capture / «مقاول» / WhatsApp photo files / contractor Excel (238df45).
 
 ## Final state (2026-11-05)
 - All plan tasks T1–T12 merged into `dev`, plus fixes: smoke (abort hung reads on unmount, ×2), UI audit wave (kit + screens), re-audit polish, deploy readiness, DB-backed login lockout, seed photos through storage.
@@ -9,7 +9,7 @@ Current stage: **released 2026-11-09** — PR #3 (permanent delete of issues and
 - Decisions worth reviewing first: [foundation decisions](build-log/decisions/foundation.md) (statuses incl. `new`/`cancelled`, WhatsApp via share sheet + "Mark as sent?", public unguessable photo URLs, design direction) and the GUESS rules in `docs/business/*.md`.
 
 ## Waiting on the user
-- **Ship** the install card + sheets-open-with-the-keyboard-down fix: restored on `dev` 2026-11-09 from the deleted `feat/capture-sheet` branch (6538c39, 8b74750); web 286 tests, typecheck, lint pass. No migration. Not yet on `production`.
+- (none)
 ## Next up
 - (none queued) — the 2026-11-09 batch is built: N1 one-sheet capture (trade → contractor), N2 «مقاول», N3 WhatsApp photo files, N4 contractor Excel with embedded photos, plus on-demand photo loading for sends and the UI-audit fixes. Spec `docs/specs/2026-11-09-capture-sheet-contractor-whatsapp-excel.md`, waves `build-log/waves/next-up/`.
 
