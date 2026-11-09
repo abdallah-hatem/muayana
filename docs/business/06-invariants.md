@@ -2,7 +2,8 @@
 Rules that must never break. Each has a test that tries to break it.
 
 1. An issue outside `new` always has a category and a description. **DECIDED**
-2. An issue in `assigned`, `sent`, `estimated`, `in_progress` or `solved` always has a worker. **DECIDED**
+2. An issue in `assigned`, `sent`, `estimated`, `in_progress` or `solved` always has a worker — except a
+   `solved` issue whose contractor was deleted, which keeps his name as a record instead. **DECIDED**
 3. An issue's worker has the issue's category at the moment of assignment; a category change the
    worker doesn't cover unassigns him. **DECIDED**
 4. An issue in `estimated` always has an estimated date. **DECIDED**
@@ -10,7 +11,9 @@ Rules that must never break. Each has a test that tries to break it.
    before-photo is refused. **DECIDED**
 6. Nothing moves back to `new`. **DECIDED**
 7. Status history is append-only: every status change writes exactly one record. **DECIDED**
-8. A worker, category or site that is referenced is deactivated or archived, never deleted. **DECIDED**
+8. A category or site that is referenced is deactivated or archived, never deleted. Issues and
+   contractors can be deleted permanently, only after the engineer confirms what will disappear;
+   nothing is ever deleted as a side effect he wasn't shown. **DECIDED**
 9. Uploading the same captured issue twice (offline retry) creates it once. **DECIDED**
 10. Nothing is reachable without signing in — **except photo files**, which are served at long,
     unguessable addresses so a contractor can open them from the fallback WhatsApp link (and the

@@ -55,6 +55,25 @@ export const PRIORITY_LABELS: Record<Locale, Record<Priority, string>> = {
   en: { low: 'Low', normal: 'Normal', high: 'High', urgent: 'Urgent' },
 };
 
+/** How a deleted contractor's kept name is marked, in each language (business §3). */
+export const DELETED_WORKER_MARK: Record<Locale, string> = {
+  ar: 'محذوف',
+  en: 'deleted',
+};
+
+/**
+ * Who the issue's contractor is, as an export reads it: his name, or a deleted contractor's kept
+ * name marked "deleted" — `Name (deleted)` / `Name (محذوف)`. `null` when there is neither.
+ */
+export const exportWorkerName = (
+  issue: Pick<ExportIssue, 'worker' | 'formerWorkerName'>,
+  lang: Locale,
+): string | null => {
+  if (issue.worker) return issue.worker.name;
+  if (!issue.formerWorkerName) return null;
+  return `${issue.formerWorkerName} (${DELETED_WORKER_MARK[lang]})`;
+};
+
 /** A category's name in an export's language (English falls back to Arabic). */
 export const exportCategoryName = (
   category: { nameAr: string; nameEn: string | null },
@@ -74,6 +93,8 @@ export interface ExportIssue {
   location: string | null;
   category: { nameAr: string; nameEn: string | null } | null;
   worker: { name: string; phone: string } | null;
+  /** A deleted contractor's name kept on the issue (business §3); absent/null otherwise. */
+  formerWorkerName?: string | null;
   /** `YYYY-MM-DD` */
   estimatedDate: string | null;
   capturedAt: Instant;
@@ -190,7 +211,7 @@ export const ISSUE_EXPORT_COLUMN_DEFS: readonly IssueExportColumnDef[] = [
   {
     key: 'worker',
     label: { ar: 'المقاول', en: 'Worker' },
-    value: (i) => i.worker?.name,
+    value: (i, { lang }) => exportWorkerName(i, lang),
   },
   {
     key: 'workerPhone',

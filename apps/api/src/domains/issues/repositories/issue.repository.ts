@@ -27,6 +27,7 @@ export const ISSUE_SELECT = {
   site: { select: { id: true, name: true } },
   category: { select: { id: true, nameAr: true, nameEn: true, color: true } },
   worker: { select: { id: true, name: true, phone: true } },
+  formerWorkerName: true,
   photos: {
     select: {
       id: true,
@@ -85,6 +86,7 @@ export const ISSUE_STATE_SELECT = {
   categoryId: true,
   description: true,
   workerId: true,
+  formerWorkerName: true,
   estimatedDate: true,
   assignedAt: true,
   sentAt: true,
@@ -271,6 +273,7 @@ export class IssueRepository {
       capturedAt: Date;
       categoryId: string | null;
       workerId: string | null;
+      formerWorkerName: string | null;
       estimatedDate: Date | null;
       priority?: Priority;
       assignedAt?: Date;

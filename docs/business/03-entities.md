@@ -24,8 +24,14 @@ Name in Arabic (required) and English (optional), a colour, a sort order, an act
 Name (required), phone (required, stored in international form, e.g. +2010…; Egyptian local numbers
 like 010…, landlines, spaces/dashes and Arabic-Indic digits are accepted and converted), one or more categories (at least one), notes, active flag.
 - Phone is unique among workers. **GUESS**
-- A worker with issues is deactivated, never deleted. A worker with none may be deleted. A deactivated
-  worker can't receive new issues but keeps the ones he has. **DECIDED**
+- A worker can be **deactivated** (can't receive new issues, keeps the ones he has) or **deleted
+  permanently**. Deleting one with issues asks every time what happens to them: **(a) keep the issues** —
+  open ones (`assigned`, `sent`, `estimated`, `in_progress`) go back to `unassigned` (estimated date
+  cleared) with a history record naming the deleted contractor; `solved` and `cancelled` ones keep his
+  name as a record (it stays if the issue is reopened, and is replaced once a new contractor is chosen);
+  or **(b) delete his issues too** — every issue ever assigned to him, with photos and
+  history, permanently. A worker with no issues is deleted with a simple confirm. **DECIDED** (owner,
+  2026-11-09: "delete a worker completely"; "ask each time")
 - Removing a category from a worker does not touch the issues already assigned to him. **GUESS**
 
 ## Issue
@@ -43,7 +49,10 @@ One defect. Belongs to exactly one site.
 - **Estimated completion date** — set when the worker's estimate arrives.
 - **Number** — a short running number per site (#1, #2…) for talking about it with workers. Never reused.
 - **Captured at** — the moment the photo was taken on the phone, even if it uploaded later.
-- An issue in `new` may be deleted (a wrong shot). Any other issue is cancelled, never deleted. **GUESS**
+- Any issue, in any status, can be **deleted permanently** by the engineer after a confirm that shows its
+  number and photo count: the issue, its photos (also removed from photo storage) and its status history
+  are gone. Its number is still never reused. Cancelling stays available for keeping a record. **DECIDED**
+  (owner, 2026-11-09: "delete an issue completely")
 
 ## Status change
 Every status move is recorded: from, to, when, optional note. Append-only; never edited or deleted.

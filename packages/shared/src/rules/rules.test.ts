@@ -13,6 +13,7 @@ import {
   escapeCsvCell,
   formatCairoDateTime,
   isOverdue,
+  missingFor,
   planCapture,
   normalizeEgyptPhone,
   priorityLabelKey,
@@ -628,5 +629,58 @@ describe('labels', () => {
     expect(statusLabelKey('in_progress')).toBe('status.in_progress');
     expect(priorityLabelKey('urgent')).toBe('priority.urgent');
     expect(priorityRank('urgent')).toBeGreaterThan(priorityRank('low'));
+  });
+});
+
+describe('deleted contractor kept on an issue (§3, §6.2 exception)', () => {
+  const formerSolved = (over: Partial<IssueState> = {}): IssueState =>
+    sorted({
+      status: 'solved',
+      workerId: null,
+      formerWorkerName: 'Sayed',
+      ...over,
+    });
+
+  it('keep: solved with only formerWorkerName still valid (§6.2)', () => {
+    expect(missingFor(formerSolved(), 'solved')).toEqual([]);
+    // Editing it (description) keeps it solved — no silent move to unassigned.
+    const edit = applyPatch(formerSolved(), { description: 'Fixed' }, noWorker);
+    expect(edit).toMatchObject({
+      ok: true,
+      state: { status: 'solved', workerId: null },
+      statusChange: null,
+    });
+  });
+
+  it('keep: the former name never stands in for a worker on any other move (§6.2)', () => {
+    for (const to of ['assigned', 'sent', 'estimated', 'in_progress'] as const)
+      expect(
+        canMove(formerSolved({ estimatedDate: '2026-12-01' }), to),
+      ).toEqual({
+        ok: false,
+        code: DomainErrorCode.ISSUE_REQUIREMENTS,
+        missing: ['worker'],
+      });
+    // A cancelled or unassigned issue keeping the name can't be marked solved without a worker.
+    for (const status of ['cancelled', 'unassigned'] as const)
+      expect(canMove(formerSolved({ status }), 'solved')).toMatchObject({
+        ok: false,
+        missing: ['worker'],
+      });
+    // A blank name is no name.
+    expect(
+      missingFor(formerSolved({ formerWorkerName: ' ' }), 'solved'),
+    ).toEqual(['worker']);
+  });
+
+  it('keep: reopen a solved issue with only formerWorkerName → unassigned (§4)', () => {
+    expect(reopenTarget(formerSolved())).toBe('unassigned');
+    expect(canMove(formerSolved(), 'unassigned')).toEqual({ ok: true });
+  });
+
+  it('keep: choosing a contractor on it keeps it solved with the new worker (discovered)', () => {
+    expect(
+      applyPatch(formerSolved(), { workerId: OMAR }, painter),
+    ).toMatchObject({ ok: true, state: { status: 'solved', workerId: OMAR } });
   });
 });

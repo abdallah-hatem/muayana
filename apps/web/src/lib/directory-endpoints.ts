@@ -12,6 +12,7 @@ import type {
   UpdateSiteRequest,
   UpdateWorkerRequest,
   Worker,
+  WorkerIssuesChoice,
 } from '@muayana/shared';
 import { fetchAllPages } from './all-pages';
 import { clientFetch, clientFetchRaw } from './api-client';
@@ -103,8 +104,14 @@ export const createWorker = (body: CreateWorkerRequest) =>
 export const updateWorker = (id: string, body: UpdateWorkerRequest) =>
   clientFetch<Worker>(`/workers/${id}`, { method: 'PATCH', body });
 
-export const deleteWorker = (id: string) =>
-  clientFetch<Deleted>(`/workers/${id}`, { method: 'DELETE' });
+/**
+ * Deletes a worker permanently. `issues` says what happens to his issues (business §3) — needed
+ * only when he has some; without it the API refuses 409 WORKER_HAS_ISSUES with their counts.
+ */
+export const deleteWorker = (id: string, issues?: WorkerIssuesChoice) =>
+  clientFetch<Deleted>(`/workers/${id}${toQuery({ issues })}`, {
+    method: 'DELETE',
+  });
 
 /** The workers CSV for the list's filter, headers in `lang` (contract: export.csv). */
 export const exportWorkersCsv = (filter: WorkerFilter, lang: Locale) =>

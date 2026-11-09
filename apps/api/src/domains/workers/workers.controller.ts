@@ -12,6 +12,7 @@ import {
 import { CsvResponse } from '../../common/decorators/csv-response.decorator';
 import { ResponseUtil } from '../../common/utils/response.util';
 import { CreateWorkerDto } from './dto/create-worker.dto';
+import { DeleteWorkerQueryDto } from './dto/delete-worker-query.dto';
 import { UpdateWorkerDto } from './dto/update-worker.dto';
 import {
   WorkerExportQueryDto,
@@ -52,7 +53,10 @@ export class WorkersController {
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.workers.remove(id);
+  remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query() query: DeleteWorkerQueryDto,
+  ) {
+    return this.workers.remove(id, query.issues);
   }
 }

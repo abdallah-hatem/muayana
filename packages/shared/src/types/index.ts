@@ -14,6 +14,7 @@ import type {
   CreateWorkerRequestSchema,
   DashboardQuerySchema,
   DashboardSchema,
+  DeleteWorkerQuerySchema,
   DeletedSchema,
   IssueDetailSchema,
   IssueExportQuerySchema,
@@ -38,6 +39,8 @@ import type {
   UpdateWorkerRequestSchema,
   UserSchema,
   WorkerExportQuerySchema,
+  WorkerIssuesChoiceSchema,
+  WorkerIssuesSummarySchema,
   WorkerListQuerySchema,
   WorkerRefSchema,
   WorkerSchema,
@@ -81,6 +84,9 @@ export type WorkerRef = z.output<typeof WorkerRefSchema>;
 export type WorkerListQuery = z.input<typeof WorkerListQuerySchema>;
 export type CreateWorkerRequest = z.input<typeof CreateWorkerRequestSchema>;
 export type UpdateWorkerRequest = z.input<typeof UpdateWorkerRequestSchema>;
+export type WorkerIssuesChoice = z.output<typeof WorkerIssuesChoiceSchema>;
+export type DeleteWorkerQuery = z.input<typeof DeleteWorkerQuerySchema>;
+export type WorkerIssuesSummary = z.output<typeof WorkerIssuesSummarySchema>;
 
 // Issues
 export type Photo = z.output<typeof PhotoSchema>;

@@ -1,35 +1,24 @@
 'use client';
 
-import {
-  CalendarClock,
-  MapPin,
-  Pencil,
-  Phone,
-  Tag,
-  Trash2,
-  Loader2,
-} from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { CalendarClock, MapPin, Pencil, Phone, Tag, UserX } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import {
   isOverdue,
   priorityLabelKey,
   type Issue,
   type IssueDetail,
 } from '@muayana/shared';
-import { BottomSheet } from '@/components/bottom-sheet';
 import { PhotoGallery } from '@/components/photo-gallery';
 import { SendToWorker } from '@/components/send/send-to-worker';
 import { ShellTitle } from '@/components/shell/shell-title';
 import { StatusChip } from '@/components/status-chip';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useApiErrorText } from '@/components/use-api-error-text';
 import { categoryName } from '@/lib/category-name';
-import { deleteIssue, getIssue } from '@/lib/issue-endpoints';
+import { getIssue } from '@/lib/issue-endpoints';
 import { photosOf } from '@/lib/issue-state';
-import { ROUTES } from '@/lib/routes';
+import { DeleteIssue } from './delete-issue';
 import { DetailsForm } from './details-form';
 import { HistoryTimeline } from './history-timeline';
 import { StatusActions } from './status-actions';
@@ -212,6 +201,23 @@ export function IssueView({ initial }: { initial: IssueDetail }) {
               </a>
             </Button>
           </div>
+        ) : issue.formerWorkerName ? (
+          <div className="flex items-center gap-3 rounded-lg border-2 border-dashed border-border p-3">
+            <span
+              aria-hidden
+              className="flex size-11 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground"
+            >
+              <UserX className="size-5" />
+            </span>
+            <div className="flex min-w-0 flex-1 flex-col">
+              <span dir="auto" className="truncate text-start font-bold">
+                {t('former.name', { name: issue.formerWorkerName })}
+              </span>
+              <span className="type-small text-muted-foreground">
+                {t('former.hint')}
+              </span>
+            </div>
+          </div>
         ) : (
           <p className="rounded-lg border-2 border-dashed border-border p-3 type-small text-muted-foreground">
             {t('worker.none')}
@@ -224,81 +230,7 @@ export function IssueView({ initial }: { initial: IssueDetail }) {
 
       <HistoryTimeline history={issue.history} />
 
-      {issue.status === 'new' && <DeleteIssue issue={issue} />}
+      <DeleteIssue issue={issue} />
     </article>
-  );
-}
-
-/** Delete, offered only while the issue is `new` (business §3; the API refuses NOT_NEW). */
-function DeleteIssue({ issue }: { issue: Issue }) {
-  const t = useTranslations('issue.delete');
-  const tCommon = useTranslations('common.actions');
-  const errorText = useApiErrorText();
-  const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const inFlight = useRef(false);
-
-  async function remove() {
-    if (inFlight.current) return;
-    inFlight.current = true;
-    setBusy(true);
-    setError(null);
-    const res = await deleteIssue(issue.id);
-    if (!res.success) {
-      inFlight.current = false;
-      setBusy(false);
-      setError(errorText(res));
-      return;
-    }
-    router.replace(ROUTES.inbox);
-  }
-
-  return (
-    <>
-      <Button
-        type="button"
-        variant="ghost"
-        className="self-start text-destructive"
-        onClick={() => setOpen(true)}
-      >
-        <Trash2 aria-hidden />
-        {t('button')}
-      </Button>
-      <BottomSheet
-        open={open}
-        onOpenChange={(next) => !busy && setOpen(next)}
-        title={t('title')}
-        description={t('body')}
-        footer={
-          <>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={busy}
-              onClick={() => setOpen(false)}
-            >
-              {tCommon('cancel')}
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={busy}
-              onClick={() => void remove()}
-            >
-              {busy && <Loader2 className="animate-spin" aria-hidden />}
-              {tCommon('delete')}
-            </Button>
-          </>
-        }
-      >
-        {error && (
-          <p role="alert" className="type-small text-destructive">
-            {error}
-          </p>
-        )}
-      </BottomSheet>
-    </>
   );
 }

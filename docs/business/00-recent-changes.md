@@ -1,4 +1,5 @@
 # Recent changes
+- 2026-11-09 — Owner: issues and contractors can be deleted completely (§3, §6.2, §6.8); deleting a contractor with issues asks each time: keep them (unassigned / name kept) or delete them too. Spec `docs/specs/2026-11-09-permanent-delete.md`.
 - 2026-11-09 — Release review: §8 scope lists the new features; §5.7 counts include cancelled; §5.1 priority saved on create.
 - 2026-11-09 — N1: closing the capture sheet = photo only; photos saved on the phone at once; place carries over (§5.1).
 - 2026-11-09 — N3/N4: multi-part shares need one tap each; Excel statuses chosen in its sheet; >200 marks in independent batches of 200 (§5.5).

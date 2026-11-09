@@ -1,4 +1,4 @@
-import { ConflictException, HttpStatus } from '@nestjs/common';
+import { ConflictException, HttpStatus, Logger } from '@nestjs/common';
 import { DomainErrorCode } from '@muayana/shared';
 import sharp from 'sharp';
 import type { Clock } from '../../common/clock/clock';
@@ -35,6 +35,7 @@ const row = (over: Partial<IssueRow> = {}): IssueRow => ({
   site: { id: SITE, name: 'Tower' },
   category: null,
   worker: null,
+  formerWorkerName: null,
   photos: [],
   ...over,
 });
@@ -45,6 +46,7 @@ const stateRow = (over: Partial<IssueStateRow> = {}): IssueStateRow => ({
   categoryId: 'cat',
   description: 'x',
   workerId: 'w',
+  formerWorkerName: null,
   estimatedDate: null,
   assignedAt: NOW,
   sentAt: null,
@@ -69,6 +71,9 @@ function makeService(
     addStatusChange: jest.fn(),
     update: jest.fn(),
     lockStates: jest.fn().mockResolvedValue([]),
+    lockState: jest.fn().mockResolvedValue(null),
+    photoKeys: jest.fn().mockResolvedValue([]),
+    deleteIssue: jest.fn(),
   };
   const refs = {
     findSite: jest
@@ -225,5 +230,58 @@ describe('IssuesService.bulk', () => {
     await expect(service.bulk({ ids: [ID] })).rejects.toMatchObject({
       status: 400,
     });
+  });
+});
+
+describe('IssuesService.remove (D1)', () => {
+  it('Delete an issue in each status → issue gone, its photo files removed after commit (§3)', async () => {
+    for (const status of [
+      'new',
+      'unassigned',
+      'assigned',
+      'sent',
+      'estimated',
+      'in_progress',
+      'solved',
+      'cancelled',
+    ] as const) {
+      const { service, issues, storage } = makeService();
+      issues.lockState.mockResolvedValue(stateRow({ status }));
+      issues.photoKeys.mockResolvedValue([
+        { storageKey: 'a.jpg' },
+        { storageKey: 'b.jpg' },
+      ]);
+      await expect(service.remove(ID)).resolves.toEqual({ id: ID });
+      expect(issues.deleteIssue).toHaveBeenCalledWith({}, ID);
+      expect(storage.delete.mock.calls).toEqual([['a.jpg'], ['b.jpg']]);
+      // Files go only after the transaction committed.
+      expect(storage.delete.mock.invocationCallOrder[0]).toBeGreaterThan(
+        issues.deleteIssue.mock.invocationCallOrder[0],
+      );
+    }
+  });
+
+  it('Storage failure on delete → issue still deleted, error logged, other files still removed (§3)', async () => {
+    const { service, issues, storage } = makeService();
+    issues.lockState.mockResolvedValue(stateRow({ status: 'solved' }));
+    issues.photoKeys.mockResolvedValue([
+      { storageKey: 'a.jpg' },
+      { storageKey: 'b.jpg' },
+    ]);
+    storage.delete.mockRejectedValueOnce(new Error('blob down'));
+    const warn = jest
+      .spyOn(Logger.prototype, 'warn')
+      .mockImplementation(() => undefined);
+    await expect(service.remove(ID)).resolves.toEqual({ id: ID });
+    expect(storage.delete).toHaveBeenCalledTimes(2);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('a.jpg'));
+    warn.mockRestore();
+  });
+
+  it('Unknown id → 404 and nothing deleted (§6.10)', async () => {
+    const { service, issues, storage } = makeService();
+    await expect(service.remove(ID)).rejects.toMatchObject({ status: 404 });
+    expect(issues.deleteIssue).not.toHaveBeenCalled();
+    expect(storage.delete).not.toHaveBeenCalled();
   });
 });

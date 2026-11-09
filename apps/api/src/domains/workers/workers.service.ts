@@ -1,15 +1,20 @@
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import {
+  CLOSED_STATUSES,
   DomainErrorCode,
   ErrorCode,
   normalizeEgyptPhone,
   type Deleted,
   type Worker,
+  type WorkerIssuesChoice,
+  type WorkerIssuesSummary,
 } from '@muayana/shared';
 import { CLOCK, type Clock } from '../../common/clock/clock';
 import type { Paginated } from '../../common/interfaces/api-response.interface';
@@ -17,7 +22,12 @@ import {
   domainConflict,
   isUniqueViolation,
 } from '../../common/utils/domain-error.util';
-import { tallyByKey } from '../../common/utils/issue-counts.util';
+import { discardPhotos } from '../../common/storage/discard-photos';
+import {
+  PHOTO_STORAGE,
+  type PhotoStorage,
+} from '../../common/storage/photo-storage.interface';
+import { emptyTally, tallyByKey } from '../../common/utils/issue-counts.util';
 import { blankToNull } from '../../common/utils/text.util';
 import { triStateWhere } from '../../common/utils/tri-state.util';
 import { DatabaseService } from '../../database/database.service';
@@ -34,9 +44,11 @@ import {
   type WorkerRow,
 } from './repositories/workers.repository';
 import {
+  deletedContractorNote,
   newlyAddedInactive,
   phoneSearchDigits,
   toWorker,
+  workerIssuesSummary,
   workersCsv,
 } from './workers.pure';
 
@@ -45,6 +57,14 @@ const duplicatePhone = () =>
     DomainErrorCode.DUPLICATE,
     'Another worker already has this phone',
   );
+
+/** 409 WORKER_HAS_ISSUES carrying the counts the UI asks about (contract "Errors"). */
+const hasIssues = (summary: WorkerIssuesSummary) =>
+  new ConflictException({
+    message: 'This worker has issues: choose to keep them or delete them too',
+    error: DomainErrorCode.WORKER_HAS_ISSUES,
+    data: summary,
+  });
 
 function toFilter(query: WorkerFilterDto): WorkerFilter {
   const search = query.search || undefined;
@@ -58,10 +78,13 @@ function toFilter(query: WorkerFilterDto): WorkerFilter {
 
 @Injectable()
 export class WorkersService {
+  private readonly logger = new Logger(WorkersService.name);
+
   constructor(
     private readonly workers: WorkersRepository,
     private readonly db: DatabaseService,
     @Inject(CLOCK) private readonly clock: Clock,
+    @Inject(PHOTO_STORAGE) private readonly storage: PhotoStorage,
   ) {}
 
   async list(query: WorkerListQueryDto): Promise<Paginated<Worker>> {
@@ -130,15 +153,45 @@ export class WorkersService {
     return this.get(id);
   }
 
-  /** A worker with issues is deactivated, never deleted (business §6.8). */
-  async remove(id: string): Promise<Deleted> {
-    await this.findOrThrow(id);
-    if ((await this.workers.countIssues(id)) > 0)
-      throw domainConflict(
-        DomainErrorCode.IN_USE,
-        'This worker has issues: deactivate him instead',
-      );
-    await this.workers.delete(id);
+  /**
+   * Deletes a worker permanently (business §3, §6.8). Without issues he simply goes. With issues
+   * the caller must say what happens to them — otherwise 409 WORKER_HAS_ISSUES with the counts,
+   * and nothing changes: `keep` sends his open issues back to `unassigned` (one history row each
+   * naming him) and keeps his name on the closed ones; `delete` removes every issue he has with
+   * its photos and history. One transaction; photo files go after commit, best-effort.
+   */
+  async remove(id: string, issues?: WorkerIssuesChoice): Promise<Deleted> {
+    const keys = await this.db.transaction(
+      async (tx) => {
+        const worker = await this.workers.lockForDelete(tx, id);
+        if (!worker) throw new NotFoundException('Worker not found');
+        const footprint = await this.workers.issueFootprint(tx, id);
+        const summary = workerIssuesSummary(
+          tallyByKey(footprint.byStatus).get(id) ?? emptyTally(),
+          footprint.photos,
+        );
+        let photoKeys: string[] = [];
+        if (summary.total > 0) {
+          if (!issues) throw hasIssues(summary);
+          if (issues === 'keep') {
+            await this.workers.releaseIssues(
+              tx,
+              id,
+              worker.name,
+              CLOSED_STATUSES,
+              deletedContractorNote(worker.name),
+            );
+          } else {
+            photoKeys = await this.workers.photoKeysOfIssues(tx, id);
+            await this.workers.deleteIssues(tx, id);
+          }
+        }
+        await this.workers.delete(tx, id);
+        return photoKeys;
+      },
+      { timeout: 20_000, maxWait: 10_000 },
+    );
+    await discardPhotos(this.storage, keys, this.logger);
     return { id };
   }
 
