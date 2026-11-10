@@ -1,4 +1,5 @@
 # Recent changes
+- 2026-11-10 — N5: photos can come from the phone's gallery as well as the camera (§5.1): several picked for a new issue → one issue each (sheets in turn) or one issue with all (≤10); the sheet adds more from the gallery; a gallery photo is dated by its file; the solve sheet's after photos may come from the gallery (§5.6).
 - 2026-11-09 — "Install the app" card on the dashboard and in Settings (§5.10); every sheet opens with the phone keyboard down until a field is tapped.
 - 2026-11-09 — Owner: issues and contractors can be deleted completely (§3, §6.2, §6.8); deleting a contractor with issues asks each time: keep them (unassigned / name kept) or delete them too. Spec `docs/specs/2026-11-09-permanent-delete.md`.
 - 2026-11-09 — Release review: §8 scope lists the new features; §5.7 counts include cancelled; §5.1 priority saved on create.
