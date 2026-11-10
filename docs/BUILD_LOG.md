@@ -1,7 +1,7 @@
 # Build log
 Run mode: fully autonomous — chosen by the user on 2026-11-05 (re-confirmed after the mockup: "go ahead, continue fully autonomous")
 Goal (current): mobile-first web app for an audit engineer — capture defect photos on site, sort them into trade categories, assign to workers (no accounts), track statuses, worker views, CSV export of any filter · spec `docs/specs/2026-11-05-muayana.md` · plan `docs/superpowers/plans/2026-11-05-muayana-v1.md`
-Current stage: **released 2026-11-09** — PR #4 (install card; every sheet opens with the keyboard down) merged to `production` (7dc3194), muayana-api and muayana-web Ready, health OK, live sign-in checked and the install code confirmed in the served JS. Earlier the same day: PR #3 permanent delete (8c2588e, migration applied first), PR #2 one-sheet capture / «مقاول» / WhatsApp photo files / contractor Excel (238df45).
+Current stage: **released 2026-11-10** — PR #6 (N5 photos from the gallery: one issue each or one issue with all, "From gallery" in the capture sheet, file-dated capture time, gallery allowed for solve photos) merged to `production` (eacf5c8), muayana-api and muayana-web Ready, health OK, signed-out 401/redirect checked. Verified before release: lint, typecheck, web 293, smoke 30/30 on a production build, alignment review ALIGNED after a §3 doc fix. Earlier: PR #5 dashboard heading, PR #4 install card + keyboard-down sheets, PR #3 permanent delete, PR #2 one-sheet capture (2026-11-09).
 
 ## Final state (2026-11-05)
 - All plan tasks T1–T12 merged into `dev`, plus fixes: smoke (abort hung reads on unmount, ×2), UI audit wave (kit + screens), re-audit polish, deploy readiness, DB-backed login lockout, seed photos through storage.
@@ -18,6 +18,7 @@ Current stage: **released 2026-11-09** — PR #4 (install card; every sheet open
 - (none)
 ## Known follow-ups (not blocking)
 - Unreached in audits: deactivated categories (no seed data), load-error/skeleton states, offline page on a production build.
+- Local smoke runs fill the local DB with test trades (100-category cap) and can trip the sign-in limit; clear unused test categories and `login_failures` before a long smoke run.
 - Vitest occasionally can't start a worker under heavy machine load on Windows (re-run passes; timeout raised to 15s).
 ## Phases
 - Foundation — done · [decisions](build-log/decisions/foundation.md)
