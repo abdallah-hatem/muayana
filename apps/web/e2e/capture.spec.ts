@@ -157,3 +157,68 @@ test('@smoke Capture: photos then one sheet (place, description, trade, contract
   ).toBe('new');
   await expect(page.getByTestId('queue-chip')).toHaveCount(0);
 });
+
+test('@smoke Capture from the gallery: several photos become an issue each (sheets one after another), or one issue with all of them', async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  await signIn(page, '/capture');
+  const siteName = `Gallery ${Date.now()}`;
+  const res = await page.request.post('/api/proxy/sites', {
+    data: { name: siteName },
+  });
+  expect(res.ok()).toBeTruthy();
+  await page.reload();
+  const switcher = page.locator(
+    '[data-slot="site-switcher"] [role="combobox"]',
+  );
+  await switcher.click();
+  await page.getByRole('option', { name: siteName }).click();
+
+  const pick = async (count: number) => {
+    const files = [];
+    for (let i = 0; i < count; i++)
+      files.push(await cameraShot(page, `gallery-${i}.jpg`));
+    await page.getByTestId('gallery-input').setInputFiles(files);
+  };
+  const sheet = page.getByTestId('capture-sheet');
+  const sheetPhotos = page.getByTestId('capture-sheet-photos').locator('img');
+
+  // Three photos, one issue each: three sheets in turn, three issues created.
+  let creates = 0;
+  page.on('response', (r) => {
+    if (isCreate(r) && r.status() === 201) creates++;
+  });
+  await pick(3);
+  await page.getByTestId('gallery-separate').click();
+  await expect(sheet).toBeVisible();
+  await expect(sheet).toContainText(
+    /2 more issues from the gallery|ملاحظتان من المعرض/,
+  );
+  await expect(sheetPhotos).toHaveCount(1);
+  await sheet.locator('#capture-location').fill('Roof');
+  await sheet.getByTestId('capture-photo-only').click();
+  await expect(sheet).toContainText(
+    /One more issue from the gallery|ملاحظة أخرى من المعرض/,
+  );
+  await sheet.getByTestId('capture-photo-only').click();
+  await expect(sheet).toBeVisible();
+  await expect(sheet).not.toContainText(
+    /from the gallery after this|من المعرض\./,
+  );
+  await sheet.getByTestId('capture-photo-only').click();
+  await expect(sheet).toBeHidden();
+  await expect.poll(() => creates, { timeout: 30_000 }).toBe(3);
+
+  // Two photos of one defect: one issue holding both, more can join from the gallery.
+  await pick(2);
+  await page.getByTestId('gallery-together').click();
+  await expect(sheetPhotos).toHaveCount(2);
+  await sheet.getByTestId('capture-add-from-gallery').click();
+  await pick(1);
+  await expect(sheetPhotos).toHaveCount(3);
+  await sheet.getByTestId('capture-photo-only').click();
+  await expect(sheet).toBeHidden();
+  await expect.poll(() => creates, { timeout: 30_000 }).toBe(4);
+  await expect(page.getByTestId('queue-chip')).toHaveCount(0);
+});

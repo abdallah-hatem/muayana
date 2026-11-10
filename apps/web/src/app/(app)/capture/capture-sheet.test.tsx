@@ -53,6 +53,7 @@ function renderSheet(over: Partial<Parameters<typeof CaptureSheet>[0]> = {}) {
     initialLocation: 'Floor 3',
     addingPhoto: false,
     onAddPhoto: vi.fn(),
+    onAddFromGallery: vi.fn(),
     onSave: vi.fn(),
     ...over,
   };

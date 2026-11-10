@@ -1,6 +1,6 @@
 'use client';
 
-import { ImagePlus, Loader2 } from 'lucide-react';
+import { ImagePlus, Images, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
 import {
@@ -48,7 +48,9 @@ export function CaptureSheet({
   lookups,
   initialLocation,
   addingPhoto,
+  waiting = 0,
   onAddPhoto,
+  onAddFromGallery,
   onSave,
 }: {
   draft: CaptureDraft | null;
@@ -56,7 +58,10 @@ export function CaptureSheet({
   initialLocation: string;
   /** A photo for this issue is being compressed and stored. */
   addingPhoto: boolean;
+  /** Gallery issues whose sheets open after this one. */
+  waiting?: number;
   onAddPhoto: () => void;
+  onAddFromGallery: () => void;
   /** `null`: photo only. */
   onSave: (details: CaptureDetails | null) => void;
 }) {
@@ -69,7 +74,11 @@ export function CaptureSheet({
         if (!open) onSave(null);
       }}
       title={t('title')}
-      description={t('description')}
+      description={
+        waiting > 0
+          ? `${t('description')} ${t('waiting', { count: waiting })}`
+          : t('description')
+      }
       keepKeyboardDown
       testId="capture-sheet"
       footer={
@@ -105,6 +114,7 @@ export function CaptureSheet({
           initialLocation={initialLocation}
           addingPhoto={addingPhoto}
           onAddPhoto={onAddPhoto}
+          onAddFromGallery={onAddFromGallery}
           onSave={onSave}
         />
       )}
@@ -118,6 +128,7 @@ function CaptureForm({
   initialLocation,
   addingPhoto,
   onAddPhoto,
+  onAddFromGallery,
   onSave,
 }: {
   draft: CaptureDraft;
@@ -125,6 +136,7 @@ function CaptureForm({
   initialLocation: string;
   addingPhoto: boolean;
   onAddPhoto: () => void;
+  onAddFromGallery: () => void;
   onSave: (details: CaptureDetails) => void;
 }) {
   const t = useTranslations('capture.sheet');
@@ -215,6 +227,18 @@ function CaptureForm({
           )}
           {full ? t('photosFull') : t('addPhoto')}
         </button>
+        {!full && (
+          <button
+            type="button"
+            onClick={onAddFromGallery}
+            disabled={addingPhoto}
+            data-testid="capture-add-from-gallery"
+            className="flex size-20 shrink-0 press cursor-pointer flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-border px-1 text-center type-micro font-bold text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Images className="size-6" aria-hidden />
+            {t('addFromGallery')}
+          </button>
+        )}
       </div>
 
       {/* Lists from the phone's cache, or any list while offline, may have changed since. */}

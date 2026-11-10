@@ -11,6 +11,13 @@
    Closing the sheet keeps the photos as a photo-only issue (`new`); the photos are saved on the phone the
    moment they are taken, so an unsaved sheet left when the app closes still uploads as photo only. The
    place carries over to the next capture. **GUESS**
+5. **From the gallery** (owner, 2026-11-09): instead of the camera, the engineer can pick photos already
+   on the phone. One photo → a new issue, as if just taken. Several → he chooses: **an issue for each
+   photo** (each sheet opens after the one before; all are saved on the phone at once, and leaving the
+   screen keeps them as photo only) or **one issue with all of them** (at most 10). The open sheet can
+   add more photos from the gallery too; photos beyond an issue's 10 are left out with a message. A
+   gallery photo's capture time is its file's date when that is in the last year and not in the future,
+   otherwise now. **GUESS**
 
 **Failure:** no signal → the issue and its photos are kept on the phone and shown as "waiting to
 upload"; nothing is lost if the app is closed. **DECIDED**
@@ -67,7 +74,7 @@ about 15 MB the app warns and offers fewer issues. **DECIDED** (owner, 2026-11-0
 
 ## 5.6 Track
 From the issue page, in one tap each: set the estimate date (→ `estimated`), mark `in_progress`, mark
-`solved` (optionally with after photos and a note), cancel with a reason, reopen.
+`solved` (optionally with after photos — camera or gallery — and a note), cancel with a reason, reopen.
 
 ## 5.7 Workers
 List: name, categories, phone, issues by status (open ones, plus solved and cancelled counts), overdue count. Search and filter by category.

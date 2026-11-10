@@ -7,6 +7,8 @@ exports, Arabic/English, light/dark, installable app.
 in Arabic, WhatsApp sharing of the photo files themselves (links only as fallback), contractor Excel with
 embedded photos.
 
+**Added 2026-11-10:** photos from the phone's gallery (one issue each or one issue with all).
+
 **Planned:** none yet.
 
 **Left out on purpose:** worker accounts or a worker portal; more than one engineer; PDF reports; links

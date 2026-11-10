@@ -48,7 +48,7 @@ One defect. Belongs to exactly one site.
   must never silently reopen it. **GUESS**
 - **Estimated completion date** — set when the worker's estimate arrives.
 - **Number** — a short running number per site (#1, #2…) for talking about it with workers. Never reused.
-- **Captured at** — the moment the photo was taken on the phone, even if it uploaded later.
+- **Captured at** — the moment the photo was taken on the phone, even if it uploaded later. A photo picked from the gallery (§5.1 step 5) takes its file's date when that is within the last year and not in the future, otherwise the moment it was picked.
 - Any issue, in any status, can be **deleted permanently** by the engineer after a confirm that shows its
   number and photo count: the issue, its photos (also removed from photo storage) and its status history
   are gone. Its number is still never reused. Cancelling stays available for keeping a record. **DECIDED**

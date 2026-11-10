@@ -133,7 +133,6 @@ export function SolveSheet({
         <FileButton
           accept={PHOTO_MIME_TYPES.join(',')}
           multiple
-          capture="environment"
           inputLabel={t('photosInput')}
           variant="outline"
           disabled={busy || room <= 0}

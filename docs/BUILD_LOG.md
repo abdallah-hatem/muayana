@@ -11,7 +11,7 @@ Current stage: **released 2026-11-09** — PR #4 (install card; every sheet open
 ## Waiting on the user
 - (none)
 ## Next up
-- **N5 — import photos from the gallery** (asked 2026-11-09, not started): besides taking a photo with the camera, the engineer can pick one or more existing images from the phone's gallery and add them as issues (or attach them to an issue), same flow as captured photos.
+- (none) — N5 gallery import built 2026-11-10 (§5.1 step 5).
 - Done — the 2026-11-09 batch is built: N1 one-sheet capture (trade → contractor), N2 «مقاول», N3 WhatsApp photo files, N4 contractor Excel with embedded photos, plus on-demand photo loading for sends and the UI-audit fixes. Spec `docs/specs/2026-11-09-capture-sheet-contractor-whatsapp-excel.md`, waves `build-log/waves/next-up/`.
 
 ## Blocked
