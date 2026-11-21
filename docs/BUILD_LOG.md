@@ -9,10 +9,15 @@ Current stage: **released 2026-11-10** — PR #6 (N5 photos from the gallery: on
 - Decisions worth reviewing first: [foundation decisions](build-log/decisions/foundation.md) (statuses incl. `new`/`cancelled`, WhatsApp via share sheet + "Mark as sent?", public unguessable photo URLs, design direction) and the GUESS rules in `docs/business/*.md`.
 
 ## Waiting on the user
-- (none)
+- **Pick the N6 tray design** — mockups A (tray behind the camera button), B (tab in the Inbox), C (group everything, save all): https://claude.ai/artifact/L8BUPzfqD3KTNDhTmHAnwh (2026-11-21).
 ## Next up
-- (none) — N5 gallery import built 2026-11-10 (§5.1 step 5).
-- Done — the 2026-11-09 batch is built: N1 one-sheet capture (trade → contractor), N2 «مقاول», N3 WhatsApp photo files, N4 contractor Excel with embedded photos, plus on-demand photo loading for sends and the UI-audit fixes. Spec `docs/specs/2026-11-09-capture-sheet-contractor-whatsapp-excel.md`, waves `build-log/waves/next-up/`.
+- **N6 — unsorted photos tray** (asked 2026-11-21; mockups A/B/C published, waiting on his pick): import as many gallery
+  photos as he wants into a holding area ("unassigned images") that is not an issue yet. At any time he
+  opens it, selects some photos and makes one issue from them (e.g. 5 imported → 3 into one issue, 1
+  into another, 1 into a third); made-into-issue photos leave the tray. Builds on N5 (§5.1 step 5).
+  - Open points: where the tray lives (nav, capture screen, inbox); per site or across sites; works
+    offline (photos kept on the phone) or uploaded first; can a tray photo be deleted/added to an
+    existing issue.
 
 ## Blocked
 - (none)
