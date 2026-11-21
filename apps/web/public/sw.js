@@ -1,12 +1,15 @@
 /*
- * Muayana service worker: keeps the app shell so /capture opens with no signal (business §5.1).
- * It caches pages' HTML (network first) and Next's hashed static files (cache first) — never API
- * data: /api/* always goes to the network. Offline, any page falls back to the cached /capture.
+ * Muayana service worker: keeps the app shell so /capture and its unsorted tray (/capture/tray)
+ * open with no signal (business §5.1). It caches pages' HTML (network first) and Next's hashed
+ * static files (cache first) — never API data: /api/* always goes to the network. Offline, the
+ * tray opens from its own copy and any other page falls back to the cached /capture.
  */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const SHELL_CACHE = `muayana-shell-${VERSION}`;
 const STATIC_CACHE = `muayana-static-${VERSION}`;
 const OFFLINE_PAGE = '/capture';
+/** Pages kept for offline use: capture and the tray, whose photos live on the phone (N6). */
+const OFFLINE_PAGES = [OFFLINE_PAGE, '/capture/tray'];
 const PRECACHE = [
   '/manifest.webmanifest',
   '/icons/icon-192.png',
@@ -39,19 +42,19 @@ async function cacheStaticUrls(urls) {
   );
 }
 
-/** Fetches /capture and the static files its HTML points at. */
-async function precacheCapture() {
+/** Fetches an offline page and the static files its HTML points at. */
+async function precachePage(page) {
   try {
-    const response = await fetch(OFFLINE_PAGE, { credentials: 'same-origin' });
+    const response = await fetch(page, { credentials: 'same-origin' });
     if (!cacheable(response)) return;
     const html = await response.clone().text();
-    await (await caches.open(SHELL_CACHE)).put(OFFLINE_PAGE, response);
+    await (await caches.open(SHELL_CACHE)).put(page, response);
     const urls = [
       ...new Set(html.match(/\/_next\/static\/[^"'\s)\\]+/g) ?? []),
     ];
     await cacheStaticUrls(urls);
   } catch {
-    // Signed out or offline at install: cached on the next online visit to /capture.
+    // Signed out or offline at install: cached on the next online visit to the page.
   }
 }
 
@@ -62,7 +65,7 @@ self.addEventListener('install', (event) => {
       await Promise.all(
         PRECACHE.map((url) => cache.add(url).catch(() => undefined)),
       );
-      await precacheCapture();
+      for (const page of OFFLINE_PAGES) await precachePage(page);
       await self.skipWaiting();
     })(),
   );
@@ -91,15 +94,18 @@ async function networkFirstPage(request) {
   const url = new URL(request.url);
   try {
     const response = await fetch(request);
-    if (url.pathname === OFFLINE_PAGE && cacheable(response)) {
+    if (OFFLINE_PAGES.includes(url.pathname) && cacheable(response)) {
       await (
         await caches.open(SHELL_CACHE)
-      ).put(OFFLINE_PAGE, response.clone());
+      ).put(url.pathname, response.clone());
     }
     return response;
   } catch {
     const cache = await caches.open(SHELL_CACHE);
-    return (await cache.match(OFFLINE_PAGE)) ?? Response.error();
+    const own = OFFLINE_PAGES.includes(url.pathname)
+      ? await cache.match(url.pathname)
+      : undefined;
+    return own ?? (await cache.match(OFFLINE_PAGE)) ?? Response.error();
   }
 }
 

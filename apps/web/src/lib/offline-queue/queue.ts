@@ -1,6 +1,11 @@
 import { newUuid } from '@/lib/uuid';
 import type { Priority } from '@muayana/shared';
-import { queueDb, type QueueItem, type QueueKind } from './db';
+import {
+  queueDb,
+  type QueuedPhoto,
+  type QueueItem,
+  type QueueKind,
+} from './db';
 
 export interface EnqueueInput {
   kind: QueueKind;
@@ -39,10 +44,43 @@ function emitChange(): void {
   for (const listener of listeners) listener();
 }
 
+/** For writers outside this file that change the queue store (the tray, N6). */
+export const emitQueueChange = emitChange;
+
 const blank = (value: string | null | undefined): string | null => {
   const trimmed = value?.trim();
   return trimmed ? trimmed : null;
 };
+
+/** A fresh queue item, waiting from its first try. */
+export function makeQueueItem(
+  input: Omit<EnqueueInput, 'photo'> & {
+    id: string;
+    photo: QueuedPhoto;
+    seq: number;
+  },
+): QueueItem {
+  if (input.kind === 'addPhoto' && !input.issueId)
+    throw new Error('addPhoto needs the issue id');
+  return {
+    id: input.id,
+    kind: input.kind,
+    issueId: input.kind === 'create' ? input.id : input.issueId!,
+    siteId: input.siteId,
+    capturedAt: input.capturedAt,
+    note: blank(input.note),
+    location: blank(input.location),
+    categoryId: input.categoryId ?? null,
+    workerId: input.workerId ?? null,
+    priority: input.priority ?? null,
+    photo: input.photo,
+    attempts: 0,
+    status: input.draft ? 'draft' : 'pending',
+    lastError: null,
+    seq: input.seq,
+    nextAttemptAt: 0,
+  };
+}
 
 /** Stores a captured photo on the phone. Answers the stored item (its id is the issue id for `create`). */
 export async function enqueue(input: EnqueueInput): Promise<QueueItem> {
@@ -52,25 +90,12 @@ export async function enqueue(input: EnqueueInput): Promise<QueueItem> {
   const db = await queueDb();
   const tx = db.transaction('queue', 'readwrite');
   const last = await tx.store.index('bySeq').openCursor(null, 'prev');
-  const id = newUuid();
-  const item: QueueItem = {
-    id,
-    kind: input.kind,
-    issueId: input.kind === 'create' ? id : input.issueId!,
-    siteId: input.siteId,
-    capturedAt: input.capturedAt,
-    note: blank(input.note),
-    location: blank(input.location),
-    categoryId: input.categoryId ?? null,
-    workerId: input.workerId ?? null,
-    priority: input.priority ?? null,
+  const item = makeQueueItem({
+    ...input,
+    id: newUuid(),
     photo: { bytes, type: input.photo.type || 'image/jpeg' },
-    attempts: 0,
-    status: input.draft ? 'draft' : 'pending',
-    lastError: null,
     seq: (last?.value.seq ?? 0) + 1,
-    nextAttemptAt: 0,
-  };
+  });
   await tx.store.add(item);
   await tx.done;
   emitChange();

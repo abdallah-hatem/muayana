@@ -1,6 +1,9 @@
 /** The phone's upload queue for captured photos (business §5.1–5.2). */
 export {
   closeQueueDb,
+  queueDb,
+  type QueuedPhoto,
+  type TrayPhoto,
   type QueueItem,
   type QueueKind,
   type QueueStatus,
@@ -8,6 +11,8 @@ export {
 export {
   commitDraft,
   discardItem,
+  emitQueueChange,
+  makeQueueItem,
   enqueue,
   getItem,
   listItems,

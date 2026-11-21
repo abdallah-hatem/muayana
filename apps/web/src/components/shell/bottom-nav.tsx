@@ -3,7 +3,10 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useSiteSelection } from '@/components/site/site-context';
+import { formatCount } from '@/lib/format';
 import { useQueueCount } from '@/lib/offline-queue';
+import { useTrayCount } from '@/lib/photo-tray';
 import { cn } from '@/lib/utils';
 import { NAV_ITEMS, isActive, type NavItem } from './nav-items';
 
@@ -72,15 +75,26 @@ function NavLink({ item: { href, icon: Icon }, label, active }: ItemProps) {
   );
 }
 
+/**
+ * The capture shutter. Two badges ride on it: the unsorted tray's photos on the start side (red,
+ * N6: the chosen site's tray, every site's on "All sites") and the uploads waiting on the end side.
+ */
 function Shutter({ item: { href, icon: Icon }, label, active }: ItemProps) {
   const t = useTranslations('capture.queue');
+  const tTray = useTranslations('tray');
   const waiting = useQueueCount();
+  const { siteId } = useSiteSelection();
+  const unsorted = useTrayCount(siteId);
   return (
     <div className="relative flex justify-center md:order-first md:mb-3">
       <Link
         href={href}
         aria-current={active ? 'page' : undefined}
-        aria-label={label}
+        aria-label={
+          unsorted > 0
+            ? `${label} · ${tTray('badge', { count: unsorted })}`
+            : label
+        }
         className={cn(
           '-mt-10 flex size-18 press cursor-pointer items-center justify-center rounded-full border-[6px] border-card bg-primary text-primary-foreground shadow-float ring-3 ring-primary',
           'hover:bg-primary-strong md:mt-0 md:size-16 md:border-4',
@@ -88,6 +102,15 @@ function Shutter({ item: { href, icon: Icon }, label, active }: ItemProps) {
       >
         <Icon className="size-8 md:size-7" aria-hidden />
       </Link>
+      {unsorted > 0 && (
+        <span
+          data-testid="shutter-tray-badge"
+          aria-hidden
+          className="pointer-events-none absolute start-[calc(50%-2.75rem)] -top-9 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-card bg-destructive px-1.5 type-stencil text-xs text-destructive-foreground md:start-1 md:-top-1"
+        >
+          {formatCount(unsorted)}
+        </span>
+      )}
       {waiting > 0 && (
         <span
           data-testid="shutter-badge"

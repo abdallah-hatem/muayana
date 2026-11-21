@@ -1,4 +1,5 @@
 # Recent changes
+- 2026-11-21 — N6 (owner): gallery photos go to an unsorted photos tray «صور غير مرتبة» per site, kept on the phone; pick some (numbered in pick order, ≤10) to make one issue in the capture sheet, the rest stay; delete with confirm; red badge on the camera button, a capture-page button and a dashboard card (§5.1 step 5). Replaces N5's "one issue each / one issue with all". Spec `docs/specs/2026-11-21-unsorted-photos-tray.md`.
 - 2026-11-10 — N5: photos can come from the phone's gallery as well as the camera (§5.1): several picked for a new issue → one issue each (sheets in turn) or one issue with all (≤10); the sheet adds more from the gallery; a gallery photo is dated by its file; the solve sheet's after photos may come from the gallery (§5.6).
 - 2026-11-09 — "Install the app" card on the dashboard and in Settings (§5.10); every sheet opens with the phone keyboard down until a field is tapped.
 - 2026-11-09 — Owner: issues and contractors can be deleted completely (§3, §6.2, §6.8); deleting a contractor with issues asks each time: keep them (unassigned / name kept) or delete them too. Spec `docs/specs/2026-11-09-permanent-delete.md`.
