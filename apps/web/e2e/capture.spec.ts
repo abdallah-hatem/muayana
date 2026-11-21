@@ -158,12 +158,12 @@ test('@smoke Capture: photos then one sheet (place, description, trade, contract
   await expect(page.getByTestId('queue-chip')).toHaveCount(0);
 });
 
-test('@smoke Capture from the gallery: several photos become an issue each (sheets one after another), or one issue with all of them', async ({
+test('@smoke Unsorted tray (N6): 5 gallery photos wait in the tray; 3 picked make one issue, then 1, then 1 is left', async ({
   page,
 }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   await signIn(page, '/capture');
-  const siteName = `Gallery ${Date.now()}`;
+  const siteName = `Tray ${Date.now()}`;
   const res = await page.request.post('/api/proxy/sites', {
     data: { name: siteName },
   });
@@ -174,51 +174,66 @@ test('@smoke Capture from the gallery: several photos become an issue each (shee
   );
   await switcher.click();
   await page.getByRole('option', { name: siteName }).click();
+  await expect(switcher).toContainText(siteName);
 
-  const pick = async (count: number) => {
-    const files = [];
-    for (let i = 0; i < count; i++)
-      files.push(await cameraShot(page, `gallery-${i}.jpg`));
-    await page.getByTestId('gallery-input').setInputFiles(files);
-  };
-  const sheet = page.getByTestId('capture-sheet');
-  const sheetPhotos = page.getByTestId('capture-sheet-photos').locator('img');
-
-  // Three photos, one issue each: three sheets in turn, three issues created.
+  // Five photos from the gallery: no issue yet, they wait in this site's tray, which opens.
   let creates = 0;
   page.on('response', (r) => {
     if (isCreate(r) && r.status() === 201) creates++;
   });
-  await pick(3);
-  await page.getByTestId('gallery-separate').click();
-  await expect(sheet).toBeVisible();
-  await expect(sheet).toContainText(
-    /2 more issues from the gallery|ملاحظتان من المعرض/,
-  );
-  await expect(sheetPhotos).toHaveCount(1);
-  await sheet.locator('#capture-location').fill('Roof');
-  await sheet.getByTestId('capture-photo-only').click();
-  await expect(sheet).toContainText(
-    /One more issue from the gallery|ملاحظة أخرى من المعرض/,
-  );
-  await sheet.getByTestId('capture-photo-only').click();
-  await expect(sheet).toBeVisible();
-  await expect(sheet).not.toContainText(
-    /from the gallery after this|من المعرض\./,
-  );
-  await sheet.getByTestId('capture-photo-only').click();
-  await expect(sheet).toBeHidden();
-  await expect.poll(() => creates, { timeout: 30_000 }).toBe(3);
+  const files = [];
+  for (let i = 0; i < 5; i++)
+    files.push(await cameraShot(page, `tray-${i}.jpg`));
+  await page.getByTestId('gallery-input').setInputFiles(files);
+  await expect(page).toHaveURL(/\/capture\/tray$/);
+  const tiles = page.getByTestId('tray-photo');
+  await expect(tiles).toHaveCount(5, { timeout: 30_000 });
+  await expect(page.getByTestId('shutter-tray-badge')).toHaveText('5');
+  expect(creates).toBe(0);
 
-  // Two photos of one defect: one issue holding both, more can join from the gallery.
-  await pick(2);
-  await page.getByTestId('gallery-together').click();
-  await expect(sheetPhotos).toHaveCount(2);
-  await sheet.getByTestId('capture-add-from-gallery').click();
-  await pick(1);
-  await expect(sheetPhotos).toHaveCount(3);
+  // Pick three, numbered in pick order, and make one issue of them.
+  await tiles.nth(1).click();
+  await tiles.nth(0).click();
+  await tiles.nth(4).click();
+  await expect(page.getByTestId('tray-pick-badge')).toHaveText(['2', '1', '3']);
+  await page.getByTestId('tray-create').click();
+  const sheet = page.getByTestId('capture-sheet');
+  await expect(sheet).toBeVisible();
+  await expect(
+    page.getByTestId('capture-sheet-photos').locator('img'),
+  ).toHaveCount(3);
+  await sheet.locator('#capture-location').fill('Roof');
+  const created = page.waitForResponse(isCreate);
+  await sheet.getByTestId('capture-save').click();
+  const first = (
+    (await (await created).json()) as { data: { id: string } }
+  ).data;
+  await expect(sheet).toBeHidden();
+  await expect(tiles).toHaveCount(2);
+  await expect(page.getByTestId('shutter-tray-badge')).toHaveText('2');
+
+  // The issue has all three photos once the queue drains.
+  await expect(page.getByTestId('queue-chip')).toHaveCount(0, {
+    timeout: 30_000,
+  });
+  const issue = await page.request.get(`/api/proxy/issues/${first.id}`);
+  const body = (await issue.json()) as {
+    data: { location: string; photos: unknown[]; site: { name: string } };
+  };
+  expect(body.data.location).toBe('Roof');
+  expect(body.data.photos).toHaveLength(3);
+
+  // One more, alone: photo only. One photo is left in the tray.
+  await tiles.nth(0).click();
+  await page.getByTestId('tray-create').click();
+  await expect(sheet).toBeVisible();
   await sheet.getByTestId('capture-photo-only').click();
   await expect(sheet).toBeHidden();
-  await expect.poll(() => creates, { timeout: 30_000 }).toBe(4);
-  await expect(page.getByTestId('queue-chip')).toHaveCount(0);
+  await expect(tiles).toHaveCount(1);
+  await expect.poll(() => creates, { timeout: 30_000 }).toBe(2);
+  await expect(page.getByTestId('shutter-tray-badge')).toHaveText('1');
+
+  // The tray is kept on the phone: a reload still shows the last photo.
+  await page.reload();
+  await expect(page.getByTestId('tray-photo')).toHaveCount(1);
 });

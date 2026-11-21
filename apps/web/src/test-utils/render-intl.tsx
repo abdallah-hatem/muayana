@@ -5,18 +5,21 @@ import commonAr from '../../messages/ar/common.json';
 import dashboardAr from '../../messages/ar/dashboard.json';
 import exportAr from '../../messages/ar/export.json';
 import issuesAr from '../../messages/ar/issues.json';
+import trayAr from '../../messages/ar/tray.json';
 import common from '../../messages/en/common.json';
 import dashboard from '../../messages/en/dashboard.json';
 import exportMessages from '../../messages/en/export.json';
 import issues from '../../messages/en/issues.json';
+import tray from '../../messages/en/tray.json';
 
 const MESSAGES = {
-  en: { common, issues, export: exportMessages, dashboard },
+  en: { common, issues, export: exportMessages, dashboard, tray },
   ar: {
     common: commonAr,
     issues: issuesAr,
     export: exportAr,
     dashboard: dashboardAr,
+    tray: trayAr,
   },
 };
 

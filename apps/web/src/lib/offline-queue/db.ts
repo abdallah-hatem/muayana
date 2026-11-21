@@ -45,24 +45,54 @@ export interface QueueItem {
   nextAttemptAt: number;
 }
 
+/**
+ * A photo imported from the gallery into the unsorted tray (business §5.1 step 5, N6): kept on the
+ * phone, compressed, not an issue yet. It becomes one only when the engineer picks it for an issue.
+ */
+export interface TrayPhoto {
+  /** UUID v4 made on the phone. */
+  id: string;
+  /** The site whose tray holds it; `null` when it was imported with "All sites" chosen. */
+  siteId: string | null;
+  /** When it was imported (epoch ms), shared by every photo of one pick. */
+  importedAt: number;
+  /** Import order across the tray: a pick keeps the order the gallery handed it over in. */
+  seq: number;
+  /** When the photo was taken (ISO): the gallery file's date when believable, else the import. */
+  capturedAt: string;
+  photo: QueuedPhoto;
+}
+
 interface QueueDb extends DBSchema {
   queue: {
     key: string;
     value: QueueItem;
     indexes: { bySeq: number };
   };
+  tray: {
+    key: string;
+    value: TrayPhoto;
+    indexes: { bySeq: number };
+  };
 }
 
 const DB_NAME = 'muayana-capture';
-const DB_VERSION = 1;
+/** 1: the upload queue. 2: the unsorted photos tray (N6), beside it so one write moves photos across. */
+const DB_VERSION = 2;
 
 let dbPromise: Promise<IDBPDatabase<QueueDb>> | null = null;
 
 export function queueDb(): Promise<IDBPDatabase<QueueDb>> {
   dbPromise ??= openDB<QueueDb>(DB_NAME, DB_VERSION, {
-    upgrade(db) {
-      const store = db.createObjectStore('queue', { keyPath: 'id' });
-      store.createIndex('bySeq', 'seq');
+    upgrade(db, oldVersion) {
+      if (oldVersion < 1) {
+        const store = db.createObjectStore('queue', { keyPath: 'id' });
+        store.createIndex('bySeq', 'seq');
+      }
+      if (oldVersion < 2) {
+        const tray = db.createObjectStore('tray', { keyPath: 'id' });
+        tray.createIndex('bySeq', 'seq');
+      }
     },
   });
   return dbPromise;

@@ -42,43 +42,46 @@ export interface CaptureDraft {
  * issue", place, description, trade, contractor (only active contractors of the chosen trade,
  * with their open counts) and priority — all optional. Opens with the keyboard down. Save sends
  * everything with the photos; "Photo only" (or closing the sheet) keeps just the photos (`new`).
+ * Opened from the unsorted tray (N6) the photos are the picked ones, nothing can be added, and
+ * closing (`onClose`) makes no issue: the photos stay in the tray.
  */
 export function CaptureSheet({
   draft,
   lookups,
   initialLocation,
   addingPhoto,
-  waiting = 0,
   onAddPhoto,
   onAddFromGallery,
   onSave,
+  onClose,
 }: {
   draft: CaptureDraft | null;
   lookups: CaptureLookups;
   initialLocation: string;
-  /** A photo for this issue is being compressed and stored. */
+  /** A photo for this issue is being compressed and stored (or the issue is being saved). */
   addingPhoto: boolean;
-  /** Gallery issues whose sheets open after this one. */
-  waiting?: number;
-  onAddPhoto: () => void;
-  onAddFromGallery: () => void;
+  /** Absent: no "add another photo" (the tray's sheet). */
+  onAddPhoto?: () => void;
+  onAddFromGallery?: () => void;
   /** `null`: photo only. */
   onSave: (details: CaptureDetails | null) => void;
+  /** Closing without saving; absent, closing is "photo only". */
+  onClose?: () => void;
 }) {
   const t = useTranslations('capture.sheet');
   return (
     <BottomSheet
       open={draft !== null}
-      // Closing never loses the photos: it is "photo only".
+      // Closing never loses the photos: it is "photo only" (or, from the tray, they stay there).
       onOpenChange={(open) => {
-        if (!open) onSave(null);
+        if (open) return;
+        // The tray's sheet can't close mid-save: the photos are on their way into the queue.
+        if (onClose) {
+          if (!addingPhoto) onClose();
+        } else onSave(null);
       }}
       title={t('title')}
-      description={
-        waiting > 0
-          ? `${t('description')} ${t('waiting', { count: waiting })}`
-          : t('description')
-      }
+      description={t('description')}
       keepKeyboardDown
       testId="capture-sheet"
       footer={
@@ -135,8 +138,8 @@ function CaptureForm({
   lookups: CaptureLookups;
   initialLocation: string;
   addingPhoto: boolean;
-  onAddPhoto: () => void;
-  onAddFromGallery: () => void;
+  onAddPhoto?: () => void;
+  onAddFromGallery?: () => void;
   onSave: (details: CaptureDetails) => void;
 }) {
   const t = useTranslations('capture.sheet');
@@ -213,21 +216,23 @@ function CaptureForm({
             className="size-20 shrink-0 overflow-hidden rounded-md border-2 border-border bg-muted object-cover text-transparent"
           />
         ))}
-        <button
-          type="button"
-          onClick={onAddPhoto}
-          disabled={addingPhoto || full}
-          data-testid="capture-add-photo"
-          className="flex size-20 shrink-0 press cursor-pointer flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-border px-1 text-center type-micro font-bold text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {addingPhoto ? (
-            <Loader2 className="size-6 animate-spin" aria-hidden />
-          ) : (
-            <ImagePlus className="size-6" aria-hidden />
-          )}
-          {full ? t('photosFull') : t('addPhoto')}
-        </button>
-        {!full && (
+        {onAddPhoto && (
+          <button
+            type="button"
+            onClick={onAddPhoto}
+            disabled={addingPhoto || full}
+            data-testid="capture-add-photo"
+            className="flex size-20 shrink-0 press cursor-pointer flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-border px-1 text-center type-micro font-bold text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {addingPhoto ? (
+              <Loader2 className="size-6 animate-spin" aria-hidden />
+            ) : (
+              <ImagePlus className="size-6" aria-hidden />
+            )}
+            {full ? t('photosFull') : t('addPhoto')}
+          </button>
+        )}
+        {onAddFromGallery && !full && (
           <button
             type="button"
             onClick={onAddFromGallery}

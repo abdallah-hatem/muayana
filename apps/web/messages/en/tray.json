@@ -1,0 +1,47 @@
+{
+  "title": "Unsorted photos",
+  "shellTitle": "Unsorted",
+  "hint": "Pick the photos of one issue, in the order you want.",
+  "import": "Import photos",
+  "importLabel": "Import photos from the gallery",
+  "importing": "{count, plural, one {Saving a photo on the phone…} other {Saving # photos on the phone…}}",
+  "groupCount": "{count, plural, one {1 photo} other {# photos}}",
+  "today": "Today · {time}",
+  "yesterday": "Yesterday",
+  "photo": "Photo {number}",
+  "photoPicked": "Photo {number}, picked {pick}",
+  "selected": "{count, plural, one {1 photo picked} other {# photos picked}}",
+  "create": "{count, plural, one {Make an issue from 1 photo} other {Make an issue from # photos}}",
+  "delete": "Delete",
+  "clear": "Clear the picks",
+  "limit": "An issue takes 10 photos at most.",
+  "saved": "Issue saved. It uploads by itself.",
+  "deleted": "{count, plural, one {1 photo deleted.} other {# photos deleted.}}",
+  "deleteTitle": "{count, plural, one {Delete 1 photo?} other {Delete # photos?}}",
+  "deleteBody": "They leave the phone for good. This can't be undone.",
+  "deleteYes": "Delete",
+  "empty": {
+    "title": "No unsorted photos",
+    "body": "Import photos from the gallery now, and make issues from them whenever you like."
+  },
+  "allSites": "Showing every site's photos. You'll choose the site when you make the issue.",
+  "manyPhotos": "{count} photos wait on the phone. Make issues from them or delete some, so the phone keeps room.",
+  "notice": {
+    "unreadable": "{count, plural, one {1 photo couldn't be read and was left out.} other {# photos couldn't be read and were left out.}}",
+    "full": "{count, plural, one {The phone's storage is full: 1 photo wasn't kept.} other {The phone's storage is full: # photos weren't kept.}} Make issues or delete photos to free room.",
+    "failed": "The photos couldn't be kept on this phone.",
+    "dismiss": "Dismiss"
+  },
+  "errors": {
+    "missing": "Some of these photos are no longer in the tray. Pick again.",
+    "full": "The phone's storage is full. Delete some photos, then try again.",
+    "generic": "The issue couldn't be saved. Try again."
+  },
+  "entry": "Unsorted photos",
+  "entryLabel": "{count, plural, =0 {Open unsorted photos} one {Open unsorted photos, 1 waiting} other {Open unsorted photos, # waiting}}",
+  "badge": "{count, plural, one {1 unsorted photo} other {# unsorted photos}}",
+  "card": {
+    "title": "Unsorted photos",
+    "open": "Sort them"
+  }
+}

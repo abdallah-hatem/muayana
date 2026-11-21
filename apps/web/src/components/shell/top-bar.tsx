@@ -31,8 +31,8 @@ export function TopBar() {
           {override ?? title}
         </h1>
         <SiteSwitcher />
-        {/* The capture screen shows its own badge over the camera view. */}
-        {!isActive(pathname, ROUTES.capture) && <QueueChip compact />}
+        {/* The capture screen shows its own badge over the camera view (the tray doesn't). */}
+        {pathname !== ROUTES.capture && <QueueChip compact />}
       </div>
       <div className="flex shrink-0 items-center gap-1">
         <LanguageToggle />

@@ -20,6 +20,9 @@ Current stage: **released 2026-11-10** — PR #6 (N5 photos from the gallery: on
   - Decided for him (stated, not objected to): the tray is **per site**; tray photos are **kept on the
     phone** (compressed at import, work offline, upload only when they become an issue); a tray photo
     can be deleted. Adding a tray photo to an existing issue: not in this round.
+  - **Built, not yet released** (2026-11-21, `feat/n6-photo-tray`): tray at `/capture/tray` (IndexedDB v2
+    `tray` store beside the queue; one write moves picks into the queue), shutter badge, capture-page button,
+    dashboard card; N5's one-each/all-in-one choice removed. Spec `specs/2026-11-21-unsorted-photos-tray.md`.
 
 ## Blocked
 - (none)

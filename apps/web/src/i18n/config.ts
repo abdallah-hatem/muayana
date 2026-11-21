@@ -16,6 +16,7 @@ export const NAMESPACES = [
   'shell',
   'settings',
   'capture',
+  'tray',
   'inbox',
   'issue',
   'send',

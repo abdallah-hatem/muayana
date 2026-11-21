@@ -9,6 +9,7 @@ import issue from '../../messages/en/issue.json';
 import send from '../../messages/en/send.json';
 import settings from '../../messages/en/settings.json';
 import shell from '../../messages/en/shell.json';
+import tray from '../../messages/en/tray.json';
 import sites from '../../messages/en/sites.json';
 import categories from '../../messages/en/categories.json';
 import workers from '../../messages/en/workers.json';
@@ -21,6 +22,7 @@ const messages = {
   send,
   settings,
   shell,
+  tray,
   sites,
   categories,
   workers,

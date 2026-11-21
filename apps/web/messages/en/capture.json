@@ -70,17 +70,7 @@
     "noCategories": "No categories yet — the issue stays unsorted.",
     "photoOnly": "Photo only",
     "save": "Save",
-    "addFromGallery": "From gallery",
-    "waiting": "{count, plural, one {One more issue from the gallery after this.} other {# more issues from the gallery after this.}}"
-  },
-  "gallery": {
-    "title": "{count} photos from the gallery",
-    "description": "Are they one defect or several?",
-    "separate": "An issue for each photo ({count})",
-    "separateHint": "Each one gets its own sheet, one after another.",
-    "together": "One issue with all {count} photos",
-    "togetherHint": "The same defect from different sides.",
-    "togetherTooMany": "An issue takes {max} photos at most — pick fewer."
+    "addFromGallery": "From gallery"
   },
   "fromGallery": "Gallery",
   "galleryLabel": "Add photos from the gallery",

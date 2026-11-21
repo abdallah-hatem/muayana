@@ -3,6 +3,8 @@ export const ROUTES = {
   dashboard: '/',
   issues: '/issues',
   capture: '/capture',
+  /** The unsorted photos tray (N6): gallery photos waiting to become issues. */
+  captureTray: '/capture/tray',
   inbox: '/inbox',
   workers: '/workers',
   settings: '/settings',

@@ -1,5 +1,5 @@
 # Business logic — index
-Last updated: 2026-11-05
+Last updated: 2026-11-21
 
 The source of truth for what Muayana is and how it behaves **now**. Business terms only.
 Read this index before every task, then only the sections the task touches. "§N" means the file below.

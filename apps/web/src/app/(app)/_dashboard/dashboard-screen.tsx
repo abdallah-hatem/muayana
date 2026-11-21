@@ -12,6 +12,7 @@ import { clientFetch } from '@/lib/api-client';
 import { categoryName, formatCount } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { INBOX_HREF, dashboardLinks, openCount } from './dashboard-links';
+import { TrayCard } from './tray-card';
 
 type Load =
   | { state: 'loading' }
@@ -124,6 +125,7 @@ export function DashboardView({
         </div>
       )}
 
+      <TrayCard siteId={siteId ?? null} />
       <InboxCard count={data.inbox} />
 
       <section aria-label={t('stats.label')}>

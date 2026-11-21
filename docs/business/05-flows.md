@@ -11,13 +11,36 @@
    Closing the sheet keeps the photos as a photo-only issue (`new`); the photos are saved on the phone the
    moment they are taken, so an unsaved sheet left when the app closes still uploads as photo only. The
    place carries over to the next capture. **GUESS**
-5. **From the gallery** (owner, 2026-11-09): instead of the camera, the engineer can pick photos already
-   on the phone. One photo → a new issue, as if just taken. Several → he chooses: **an issue for each
-   photo** (each sheet opens after the one before; all are saved on the phone at once, and leaving the
-   screen keeps them as photo only) or **one issue with all of them** (at most 10). The open sheet can
-   add more photos from the gallery too; photos beyond an issue's 10 are left out with a message. A
-   gallery photo's capture time is its file's date when that is in the last year and not in the future,
-   otherwise now. **GUESS**
+5. **From the gallery: the unsorted photos tray «صور غير مرتبة»** (owner, 2026-11-21, N6 — replaces
+   2026-11-09's "an issue for each photo / one issue with all"). Photos picked from the gallery outside an
+   open capture sheet (capture's «من المعرض», or the tray's import tile) are **not** issues yet: they go to
+   the tray, which opens with the just-imported photos first. Any number can be imported. At any time the
+   engineer opens the tray, taps the photos of one defect (numbered 1, 2, 3 in the order tapped — the order
+   they take in the issue) and makes **one issue** of them in the same capture sheet as the camera; those
+   photos leave the tray, the rest stay (5 imported → 3 into one issue, then 1, then 1…).
+   - **Per site.** **DECIDED** (owner, 2026-11-21) The tray belongs to the site chosen in the top bar;
+     switching site switches the tray. On "All sites" it shows every site's photos (and photos imported
+     there, which have no site yet), and the site is asked (site picker) before the sheet opens.
+   - **Kept on the phone.** **DECIDED** (owner, 2026-11-21) Tray photos are compressed at import and kept on
+     the phone beside the upload queue; they work offline and upload only when they become an issue,
+     through the queue (§5.2: a new issue with the first photo, then each other photo, all under the
+     phone-made issue id). Nothing is lost if the app closes. A photo leaves the tray only in the same
+     write that stores its uploads, so a failed save changes nothing and a retry never duplicates.
+   - **Limits.** **DECIDED** (owner, 2026-11-21) An issue takes at most 10 photos: an 11th can't be picked
+     (a short message says why). The tray has no hard cap, but above about 100 photos it warns; when the
+     phone's storage is full the photos that fit are kept and it says how many were not. A gallery photo's
+     capture time is its file's date when that is in the last year and not in the future, otherwise now.
+   - **Delete.** **DECIDED** (owner, 2026-11-21) «حذف» removes the picked photos after a confirm sheet; it
+     can't be undone.
+   - **Where it is.** **DECIDED** (owner, 2026-11-21, design A) The camera button still opens the camera;
+     it carries a red badge with how many photos wait (the chosen site's, or all sites'). The tray opens
+     from a «صور غير مرتبة · N» button on the capture page, a dashboard card while photos wait, and by
+     itself after a gallery import.
+   - Closing the sheet opened from the tray makes no issue: the photos stay in the tray, still picked.
+     "Photo only" makes an issue of them with no details (`new`). **GUESS**
+   - Inside an open capture sheet, "From gallery" still adds the photos to that issue (at most 10; photos
+     beyond are left out with a message). **DECIDED** (owner, 2026-11-21)
+   - Not in this round: adding tray photos to an existing issue; the tray on another device.
 
 **Failure:** no signal → the issue and its photos are kept on the phone and shown as "waiting to
 upload"; nothing is lost if the app is closed. **DECIDED**
@@ -32,7 +55,8 @@ upload"; nothing is lost if the app is closed. **DECIDED**
 - Offline, the capture sheet uses the trades and contractors the phone last saw. The server checks every
   rule again at upload; a refusal (inactive or wrong-trade contractor, archived site…) fails the item with
   its reason and the engineer can retry it without the contractor — the photos are never lost. **DECIDED**
-- Only capture works offline. Sorting, assigning and exporting need a connection. **GUESS**
+- Only capture (with its unsorted photos tray) works offline. Sorting, assigning and exporting need a
+  connection. **GUESS**
 
 ## 5.3 Sort (after the walk)
 The inbox lists `new` issues (per site, oldest first). One at a time with the photo large: choose a
