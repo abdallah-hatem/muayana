@@ -209,12 +209,22 @@ function CaptureForm({
         data-testid="capture-sheet-photos"
       >
         {draft.photos.map((url, index) => (
-          <LocalPhoto
-            key={url}
-            src={url}
-            alt={t('photoAlt', { number: index + 1 })}
-            className="size-20 shrink-0 overflow-hidden rounded-md border-2 border-border bg-muted object-cover text-transparent"
-          />
+          <span key={url} className="relative shrink-0">
+            <LocalPhoto
+              src={url}
+              alt={t('photoAlt', { number: index + 1 })}
+              className="size-20 shrink-0 overflow-hidden rounded-md border-2 border-border bg-muted object-cover text-transparent"
+            />
+            {/* The order the photos were picked in (and are saved in), when there are several. */}
+            {draft.photos.length > 1 && (
+              <span
+                aria-hidden
+                className="absolute end-1.5 top-1.5 flex size-6 items-center justify-center rounded-full bg-primary type-stencil text-xs text-primary-foreground"
+              >
+                {index + 1}
+              </span>
+            )}
+          </span>
         ))}
         {onAddPhoto && (
           <button
