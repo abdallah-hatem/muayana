@@ -1,7 +1,7 @@
 # Build log
 Run mode: fully autonomous — chosen by the user on 2026-11-05 (re-confirmed after the mockup: "go ahead, continue fully autonomous")
 Goal (current): mobile-first web app for an audit engineer — capture defect photos on site, sort them into trade categories, assign to workers (no accounts), track statuses, worker views, CSV export of any filter · spec `docs/specs/2026-11-05-muayana.md` · plan `docs/superpowers/plans/2026-11-05-muayana-v1.md`
-Current stage: **released 2026-11-10** — PR #6 (N5 photos from the gallery: one issue each or one issue with all, "From gallery" in the capture sheet, file-dated capture time, gallery allowed for solve photos) merged to `production` (eacf5c8), muayana-api and muayana-web Ready, health OK, signed-out 401/redirect checked. Verified before release: lint, typecheck, web 293, smoke 30/30 on a production build, alignment review ALIGNED after a §3 doc fix. Earlier: PR #5 dashboard heading, PR #4 install card + keyboard-down sheets, PR #3 permanent delete, PR #2 one-sheet capture (2026-11-09).
+Current stage: **released 2026-11-21** — PR #7 (N6 unsorted photos tray «صور غير مرتبة», design A; capture sheet numbers photos in pick order) merged to `production` (a3faf2a); muayana-api and muayana-web Ready, health OK, live sign-in and /capture/tray checked. Verified before release: typecheck, lint, web 333, Playwright N6 spec mobile + desktop. Earlier: PR #6 gallery import (N5), #5 heading, #4 install card + keyboard-down sheets, #3 permanent delete, #2 one-sheet capture.
 
 ## Final state (2026-11-05)
 - All plan tasks T1–T12 merged into `dev`, plus fixes: smoke (abort hung reads on unmount, ×2), UI audit wave (kit + screens), re-audit polish, deploy readiness, DB-backed login lockout, seed photos through storage.
@@ -11,18 +11,7 @@ Current stage: **released 2026-11-10** — PR #6 (N5 photos from the gallery: on
 ## Waiting on the user
 - (none)
 ## Next up
-- **N6 — unsorted photos tray** (asked 2026-11-21; building on `feat/n6-photo-tray`): import as many
-  gallery photos as he wants into «صور غير مرتبة», a holding area that is not an issue yet. At any time he
-  opens it, picks some photos (numbered in pick order) and makes ONE issue from them in the same capture
-  sheet; those photos leave the tray, the rest stay (5 imported → 3 into one issue, 1, 1…).
-  - Decided by the owner 2026-11-21: **design A** — the tray lives with capture; the camera button shows
-    a badge with how many photos wait. Mockups: https://claude.ai/artifact/L8BUPzfqD3KTNDhTmHAnwh
-  - Decided for him (stated, not objected to): the tray is **per site**; tray photos are **kept on the
-    phone** (compressed at import, work offline, upload only when they become an issue); a tray photo
-    can be deleted. Adding a tray photo to an existing issue: not in this round.
-  - **Built, not yet released** (2026-11-21, `feat/n6-photo-tray`): tray at `/capture/tray` (IndexedDB v2
-    `tray` store beside the queue; one write moves picks into the queue), shutter badge, capture-page button,
-    dashboard card; N5's one-each/all-in-one choice removed. Spec `specs/2026-11-21-unsorted-photos-tray.md`.
+- (none)
 
 ## Blocked
 - (none)
